@@ -156,7 +156,7 @@ class _LandingPageWithVideoCountState
         children: [
           Icon(
             icon,
-            color: Colors.blueGrey,
+            color: Colors.black,
             size: 28,
           ),
           SizedBox(height: 4),
