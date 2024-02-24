@@ -72,24 +72,49 @@ class _VideoListScreenState extends State<VideoListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topRight,
+              end: Alignment.bottomLeft,
+              colors: [
+                Color(0xff50aff1),
+                Color(0xFF0071d6),
+              ],
+            ),
+          ),
+        ),
         title: FutureBuilder<int>(
           future: _getVideoCount(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
-              return Text('Video List (${snapshot.data})');
+              return Text(
+                'Video List (${snapshot.data})',
+                style: TextStyle(
+                  color: Colors.white, // Change text color to white or any other color
+                ),
+              );
             } else {
-              return Text('Video List');
+              return Text(
+                'Video List',
+                style: TextStyle(
+                  color: Colors.white, // Change text color to white or any other color
+                ),
+              );
             }
           },
         ),
       ),
+      backgroundColor: Color(0xFFdfdfdf), // Set background color
       body: _videos.isNotEmpty
           ? GridView.builder(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
+          crossAxisCount: 1,
           crossAxisSpacing: 8.0,
           mainAxisSpacing: 8.0,
-          childAspectRatio: 2 / 3,
+          childAspectRatio: MediaQuery.of(context).size.width /
+              (MediaQuery.of(context).size.height / 10),
         ),
         controller: _scrollController,
         itemCount: _videos.length + (_hasMoreVideos ? 1 : 0),
@@ -106,33 +131,60 @@ class _VideoListScreenState extends State<VideoListScreen> {
                 );
               },
               child: Card(
-                child: Column(
+                elevation: 6,
+                color: Color(0xFFFFFFFF), // Set card background color
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
                   children: [
-                    Expanded(
-                      child: FutureBuilder(
-                        future: _videos[index].thumbnail,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.done) {
-                            return Image.memory(
-                              snapshot.data as Uint8List,
-                              fit: BoxFit.cover,
-                            );
-                          } else {
-                            return Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-                        },
-                      ),
-                    ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        _videos[index].title ?? 'Video ${index + 1}',
-                        textAlign: TextAlign.center,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                      child: Container(
+                        width: MediaQuery.of(context).size.width / 6.5,
+                        height:
+                        MediaQuery.of(context).size.width / 6.5,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Color(0xFF6280C0),
+                            width: 1.0,
+                          ),
+                        ),
+                        child: FutureBuilder(
+                          future: _videos[index].thumbnail,
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.done) {
+                              return ClipOval(
+                                child: Image.memory(
+                                  snapshot.data as Uint8List,
+                                  fit: BoxFit.cover,
+                                ),
+                              );
+                            } else {
+                              return Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          _videos[index].title ?? 'Video ${index + 1}',
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -147,7 +199,9 @@ class _VideoListScreenState extends State<VideoListScreen> {
         },
       )
           : Center(
-        child: _isLoading ? CircularProgressIndicator() : Text('No videos available'),
+        child: _isLoading
+            ? CircularProgressIndicator()
+            : Text('No videos available'),
       ),
     );
   }

@@ -13,17 +13,17 @@
 13         to allow setting breakpoints, to provide hot reload, etc.
 14    -->
 15    <uses-permission android:name="android.permission.INTERNET" />
-15-->C:\Users\user\main-1\android\app\src\debug\AndroidManifest.xml:6:5-66
-15-->C:\Users\user\main-1\android\app\src\debug\AndroidManifest.xml:6:22-64
+15-->C:\Users\user\Desktop\flutter\app_devlopment\video_gallary_app\android\app\src\debug\AndroidManifest.xml:6:5-66
+15-->C:\Users\user\Desktop\flutter\app_devlopment\video_gallary_app\android\app\src\debug\AndroidManifest.xml:6:22-64
 16    <uses-permission android:name="android.permission.CAMERA" />
-16-->C:\Users\user\main-1\android\app\src\main\AndroidManifest.xml:2:5-65
-16-->C:\Users\user\main-1\android\app\src\main\AndroidManifest.xml:2:22-62
+16-->C:\Users\user\Desktop\flutter\app_devlopment\video_gallary_app\android\app\src\main\AndroidManifest.xml:2:5-65
+16-->C:\Users\user\Desktop\flutter\app_devlopment\video_gallary_app\android\app\src\main\AndroidManifest.xml:2:22-62
 17    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-17-->C:\Users\user\main-1\android\app\src\main\AndroidManifest.xml:3:5-71
-17-->C:\Users\user\main-1\android\app\src\main\AndroidManifest.xml:3:22-68
+17-->C:\Users\user\Desktop\flutter\app_devlopment\video_gallary_app\android\app\src\main\AndroidManifest.xml:3:5-71
+17-->C:\Users\user\Desktop\flutter\app_devlopment\video_gallary_app\android\app\src\main\AndroidManifest.xml:3:22-68
 18    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-18-->C:\Users\user\main-1\android\app\src\main\AndroidManifest.xml:4:5-81
-18-->C:\Users\user\main-1\android\app\src\main\AndroidManifest.xml:4:22-78
+18-->C:\Users\user\Desktop\flutter\app_devlopment\video_gallary_app\android\app\src\main\AndroidManifest.xml:4:5-81
+18-->C:\Users\user\Desktop\flutter\app_devlopment\video_gallary_app\android\app\src\main\AndroidManifest.xml:4:22-78
 19    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 19-->[com.google.android.exoplayer:exoplayer-core:2.18.7] C:\Users\user\.gradle\caches\transforms-3\e255c6ce9910a673f2619b479a7d74a8\transformed\jetified-exoplayer-core-2.18.7\AndroidManifest.xml:24:5-79
 19-->[com.google.android.exoplayer:exoplayer-core:2.18.7] C:\Users\user\.gradle\caches\transforms-3\e255c6ce9910a673f2619b479a7d74a8\transformed\jetified-exoplayer-core-2.18.7\AndroidManifest.xml:24:22-76
@@ -80,21 +80,21 @@
 64            android:value="2" />
 65
 66        <provider
-66-->[:image_picker_android] C:\Users\user\main-1\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:10:9-18:20
+66-->[:image_picker_android] C:\Users\user\Desktop\flutter\app_devlopment\video_gallary_app\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:10:9-18:20
 67            android:name="io.flutter.plugins.imagepicker.ImagePickerFileProvider"
-67-->[:image_picker_android] C:\Users\user\main-1\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:11:13-82
+67-->[:image_picker_android] C:\Users\user\Desktop\flutter\app_devlopment\video_gallary_app\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:11:13-82
 68            android:authorities="com.dbapp.dbapp.flutter.image_provider"
-68-->[:image_picker_android] C:\Users\user\main-1\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:12:13-74
+68-->[:image_picker_android] C:\Users\user\Desktop\flutter\app_devlopment\video_gallary_app\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:12:13-74
 69            android:exported="false"
-69-->[:image_picker_android] C:\Users\user\main-1\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:13:13-37
+69-->[:image_picker_android] C:\Users\user\Desktop\flutter\app_devlopment\video_gallary_app\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:13:13-37
 70            android:grantUriPermissions="true" >
-70-->[:image_picker_android] C:\Users\user\main-1\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:14:13-47
+70-->[:image_picker_android] C:\Users\user\Desktop\flutter\app_devlopment\video_gallary_app\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:14:13-47
 71            <meta-data
-71-->[:image_picker_android] C:\Users\user\main-1\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:15:13-17:75
+71-->[:image_picker_android] C:\Users\user\Desktop\flutter\app_devlopment\video_gallary_app\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:15:13-17:75
 72                android:name="android.support.FILE_PROVIDER_PATHS"
-72-->[:image_picker_android] C:\Users\user\main-1\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:16:17-67
+72-->[:image_picker_android] C:\Users\user\Desktop\flutter\app_devlopment\video_gallary_app\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:16:17-67
 73                android:resource="@xml/flutter_image_picker_file_paths" />
-73-->[:image_picker_android] C:\Users\user\main-1\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:17:17-72
+73-->[:image_picker_android] C:\Users\user\Desktop\flutter\app_devlopment\video_gallary_app\build\image_picker_android\intermediates\merged_manifest\debug\AndroidManifest.xml:17:17-72
 74        </provider>
 75
 76        <uses-library

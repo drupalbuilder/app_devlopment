@@ -37,7 +37,9 @@ class _LandingPageWithVideoCountState
     final files = videosDirectory.listSync();
 
     setState(() {
-      _videoCount = files.where((file) => file.path.endsWith('.mp4')).length;
+      _videoCount = files
+          .where((file) => file.path.endsWith('.mp4'))
+          .length;
     });
   }
 
@@ -62,23 +64,24 @@ class _LandingPageWithVideoCountState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topRight,
+              end: Alignment.bottomLeft,
+              colors: [
+                Color(0xff50aff1),
+                Color(0xFF0071d6),
+              ],
+            ),
+          ),
+        ),
         title: Text(
           'Home page ',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-          ),
-        ),
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color(0xff50aff1),
-                Color(0xFF0071d6),
-              ],
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft,
-            ),
           ),
         ),
         actions: [
@@ -87,34 +90,51 @@ class _LandingPageWithVideoCountState
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              SizedBox(height: 20),
-              Text(
-                'Number of Videos Available: $_videoCount',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      body: Container(
+        color: Color(0xFFdfdfdf), // Set background color
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SizedBox(height: 20),
+                      Text(
+                        'Total Videos in Library: $_videoCount',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 20),
+                      Text(
+                        'Latest Videos:',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 10),
+                      _buildLatestVideosGrid(),
+                    ],
+                  ),
+                ),
               ),
-              SizedBox(height: 20),
-              Text(
-                'Latest 6 Videos:',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 10),
-              _buildLatestVideosGrid(),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
+
       bottomNavigationBar: BottomAppBar(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             _buildBottomNavItem(Icons.home, 'Home', () {
-              // You're already on the home page, no need to navigate to it again
+              setState(() {
+                _videoCount = 0; // Reset the video count
+                _latestVideos = []; // Clear the latest videos list
+              });
+              _loadVideoCount(); // Reload video count
+              _loadLatestVideos(); // Reload latest videos
             }),
             _buildBottomNavItem(Icons.video_library, 'Library', () {
               Navigator.push(
@@ -151,23 +171,39 @@ class _LandingPageWithVideoCountState
   Widget _buildBottomNavItem(IconData icon, String label, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            color: Colors.black,
-            size: 28,
-          ),
-          SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.blueGrey,
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 12),
+        // Increase vertical padding
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ShaderMask(
+              shaderCallback: (Rect bounds) {
+                return LinearGradient(
+                  colors: [
+                    Color(0xff50aff1),
+                    Color(0xFF0071d6),
+                  ],
+                ).createShader(bounds);
+              },
+              child: Icon(
+                icon,
+                size: 32, // Increase icon size
+                color: Colors.white,
+              ),
             ),
-          ),
-        ],
+            SizedBox(height: 0), // Increase space between icon and label
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.black,
+                fontWeight: FontWeight.bold, // Add bold effect
+                //fontWidth: 0.5, // Add font width if needed
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -200,53 +236,59 @@ class _LandingPageWithVideoCountState
                     ),
                   );
                 },
-                child: Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
+                child: Container(
+                  decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Container(
-                    padding: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        topRight: Radius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 1,
+                        blurRadius: 7,
+                        offset:
+                        Offset(0, 3), // changes position of shadow
                       ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: FutureBuilder(
-                            future: latestVideos[index].thumbnail,
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.done) {
-                                return Image.memory(
-                                  snapshot.data as Uint8List,
-                                  fit: BoxFit.cover,
-                                );
-                              } else {
-                                return Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              }
+                    ],
+                  ),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      FutureBuilder(
+                        future: latestVideos[index].thumbnail,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.done) {
+                            return ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.memory(
+                                snapshot.data as Uint8List,
+                                fit: BoxFit.cover,
+                              ),
+                            );
+                          } else {
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                        },
+                      ),
+                      Positioned.fill(
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      VideoPlayerScreen(
+                                          latestVideos[index]),
+                                ),
+                              );
                             },
                           ),
                         ),
-                        SizedBox(height: 8),
-                        Text(
-                          latestVideos[index].title ??
-                              'Video ${index + 1}',
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               );
@@ -260,3 +302,4 @@ class _LandingPageWithVideoCountState
         : Center(child: CircularProgressIndicator());
   }
 }
+
