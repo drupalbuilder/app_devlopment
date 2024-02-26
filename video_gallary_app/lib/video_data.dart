@@ -6,8 +6,9 @@ class VideoData {
   final File videoPath;
   late Future<Uint8List?> thumbnail;
   String? title;
+  String? description; // Add description property
 
-  VideoData(this.videoPath, {this.title});
+  VideoData(this.videoPath, {this.title, this.description});
 
   static Future<VideoData> fromFile(File file) async {
     final videoData = VideoData(file);

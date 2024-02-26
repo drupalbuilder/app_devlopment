@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'video_player_screen.dart';
 
 class VideoListScreen extends StatefulWidget {
@@ -17,6 +19,7 @@ class _VideoListScreenState extends State<VideoListScreen> {
   late ScrollController _scrollController;
   bool _isLoading = false;
   bool _hasMoreVideos = true;
+  late SharedPreferences _prefs;
 
   @override
   void initState() {
@@ -25,6 +28,11 @@ class _VideoListScreenState extends State<VideoListScreen> {
     _scrollController = ScrollController();
     _loadVideos();
     _scrollController.addListener(_onScroll);
+    _initPrefs();
+  }
+
+  Future<void> _initPrefs() async {
+    _prefs = await SharedPreferences.getInstance();
   }
 
   void _onScroll() {
@@ -52,6 +60,14 @@ class _VideoListScreenState extends State<VideoListScreen> {
         .map((file) => VideoData.fromFile(File(file.path)))
         .toList());
 
+    // Check if any titles are saved in shared preferences and update video titles
+    for (int i = 0; i < newVideos.length; i++) {
+      String? savedTitle = _prefs.getString('video_title_${newVideos[i].videoPath.path}');
+      if (savedTitle != null) {
+        newVideos[i].title = savedTitle;
+      }
+    }
+
     setState(() {
       _isLoading = false;
       _videos.addAll(newVideos);
@@ -66,6 +82,43 @@ class _VideoListScreenState extends State<VideoListScreen> {
     final files = videosDirectory.listSync();
 
     return files.where((file) => file.path.endsWith('.mp4')).length;
+  }
+
+  void _editVideoTitle(int index) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        TextEditingController _controller = TextEditingController();
+        return AlertDialog(
+          title: Text('Edit Video Title'),
+          content: TextField(
+            controller: _controller,
+            decoration: InputDecoration(hintText: 'Enter new title'),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                String newTitle = _controller.text.trim();
+                if (newTitle.isNotEmpty) {
+                  setState(() {
+                    _videos[index].title = newTitle;
+                  });
+                  _prefs.setString('video_title_${_videos[index].videoPath.path}', newTitle);
+                  Navigator.of(context).pop();
+                }
+              },
+              child: Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -106,7 +159,7 @@ class _VideoListScreenState extends State<VideoListScreen> {
           },
         ),
       ),
-      backgroundColor: Color(0xFFdfdfdf), // Set background color
+      backgroundColor: Color(0xfff5f5f5), // Set background color
       body: _videos.isNotEmpty
           ? GridView.builder(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -142,8 +195,7 @@ class _VideoListScreenState extends State<VideoListScreen> {
                       padding: const EdgeInsets.all(8.0),
                       child: Container(
                         width: MediaQuery.of(context).size.width / 6.5,
-                        height:
-                        MediaQuery.of(context).size.width / 6.5,
+                        height: MediaQuery.of(context).size.width / 6.5,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
@@ -186,6 +238,12 @@ class _VideoListScreenState extends State<VideoListScreen> {
                           ),
                         ),
                       ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        _editVideoTitle(index);
+                      },
+                      icon: Icon(Icons.edit),
                     ),
                   ],
                 ),

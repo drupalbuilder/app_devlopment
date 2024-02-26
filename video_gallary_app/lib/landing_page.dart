@@ -91,7 +91,7 @@ class _LandingPageWithVideoCountState
         ],
       ),
       body: Container(
-        color: Color(0xFFdfdfdf), // Set background color
+        color: Color(0xffffffff), // Set background color
         child: Column(
           children: [
             Expanded(
@@ -124,88 +124,99 @@ class _LandingPageWithVideoCountState
         ),
       ),
 
-      bottomNavigationBar: BottomAppBar(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildBottomNavItem(Icons.home, 'Home', () {
-              setState(() {
-                _videoCount = 0; // Reset the video count
-                _latestVideos = []; // Clear the latest videos list
-              });
-              _loadVideoCount(); // Reload video count
-              _loadLatestVideos(); // Reload latest videos
-            }),
-            _buildBottomNavItem(Icons.video_library, 'Library', () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const VideoListScreen(),
-                ),
-              );
-            }),
-            _buildBottomNavItem(Icons.videocam, 'Record', () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const CameraApp()),
-              );
-            }),
-            _buildBottomNavItem(Icons.analytics, 'Reports', () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ReportsScreen()),
-              );
-            }),
-            _buildBottomNavItem(Icons.account_circle, 'Profile', () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ProfileScreen()),
-              );
-            }),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(1),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: Offset(0, 3), // changes position of shadow
+            ),
           ],
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20.0), // Adjust the border radius as needed
+            topRight: Radius.circular(20.0),
+          ),
+        ),
+        child: BottomAppBar(
+          color: Colors.transparent,
+          elevation: 0, // Remove the shadow
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[
+              IconButton(
+                icon: Icon(Icons.home, color: Colors.black),
+                onPressed: () => _onItemTapped(0),
+              ),
+              IconButton(
+                icon: Icon(Icons.video_library, color: Colors.black),
+                onPressed: () => _onItemTapped(1),
+              ),
+              Container(
+                width: 60.0,
+                height: 80.0,
+                child: FloatingActionButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => CameraApp()),
+                    );
+                  },
+                  backgroundColor: Colors.blue,
+                  child: Icon(Icons.add),
+                ),
+              ),
+              IconButton(
+                icon: Icon(Icons.analytics, color: Colors.black),
+                onPressed: () => _onItemTapped(2),
+              ),
+              IconButton(
+                icon: Icon(Icons.account_circle, color: Colors.black),
+                onPressed: () => _onItemTapped(3),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildBottomNavItem(IconData icon, String label, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 12),
-        // Increase vertical padding
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ShaderMask(
-              shaderCallback: (Rect bounds) {
-                return LinearGradient(
-                  colors: [
-                    Color(0xff50aff1),
-                    Color(0xFF0071d6),
-                  ],
-                ).createShader(bounds);
-              },
-              child: Icon(
-                icon,
-                size: 32, // Increase icon size
-                color: Colors.white,
-              ),
-            ),
-            SizedBox(height: 0), // Increase space between icon and label
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.black,
-                fontWeight: FontWeight.bold, // Add bold effect
-                //fontWidth: 0.5, // Add font width if needed
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  void _onItemTapped(int index) {
+    // Handle bottom navigation item taps here
+    switch (index) {
+      case 0:
+      // Navigate to Home screen
+        break;
+      case 1:
+      // Navigate to Library screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const VideoListScreen(),
+          ),
+        );
+        break;
+      case 2:
+      // Navigate to Reports screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const ReportsScreen(),
+          ),
+        );
+        break;
+      case 3:
+      // Navigate to Profile screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProfileScreen(),
+          ),
+        );
+        break;
+    }
   }
 
   Widget _buildLatestVideosGrid() {
@@ -279,9 +290,8 @@ class _LandingPageWithVideoCountState
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      VideoPlayerScreen(
-                                          latestVideos[index]),
+                                  builder: (context) => VideoPlayerScreen(
+                                      latestVideos[index]),
                                 ),
                               );
                             },
@@ -302,4 +312,3 @@ class _LandingPageWithVideoCountState
         : Center(child: CircularProgressIndicator());
   }
 }
-

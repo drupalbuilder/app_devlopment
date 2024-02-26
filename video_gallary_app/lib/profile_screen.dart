@@ -27,7 +27,7 @@ class ProfileScreen extends StatelessWidget {
         centerTitle: true,
       ),
       body: Container(
-        color: Color(0xFFdfdfdf), // Set background color here
+        color: Color(0xffffffff), // Set background color here
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(20.0),
