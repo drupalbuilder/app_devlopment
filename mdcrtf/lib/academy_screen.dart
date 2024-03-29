@@ -185,52 +185,59 @@ class AcademyScreen extends StatelessWidget {
       onTap: () {
         _playYoutubeVideo(context, videoUrl);
       },
-      child: Container(
-        width: 150,
-        margin: const EdgeInsets.all(5.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              alignment: Alignment.center,
+      child: SizedBox(
+        height: 200, // Adjust this height as needed
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(4.0, 20.0, 0.0, 0.0), // Padding from left, top, right, and bottom
+          child: Container(
+            width: 150,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Image.network(
-                  'https://img.youtube.com/vi/${videoUrl.split('/').last.split('?').first}/0.jpg',
-                  width: 120,
-                  height: 75,
-                  fit: BoxFit.cover,
-                ),
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  child: Container(
-                    padding: EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: Colors.blue,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(0),
-                        bottomRight: Radius.circular(8),
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Image.network(
+                      'https://img.youtube.com/vi/${videoUrl.split('/').last.split('?').first}/0.jpg',
+                      width: 120,
+                      height: 75,
+                      fit: BoxFit.cover,
+                    ),
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      child: Container(
+                        padding: EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(0),
+                            bottomRight: Radius.circular(8),
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.play_arrow,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                       ),
                     ),
-                    child: Icon(
-                      Icons.play_arrow,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ),
+                  ],
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  title,
+                  style: TextStyle(fontSize: 12),
                 ),
               ],
             ),
-            const SizedBox(height: 5),
-            Text(
-              title,
-              style: TextStyle(fontSize: 12),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
+
+
 
   void _playYoutubeVideo(BuildContext context, String? videoUrl) {
     if (videoUrl != null) {
@@ -245,13 +252,13 @@ class AcademyScreen extends StatelessWidget {
 
       showDialog(
         context: context,
-        barrierDismissible: false, // prevent user from dismissing the dialog
+        barrierDismissible: true, // allow dismissing the dialog by clicking outside
         builder: (BuildContext context) {
           return AlertDialog(
             contentPadding: EdgeInsets.zero,
             content: Container(
               width: double.maxFinite, // Set the width as needed
-              height: 500, // Set the height as needed
+              height: 400, // Set the height as needed
               child: YoutubePlayer(
                 controller: YoutubePlayerController(
                   initialVideoId: YoutubePlayer.convertUrlToId(videoUrl) ?? '',
@@ -282,4 +289,5 @@ class AcademyScreen extends StatelessWidget {
       print('Video URL is null');
     }
   }
+
 }

@@ -2,6 +2,12 @@ import 'package:flutter/material.dart';
 import 'infoscreen.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+
+import 'infoscreen.dart';
+
 
 class DashboardScreen extends StatefulWidget {
   @override
@@ -25,250 +31,362 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return MaterialApp(
       home: Scaffold(
         backgroundColor: Colors.white,
-        body: ListView(
-          children: [
-            Container(
-              height: 650,
-              margin: EdgeInsets.only(bottom: 20.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(20.0),
-                  bottomRight: Radius.circular(20.0),
+        body: SafeArea(
+          child: ListView(
+            children: [
+              Container(
+                height: 750,
+                margin: EdgeInsets.only(bottom: 20.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(20.0),
+                    bottomRight: Radius.circular(20.0),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.43),
+                      offset: Offset(0, 1),
+                      blurRadius: 2,
+                    ),
+                  ],
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
-                    spreadRadius: 2,
-                    blurRadius: 10,
-                    offset: Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(20.0),
-                      bottomRight: Radius.circular(20.0),
+                child: Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(20.0),
+                        bottomRight: Radius.circular(20.0),
+                      ),
+                      child: Container(
+                        color: Colors.white,
+                        height: 650,
+                      ),
                     ),
-                    child: Container(
-                      color: Colors.white,
-                      height: 650,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Dashboard',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 20.0,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => InfoScreen()),
-                                );
-                              },
-                              child: Image.network(
-                                'https://rtfapi.modicare.com/assets/images/help.png?act=1',
-                                width: 20,
-                                height: 20,
-                              ),
-                            ),
-                          ],
-                        ),
-                        GestureDetector(
-                          onTapUp: (TapUpDetails details) {
-                            RenderBox renderBox = context.findRenderObject() as RenderBox;
-                            var localPosition = renderBox.globalToLocal(details.globalPosition);
-                            int tappedIndex = ((localPosition.dx - 16.0) / (MediaQuery.of(context).size.width - 32.0) * 5).round();
-
-                            setState(() {
-                              selectedMonthIndex = tappedIndex;
-                            });
-                          },
-                          child: SizedBox(
-                            height: 300,
-                            width: double.infinity,
-                            child: Container(
-                              padding: EdgeInsets.zero,
-                              child: SfCartesianChart(
-                                margin: EdgeInsets.zero,
-                                plotAreaBackgroundColor: Colors.white,
-                                primaryXAxis: CategoryAxis(),
-                                primaryYAxis: NumericAxis(
-                                  isVisible: false,
-                                  title: AxisTitle(text: ''),
-                                  majorTickLines: MajorTickLines(size: 0),
-                                  majorGridLines: MajorGridLines(width: 0),
-                                  minorGridLines: MinorGridLines(width: 0),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Dashboard',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                                series: <ChartSeries<ChartData, String>>[
-                                  ColumnSeries<ChartData, String>(
-                                    dataSource: chartData,
-                                    xValueMapper: (ChartData data, _) => data.month,
-                                    yValueMapper: (ChartData data, _) => data.target,
-                                    dataLabelSettings: DataLabelSettings(
-                                      isVisible: true,
-                                      labelPosition: ChartDataLabelPosition.outside,
-                                    ),
-                                    pointColorMapper: (ChartData data, _) =>
-                                    data.month == 'Target' ? Colors.yellow : (chartData.indexOf(data) == selectedMonthIndex ? Colors.green : null),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => InfoScreen()),
+                                  );
+                                },
+                                child: Image.network(
+                                  'https://rtfapi.modicare.com/assets/images/help.png?act=1',
+                                  width: 20,
+                                  height: 20,
+                                ),
+                              ),
+                            ],
+                          ),
+                          GestureDetector(
+                            onTapUp: (TapUpDetails details) {
+                              RenderBox renderBox = context
+                                  .findRenderObject() as RenderBox;
+                              var localPosition = renderBox.globalToLocal(
+                                  details.globalPosition);
+                              int tappedIndex = ((localPosition.dx - 16.0) /
+                                  (MediaQuery
+                                      .of(context)
+                                      .size
+                                      .width - 32.0) * 5).round();
+
+                              setState(() {
+                                selectedMonthIndex = tappedIndex;
+                              });
+                            },
+                            child: SizedBox(
+                              height: 300,
+                              width: double.infinity,
+                              child: Container(
+                                padding: EdgeInsets.zero,
+                                child: SfCartesianChart(
+                                  margin: EdgeInsets.zero,
+                                  plotAreaBackgroundColor: Colors.white,
+                                  primaryXAxis: CategoryAxis(),
+                                  primaryYAxis: NumericAxis(
+                                    isVisible: false,
+                                    title: AxisTitle(text: ''),
+                                    majorTickLines: MajorTickLines(size: 0),
+                                    majorGridLines: MajorGridLines(width: 0),
+                                    minorGridLines: MinorGridLines(width: 0),
                                   ),
-                                ],
+                                  series: <ChartSeries<ChartData, String>>[
+                                    ColumnSeries<ChartData, String>(
+                                      dataSource: chartData,
+                                      xValueMapper: (ChartData data, _) =>
+                                      data.month,
+                                      yValueMapper: (ChartData data, _) =>
+                                      data.target,
+                                      dataLabelSettings: DataLabelSettings(
+                                        isVisible: true,
+                                        labelPosition: ChartDataLabelPosition
+                                            .outside,
+                                      ),
+                                      pointColorMapper: (ChartData data, _) =>
+                                      data.month == 'Target'
+                                          ? Colors.yellow
+                                          : (chartData.indexOf(data) ==
+                                          selectedMonthIndex
+                                          ? Colors.green
+                                          : null),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            LegendItem(
-                              color: Colors.yellow,
-                              label: 'Target',
-                              amount: selectedMonthIndex == -1 ? '₹ 10,000' : '₹ ${chartData[selectedMonthIndex].target.toStringAsFixed(2)}',
-                            ),
-                            LegendItem(
-                              color: Color(0xFF85e250),
-                              label: 'Income',
-                              amount: selectedMonthIndex == -1 ? '₹ 10,000' : '₹ ${chartData[selectedMonthIndex].target.toStringAsFixed(2)}',
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 10),
-                        Container(
-                          width: 150,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              // Add your button action here
-                            },
-                            style: ElevatedButton.styleFrom(
-                              primary: Colors.blue,
-                            ),
-                            child: Text('Income Simulator'),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              LegendItem(
+                                color: Colors.yellow,
+                                label: 'Target',
+                                amount: selectedMonthIndex == -1
+                                    ? '₹ 10,000'
+                                    : '₹ ${chartData[selectedMonthIndex].target
+                                    .toStringAsFixed(2)}',
+                              ),
+                              LegendItem(
+                                color: Color(0xFF85e250),
+                                label: 'Income',
+                                amount: selectedMonthIndex == -1
+                                    ? '₹ 10,000'
+                                    : '₹ ${chartData[selectedMonthIndex].target
+                                    .toStringAsFixed(2)}',
+                              ),
+                            ],
                           ),
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          'Action Plan Vs Performance',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Container(
-                          height: 150,
-                          child: CarouselSlider(
-                            options: CarouselOptions(
-                              height: 150,
-                              autoPlay: false,
-                              enableInfiniteScroll: false,
-                              viewportFraction: 0.55,
-                              initialPage: 0,
+                          SizedBox(height: 10),
+                          Container(
+                            width: 150,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                // Add your button action here
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                              ),
+                              child: Text('Income Simulator'),
                             ),
-                            items: List.generate(4, (index) => ModifiedCardItem(index: index)),
                           ),
-                        ),
-                      ],
+                          SizedBox(height: 10),
+                          Text(
+                            'Action Plan Vs Performance',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(height: 20),
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                _buildCard('Prospects Added', '0/50', context),
+                                _buildCard('Other Title', '1/10', context),
+                                // Add more cards as needed
+                                _buildCard('Other Title', '1/10', context),
+                                _buildCard('Prospects Added', '0/50', context),
+                                _buildCard('Other Title', '1/10', context),
+                                // Add more cards as needed
+                                _buildCard('Other Title', '1/10', context),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            Container(
-              height: 140,
-              color: Colors.white,
-              padding: EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Container Title',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.bold,
+              Container(
+                height: 140,
+                color: Colors.white,
+                padding: EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'My Business (Current Month)',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'This is a paragraph aligned to the left. You can add your content here.',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 16.0,
+                    SizedBox(height: 10),
+                    Text(
+                      'Title',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16.0,
+                      ),
+                      textAlign: TextAlign.left,
                     ),
-                    textAlign: TextAlign.left,
-                  ),
-                ],
+                    Text(
+                      'Paid as: Consultant',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16.0,
+                      ),
+                      textAlign: TextAlign.left,
+                    ),
+                    Text(
+                      'Valid: Director',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16.0,
+                      ),
+                      textAlign: TextAlign.left,
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Container(
-              height: 160,
-              color: Color(0xFFF4F4F4),
-            ),
-            Container(
-              height: 500,
-              color: Colors.white,
-            ),
-          ],
+              Container(
+                height: 200,
+                color: Color(0xFFF4F4F4),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildCard('Prospects Added', '0/50', context),
+                      _buildCard('Other Title', '1/10', context),
+                      _buildCard('Other Title', '1/10', context),
+                      _buildCard('Prospects Added', '0/50', context),
+                      _buildCard('Other Title', '1/10', context),
+                      _buildCard('Other Title', '1/10', context),
+                    ],
+                  ),
+                ),
+              ),
+
+
+              Padding(
+                padding: EdgeInsets.only(top: 20),
+                // Adjust the top padding as needed
+                child: Container(
+                  height: 200,
+                  color: Colors.white,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      videoItem(
+                        context,
+                        'Modicare Envirochip Training Program 2016',
+                        'https://www.youtube.com/embed/cEiqYPToiZQ?showinfo=0&related=0&enablejsapi=1&autoplay=1&rel=0',
+                      ),
+                      videoItem(
+                        context,
+                        'Modicare Envoirochip - Animated Demo',
+                        'https://www.youtube.com/embed/RoERmkLylU4?showinfo=0&related=0&enablejsapi=1&autoplay=1&rel=0',
+                      ),
+                      videoItem(
+                        context,
+                        'Modicare Envirochip Training Program 2016',
+                        'https://www.youtube.com/embed/cEiqYPToiZQ?showinfo=0&related=0&enablejsapi=1&autoplay=1&rel=0',
+                      ),
+                      videoItem(
+                        context,
+                        'Modicare Envirochip Training Program 2016',
+                        'https://www.youtube.com/embed/cEiqYPToiZQ?showinfo=0&related=0&enablejsapi=1&autoplay=1&rel=0',
+                      ),
+                      videoItem(
+                        context,
+                        'Modicare Envirochip Training Program 2016',
+                        'https://www.youtube.com/embed/cEiqYPToiZQ?showinfo=0&related=0&enablejsapi=1&autoplay=1&rel=0',
+                      ),
+                      // Add more video items as needed
+                    ],
+                  ),
+                ),
+              ),
+
+
+            ],
+          ),
         ),
       ),
     );
   }
-}
 
-
-class ModifiedCardItem extends StatelessWidget {
-  final int index;
-
-  ModifiedCardItem({required this.index});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildCard(String title, String subtitle, BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 5.0),
-      width: MediaQuery.of(context).size.width * 0.8,
+      width: 160, // Fixed width for the card
+      height: 190, // Fixed height for the card
+      margin: EdgeInsets.symmetric(horizontal: 6.0),
       decoration: BoxDecoration(
-        color: Colors.blueGrey,
-        borderRadius: BorderRadius.circular(10.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.8),
+            spreadRadius: 1,
+            blurRadius: 1,
+            offset: Offset(0, 3), // changes position of shadow
+          ),
+        ],
+        borderRadius: BorderRadius.circular(10),
+        color: Colors.white,
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Card $index',
+              title,
               style: TextStyle(
-                color: Colors.white,
-                fontSize: 18.0,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-            SizedBox(height: 10),
-            Text(
-              'Next Level\nGPV Required',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16.0,
                 fontWeight: FontWeight.bold,
               ),
-              textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis,
+            ),
+            SizedBox(height: 5),
+            Text(
+              subtitle,
+              style: TextStyle(
+                color: Colors.grey,
+              ),
+            ),
+            SizedBox(height: 10),
+            SizedBox(
+              width: 120,
+              height: 100,
+              child: Stack(
+                children: [
+                  CircularProgressIndicator(
+                    value: 0, // Set your progress value here
+                    strokeWidth: 8,
+                    backgroundColor: Colors.grey.withOpacity(0.2),
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                  ),
+                  Center(
+                    child: Text(
+                      '0%', // Set your percentage here
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -277,7 +395,7 @@ class ModifiedCardItem extends StatelessWidget {
   }
 }
 
-class ChartData {
+  class ChartData {
   final String month;
   final double target;
 
@@ -318,6 +436,120 @@ class LegendItem extends StatelessWidget {
     );
   }
 }
+
+
+Widget videoItem(BuildContext context, String title, String videoUrl) {
+  return GestureDetector(
+    onTap: () {
+      _playYoutubeVideo(context, videoUrl);
+    },
+    child: SizedBox(
+      height: 200, // Adjust this height as needed
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(4.0, 20.0, 0.0, 0.0), // Padding from left, top, right, and bottom
+        child: Container(
+          width: 150,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  Image.network(
+                    'https://img.youtube.com/vi/${videoUrl.split('/').last.split('?').first}/0.jpg',
+                    width: 120,
+                    height: 75,
+                    fit: BoxFit.cover,
+                  ),
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    child: Container(
+                      padding: EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(0),
+                          bottomRight: Radius.circular(8),
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.play_arrow,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 5),
+              Text(
+                title,
+                style: TextStyle(fontSize: 12),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+
+
+
+void _playYoutubeVideo(BuildContext context, String? videoUrl) {
+  if (videoUrl != null) {
+    // Save the current screen orientation
+    final initialOrientation = MediaQuery.of(context).orientation;
+
+    // Lock the screen orientation to portrait
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+
+    showDialog(
+      context: context,
+      barrierDismissible: true, // allow dismissing the dialog by clicking outside
+      builder: (BuildContext context) {
+        return AlertDialog(
+          contentPadding: EdgeInsets.zero,
+          content: Container(
+            width: double.maxFinite, // Set the width as needed
+            height: 400, // Set the height as needed
+            child: YoutubePlayer(
+              controller: YoutubePlayerController(
+                initialVideoId: YoutubePlayer.convertUrlToId(videoUrl) ?? '',
+                flags: YoutubePlayerFlags(
+                  autoPlay: true,
+                  mute: false,
+                ),
+              ),
+              showVideoProgressIndicator: true,
+              onReady: () {
+                // Perform any additional setup here
+              },
+            ),
+          ),
+        );
+      },
+    ).then((value) {
+      // Restore the original screen orientation after the dialog is dismissed
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+    });
+  } else {
+    // Handle the case where videoUrl is null, if needed
+    print('Video URL is null');
+  }
+}
+
+
 
 void main() {
   runApp(MaterialApp(

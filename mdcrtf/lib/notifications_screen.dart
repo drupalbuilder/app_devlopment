@@ -46,10 +46,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
-                  spreadRadius: 2,
-                  blurRadius: 10,
-                  offset: Offset(0, 5),
+                  color: Colors.black.withOpacity(0.43),
+                  offset: Offset(0, 1),
+                  blurRadius: 2,
                 ),
               ],
             ),
@@ -349,6 +348,9 @@ class NotificationCard extends StatelessWidget {
   }
 }
 
+
+
+
 class NotificationDetailScreen extends StatelessWidget {
   final int id;
 
@@ -360,11 +362,53 @@ class NotificationDetailScreen extends StatelessWidget {
     String notificationDetails = "Notification Details for ID: $id";
 
     return Scaffold(
-      body: Center(
-        child: Text(notificationDetails),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(20.0),
+                  bottomRight: Radius.circular(20.0),
+                ),
+                color: Color.fromARGB(255, 255, 255, 255),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.43),
+                    offset: Offset(0, 1),
+                    blurRadius: 2,
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.arrow_back, color: Color.fromARGB(255, 40, 40, 40)),
+                    onPressed: () {
+                      Navigator.pop(context); // Navigate back when pressed
+                    },
+                  ),
+                  Text(
+                    'Notification Detail Screen',
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 40, 40, 40),
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Center(
+                child: Text(notificationDetails),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
-
-

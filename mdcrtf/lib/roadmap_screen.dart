@@ -32,10 +32,11 @@ class _RoadmapScreenState extends State<RoadmapScreen> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Set the background color to white
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Stack(
           children: [
+            // Your existing content
             Container(
               margin: EdgeInsets.only(left: 44.0),
               decoration: BoxDecoration(
@@ -58,10 +59,9 @@ class _RoadmapScreenState extends State<RoadmapScreen> with SingleTickerProvider
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      spreadRadius: 2,
-                      blurRadius: 10,
-                      offset: Offset(0, 3),
+                      color: Colors.black.withOpacity(0.43),
+                      offset: Offset(0, 1),
+                      blurRadius: 2,
                     ),
                   ],
                   color: Colors.white,
@@ -84,7 +84,7 @@ class _RoadmapScreenState extends State<RoadmapScreen> with SingleTickerProvider
               padding: EdgeInsets.fromLTRB(0.0, 49, 0.0, 0.0),
               child: TabBarView(
                 controller: _tabController,
-                physics: NeverScrollableScrollPhysics(), // Disable swipe gesture
+                physics: NeverScrollableScrollPhysics(),
                 children: [
                   buildTodayScreen(),
                   buildUpcomingScreen(),
@@ -93,6 +93,10 @@ class _RoadmapScreenState extends State<RoadmapScreen> with SingleTickerProvider
                 ],
               ),
             ),
+            // Floating Action Button
+// Floating Action Button
+
+
           ],
         ),
       ),
