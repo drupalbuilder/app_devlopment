@@ -92,14 +92,14 @@ class LoginScreen extends StatelessWidget {
           body: Stack(
             children: [
               Container(
-                color: Color(0xFFFFFFFF),
+                color: const Color(0xFFFFFFFF),
                 child: Padding(
                   padding: const EdgeInsets.only(left: 4.0, top: 100.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        padding: EdgeInsets.all(14.0),
+                        padding: const EdgeInsets.all(14.0),
                         color: Color(0xFFFDFDFD),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,7 +118,7 @@ class LoginScreen extends StatelessWidget {
                         ),
                       ),
                       Padding(
-                        padding: EdgeInsets.only(
+                        padding: const EdgeInsets.only(
                             left: 14.0, right: 8.0, top: 8.0),
                         child: ElevatedButton(
                           onPressed: () {
