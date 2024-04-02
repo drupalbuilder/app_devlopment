@@ -295,16 +295,35 @@ class LoginScreen extends StatelessWidget {
 }
 
 
+
 class OTPEntryScreen extends StatefulWidget {
   @override
   _OTPEntryScreenState createState() => _OTPEntryScreenState();
 }
 
 class _OTPEntryScreenState extends State<OTPEntryScreen> {
-  final TextEditingController _otpController = TextEditingController();
+  final List<TextEditingController> _otpControllers = List.generate(
+    5,
+        (index) => TextEditingController(),
+  );
+  final List<FocusNode> _focusNodes = List.generate(
+    5,
+        (index) => FocusNode(),
+  );
+
+  @override
+  void dispose() {
+    for (var controller in _otpControllers) {
+      controller.dispose();
+    }
+    for (var node in _focusNodes) {
+      node.dispose();
+    }
+    super.dispose();
+  }
 
   Future<void> submitOTP() async {
-    String enteredOTP = _otpController.text;
+    String enteredOTP = _otpControllers.map((controller) => controller.text).join();
     if (enteredOTP.isEmpty) {
       // Show error message if OTP field is empty
       ScaffoldMessenger.of(context).showSnackBar(
@@ -315,10 +334,15 @@ class _OTPEntryScreenState extends State<OTPEntryScreen> {
       return;
     }
 
-    bool verificationSuccess = await this.verifyOTP(enteredOTP); // Call using this
+    bool verificationSuccess = await verifyOTP(enteredOTP); // Call using this
     if (verificationSuccess) {
       // OTP verified successfully
       print("OTP verified successfully.");
+      // Navigate to MainScreen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => MainScreen()),
+      );
     } else {
       // Incorrect OTP, show error message
       ScaffoldMessenger.of(context).showSnackBar(
@@ -346,13 +370,17 @@ class _OTPEntryScreenState extends State<OTPEntryScreen> {
       }
 
       // Replace "sent": true with "otp": "entered_otp"
-      String modifiedData = storedResponseBody.replaceAll(RegExp(r'"sent"\s*:\s*true'), '"otp": "$otp"');
-
+      String modifiedData = storedResponseBody.replaceAll(
+          RegExp(r'"sent"\s*:\s*true'), '"otp": "$otp"');
       // Log the modified request data for debugging
       print('Modified Request Data: $modifiedData');
 
       // Send the modified response data to the backend
-      final response = await http.post(Uri.parse(apiUrl), headers: headers, body: modifiedData);
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: headers,
+        body: modifiedData,
+      );
       print('Request Sent to API Endpoint.');
 
       if (response.statusCode == 200) {
@@ -385,6 +413,7 @@ class _OTPEntryScreenState extends State<OTPEntryScreen> {
       return false;
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -401,13 +430,61 @@ class _OTPEntryScreenState extends State<OTPEntryScreen> {
               ),
             ),
             SizedBox(height: 16.0),
-            TextField(
-              controller: _otpController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'OTP',
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                for (int i = 0; i < 5; i++)
+                  Expanded(
+                    child: Container(
+                      margin: EdgeInsets.symmetric(horizontal: 4.0),
+                      child: TextField(
+                        controller: _otpControllers[i],
+                        keyboardType: TextInputType.number,
+                        inputFormatters: <TextInputFormatter>[
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        maxLength: 1,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14.0, // Adjust the font size as needed
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black, // Text color
+                        ),
+                        decoration: InputDecoration(
+                          counterText: '',
+                          contentPadding: EdgeInsets.all(12.0), // Inner padding
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.black, width: 2.0),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.green, width: 2.0),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white, // Background color
+                        ),
+                        focusNode: _focusNodes[i],
+                        onChanged: (value) {
+                          if (value.isNotEmpty) {
+                            if (i < 5) {
+                              // Move focus to the next TextField
+                              FocusScope.of(context).requestFocus(_focusNodes[i + 1]);
+                            } else {
+                              // Last digit entered, submit or perform other actions
+                              submitOTP();
+                            }
+                          } else {
+                            if (i > 0) {
+                              // Move focus to the previous TextField when deleting a digit
+                              FocusScope.of(context).requestFocus(_focusNodes[i - 1]);
+                            }
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+              ],
             ),
             SizedBox(height: 16.0),
             ElevatedButton(
@@ -420,6 +497,8 @@ class _OTPEntryScreenState extends State<OTPEntryScreen> {
     );
   }
 }
+
+
 
 class MobileLoginScreen extends StatefulWidget {
   @override
