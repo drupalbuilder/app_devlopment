@@ -12,7 +12,7 @@ class HomeIcon extends StatelessWidget {
   final double width;
   final double height;
 
-  HomeIcon({
+  const HomeIcon({super.key,
     required this.activeImageUrl,
     required this.inactiveImageUrl,
     required this.isActive,
@@ -35,6 +35,8 @@ class HomeIcon extends StatelessWidget {
 }
 
 class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
+
   @override
   _BottomBarScreenState createState() => _BottomBarScreenState();
 }
@@ -51,16 +53,16 @@ class _BottomBarScreenState extends State<MainScreen> {
         'page': DashboardScreen(),
       },
       {
-        'page': AcademyScreen(),
+        'page': const AcademyScreen(),
       },
       {
-        'page': RoadmapScreen(),
+        'page': const RoadmapScreen(),
       },
       {
-        'page': NotificationsScreen(),
+        'page': const NotificationsScreen(),
       },
       {
-        'page': ProfileScreen(),
+        'page': const ProfileScreen(),
       },
     ];
     super.initState();
@@ -79,75 +81,73 @@ class _BottomBarScreenState extends State<MainScreen> {
       body: _pages[_selectedPageIndex]['page']!,
       bottomNavigationBar: BottomAppBar(
         color: Colors.white, // Background color
-        shape: CircularNotchedRectangle(),
+        shape: const CircularNotchedRectangle(),
         notchMargin: 0.01,
         clipBehavior: Clip.antiAlias,
-        child: Container(
+        child: SizedBox(
           height: kBottomNavigationBarHeight * 0.98,
-          child: Container(
-            child: BottomNavigationBar(
-              type: BottomNavigationBarType.fixed, // Fixed type to prevent shifting
-              onTap: _selectPage,
-              backgroundColor: Colors.white,
-              unselectedItemColor: Theme.of(context).textTheme.bodyText1!.color,
-              selectedItemColor: Colors.blue,
-              currentIndex: _selectedPageIndex,
-              items: [
-                BottomNavigationBarItem(
-                  icon: HomeIcon(
-                    activeImageUrl:
-                    'https://rtfapi.modicare.com/img/HomeIconSelected@2x.png',
-                    inactiveImageUrl:
-                    'https://rtfapi.modicare.com/img/Home.png',
-                    isActive: _selectedPageIndex == 0,
-                    width: 24, // Set the desired width
-                    height: 24, // Set the desired height
-                  ),
-                  label: '', // No label
+          child: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed, // Fixed type to prevent shifting
+            onTap: _selectPage,
+            backgroundColor: Colors.white,
+            unselectedItemColor: Theme.of(context).textTheme.bodyLarge!.color,
+            selectedItemColor: Colors.blue,
+            currentIndex: _selectedPageIndex,
+            items: [
+              BottomNavigationBarItem(
+                icon: HomeIcon(
+                  activeImageUrl:
+                  'https://rtfapi.modicare.com/img/HomeIconSelected@2x.png',
+                  inactiveImageUrl:
+                  'https://rtfapi.modicare.com/img/Home.png',
+                  isActive: _selectedPageIndex == 0,
+                  width: 24, // Set the desired width
+                  height: 24, // Set the desired height
                 ),
-                BottomNavigationBarItem(
-                  icon: HomeIcon(
-                    activeImageUrl:
-                    'https://rtfapi.modicare.com/img/SchoolSelected@2x.png',
-                    inactiveImageUrl:
-                    'https://rtfapi.modicare.com/img/schoolunselected.png',
-                    isActive: _selectedPageIndex == 1,
-                    width: 24, // Set the desired width
-                    height: 24, // Set the desired height
-                  ),
-                  label: '', // No label
+                label: '', // No label
+              ),
+              BottomNavigationBarItem(
+                icon: HomeIcon(
+                  activeImageUrl:
+                  'https://rtfapi.modicare.com/img/SchoolSelected@2x.png',
+                  inactiveImageUrl:
+                  'https://rtfapi.modicare.com/img/schoolunselected.png',
+                  isActive: _selectedPageIndex == 1,
+                  width: 24, // Set the desired width
+                  height: 24, // Set the desired height
                 ),
-                BottomNavigationBarItem(
-                  // Use appropriate icon, in this case, no icon is used
-                  icon: Icon(null),
-                  label: '', // No label
+                label: '', // No label
+              ),
+              const BottomNavigationBarItem(
+                // Use appropriate icon, in this case, no icon is used
+                icon: Icon(null),
+                label: '', // No label
+              ),
+              BottomNavigationBarItem(
+                icon: HomeIcon(
+                  activeImageUrl:
+                  'https://rtfapi.modicare.com/img/NotificationSelected@2x.png',
+                  inactiveImageUrl:
+                  'https://rtfapi.modicare.com/img/Notification.png',
+                  isActive: _selectedPageIndex == 3,
+                  width: 24, // Set the desired width
+                  height: 24, // Set the desired height
                 ),
-                BottomNavigationBarItem(
-                  icon: HomeIcon(
-                    activeImageUrl:
-                    'https://rtfapi.modicare.com/img/NotificationSelected@2x.png',
-                    inactiveImageUrl:
-                    'https://rtfapi.modicare.com/img/Notification.png',
-                    isActive: _selectedPageIndex == 3,
-                    width: 24, // Set the desired width
-                    height: 24, // Set the desired height
-                  ),
-                  label: '', // No label
+                label: '', // No label
+              ),
+              BottomNavigationBarItem(
+                icon: HomeIcon(
+                  activeImageUrl:
+                  'https://rtfapi.modicare.com/img/ProfileSelected@2x.png',
+                  inactiveImageUrl:
+                  'https://rtfapi.modicare.com/img/profile.png',
+                  isActive: _selectedPageIndex == 4,
+                  width: 24, // Set the desired width
+                  height: 24, // Set the desired height
                 ),
-                BottomNavigationBarItem(
-                  icon: HomeIcon(
-                    activeImageUrl:
-                    'https://rtfapi.modicare.com/img/ProfileSelected@2x.png',
-                    inactiveImageUrl:
-                    'https://rtfapi.modicare.com/img/profile.png',
-                    isActive: _selectedPageIndex == 4,
-                    width: 24, // Set the desired width
-                    height: 24, // Set the desired height
-                  ),
-                  label: '', // No label
-                ),
-              ],
-            ),
+                label: '', // No label
+              ),
+            ],
           ),
         ),
       ),

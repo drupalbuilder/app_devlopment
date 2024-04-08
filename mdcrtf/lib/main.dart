@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -18,12 +19,14 @@ void main() {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]).then((_) {
-    runApp(MyApp());
+    runApp(const MyApp());
   });
 }
 
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -39,6 +42,8 @@ class MyApp extends StatelessWidget {
 class LoginScreen extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
   final _mcaController = TextEditingController();
+
+  LoginScreen({super.key});
 
   void _onLoginButtonPressed(BuildContext context) async {
     if (_formKey.currentState?.validate() ?? false) {
@@ -57,7 +62,7 @@ class LoginScreen extends StatelessWidget {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => MainScreen(),
+              builder: (context) => const MainScreen(),
             ),
           );
         } else {
@@ -70,7 +75,9 @@ class LoginScreen extends StatelessWidget {
         }
       } catch (error) {
         // Handle network errors
-        print('Error: $error');
+        if (kDebugMode) {
+          print('Error: $error');
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('An error occurred: $error'),
@@ -100,7 +107,7 @@ class LoginScreen extends StatelessWidget {
                     children: [
                       Container(
                         padding: const EdgeInsets.all(14.0),
-                        color: Color(0xFFFDFDFD),
+                        color: const Color(0xFFFDFDFD),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -125,17 +132,17 @@ class LoginScreen extends StatelessWidget {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => MobileLoginScreen()),
+                                  builder: (context) => const MobileLoginScreen()),
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(
-                                vertical: 8.0, horizontal: 10.0), backgroundColor: Color(0xFF1FA2FF),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 8.0, horizontal: 10.0), backgroundColor: const Color(0xFF1FA2FF),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5.0),
                             ),
                           ),
-                          child: Text(
+                          child: const Text(
                             'Login with Mobile',
                             style: TextStyle(
                               fontSize: 13.0,
@@ -147,9 +154,9 @@ class LoginScreen extends StatelessWidget {
                       ),
                       Container(
                         width: double.infinity,
-                        color: Color(0xFFFFFFFF),
+                        color: const Color(0xFFFFFFFF),
                         child: Padding(
-                          padding: EdgeInsets.all(14.0),
+                          padding: const EdgeInsets.all(14.0),
                           child: Form(
                             key: _formKey,
                             child: Column(
@@ -157,7 +164,7 @@ class LoginScreen extends StatelessWidget {
                               children: [
                                 Container(
                                   width: MediaQuery.of(context).size.width * 0.55,
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                     border: Border(
                                       bottom: BorderSide(
                                         color: Color(0xFFf5eded),
@@ -177,13 +184,13 @@ class LoginScreen extends StatelessWidget {
                                     inputFormatters: <TextInputFormatter>[
                                       FilteringTextInputFormatter.digitsOnly // Allow only numeric input
                                     ],
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                       labelText: 'MCA No.',
                                       border: InputBorder.none,
                                     ),
                                   ),
                                 ),
-                                SizedBox(height: 16.0),
+                                const SizedBox(height: 16.0),
                                 Container(
                                   width: double.infinity,
                                   alignment: Alignment.centerLeft,
@@ -200,7 +207,7 @@ class LoginScreen extends StatelessWidget {
                                     ),
                                     child: Ink(
                                       decoration: BoxDecoration(
-                                        gradient: LinearGradient(
+                                        gradient: const LinearGradient(
                                           colors: [
                                             Color(0xFF1FA2FF),
                                             Color(0xFF1FA2FF),
@@ -213,9 +220,9 @@ class LoginScreen extends StatelessWidget {
                                             50.0),
                                       ),
                                       child: Container(
-                                        padding: EdgeInsets.symmetric(
+                                        padding: const EdgeInsets.symmetric(
                                             vertical: 8.0, horizontal: 24.0),
-                                        child: Text(
+                                        child: const Text(
                                           'Login',
                                           style: TextStyle(
                                             fontSize: 13.0,
@@ -227,20 +234,20 @@ class LoginScreen extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                SizedBox(height: 16.0),
+                                const SizedBox(height: 16.0),
                                 TextButton(
                                   onPressed: () {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) =>
-                                            WebViewExample(
+                                            const WebViewExample(
                                               url: 'https://www.modicare.com/join-us',
                                             ),
                                       ),
                                     );
                                   },
-                                  child: Text(
+                                  child: const Text(
                                     'Register',
                                     style: TextStyle(
                                       color: Color(0xFF2FA8D3),
@@ -252,10 +259,10 @@ class LoginScreen extends StatelessWidget {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(builder: (context) =>
-                                          ForgotPasswordScreen()),
+                                          const ForgotPasswordScreen()),
                                     );
                                   },
-                                  child: Text(
+                                  child: const Text(
                                     'Forgot Password',
                                     style: TextStyle(
                                       color: Colors.black,
@@ -275,7 +282,7 @@ class LoginScreen extends StatelessWidget {
                 bottom: 0,
                 right: 0,
                 child: Container(
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     image: DecorationImage(
                       image: NetworkImage(
                           'https://rtfapi.modicare.com/img/m2.png'),
@@ -297,6 +304,8 @@ class LoginScreen extends StatelessWidget {
 
 
 class OTPEntryScreen extends StatefulWidget {
+  const OTPEntryScreen({super.key});
+
   @override
   _OTPEntryScreenState createState() => _OTPEntryScreenState();
 }
@@ -327,7 +336,7 @@ class _OTPEntryScreenState extends State<OTPEntryScreen> {
     if (enteredOTP.isEmpty) {
       // Show error message if OTP field is empty
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text("Please enter OTP."),
         ),
       );
@@ -337,16 +346,18 @@ class _OTPEntryScreenState extends State<OTPEntryScreen> {
     bool verificationSuccess = await verifyOTP(enteredOTP); // Call using this
     if (verificationSuccess) {
       // OTP verified successfully
-      print("OTP verified successfully.");
+      if (kDebugMode) {
+        print("OTP verified successfully.");
+      }
       // Navigate to MainScreen
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => MainScreen()),
+        MaterialPageRoute(builder: (context) => const MainScreen()),
       );
     } else {
       // Incorrect OTP, show error message
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text("Invalid OTP. Please enter a valid OTP."),
         ),
       );
@@ -365,7 +376,11 @@ class _OTPEntryScreenState extends State<OTPEntryScreen> {
 
       // Check if storedResponseBody is not null
       if (storedResponseBody == null) {
-        print('Stored response body not found in SharedPreferences.');
+        if (kDebugMode) {
+          if (kDebugMode) {
+            print('Stored response body not found in SharedPreferences.');
+          }
+        }
         return false; // Response body not found in SharedPreferences
       }
 
@@ -373,7 +388,11 @@ class _OTPEntryScreenState extends State<OTPEntryScreen> {
       String modifiedData = storedResponseBody.replaceAll(
           RegExp(r'"sent"\s*:\s*true'), '"otp": "$otp"');
       // Log the modified request data for debugging
-      print('Modified Request Data: $modifiedData');
+      if (kDebugMode) {
+        if (kDebugMode) {
+          print('Modified Request Data: $modifiedData');
+        }
+      }
 
       // Send the modified response data to the backend
       final response = await http.post(
@@ -381,7 +400,9 @@ class _OTPEntryScreenState extends State<OTPEntryScreen> {
         headers: headers,
         body: modifiedData,
       );
-      print('Request Sent to API Endpoint.');
+      if (kDebugMode) {
+        print('Request Sent to API Endpoint.');
+      }
 
       if (response.statusCode == 200) {
         // OTP verification successful
@@ -391,25 +412,35 @@ class _OTPEntryScreenState extends State<OTPEntryScreen> {
         // Check if the response indicates a successful OTP verification
         if (responseData['valid'] == true) {
           // OTP verified successfully
-          print('OTP verified successfully.');
+          if (kDebugMode) {
+            print('OTP verified successfully.');
+          }
 
           // Log the response body for debugging
-          print('Response from API: ${response.body}');
+          if (kDebugMode) {
+            print('Response from API: ${response.body}');
+          }
 
           return true;
         } else {
           // OTP verification failed
-          print('Invalid OTP. Please enter a valid OTP.');
+          if (kDebugMode) {
+            print('Invalid OTP. Please enter a valid OTP.');
+          }
           return false;
         }
       } else {
         // OTP verification failed due to non-200 status code
-        print('Failed to verify OTP. Status code: ${response.statusCode}');
+        if (kDebugMode) {
+          print('Failed to verify OTP. Status code: ${response.statusCode}');
+        }
         return false;
       }
     } catch (error) {
       // Handle network errors
-      print("Error verifying OTP: $error");
+      if (kDebugMode) {
+        print("Error verifying OTP: $error");
+      }
       return false;
     }
   }
@@ -418,25 +449,25 @@ class _OTPEntryScreenState extends State<OTPEntryScreen> {
   Widget build(BuildContext context) {
     return Dialog(
       child: Container(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
+            const Text(
               'Enter OTP',
               style: TextStyle(
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 for (int i = 0; i < 5; i++)
                   Expanded(
                     child: Container(
-                      margin: EdgeInsets.symmetric(horizontal: 4.0),
+                      margin: const EdgeInsets.symmetric(horizontal: 4.0),
                       child: TextField(
                         controller: _otpControllers[i],
                         keyboardType: TextInputType.number,
@@ -445,20 +476,20 @@ class _OTPEntryScreenState extends State<OTPEntryScreen> {
                         ],
                         maxLength: 1,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 14.0, // Adjust the font size as needed
                           fontWeight: FontWeight.bold,
                           color: Colors.black, // Text color
                         ),
                         decoration: InputDecoration(
                           counterText: '',
-                          contentPadding: EdgeInsets.all(12.0), // Inner padding
+                          contentPadding: const EdgeInsets.all(12.0), // Inner padding
                           enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.black, width: 2.0),
+                            borderSide: const BorderSide(color: Colors.black, width: 2.0),
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.green, width: 2.0),
+                            borderSide: const BorderSide(color: Colors.green, width: 2.0),
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                           filled: true,
@@ -486,10 +517,10 @@ class _OTPEntryScreenState extends State<OTPEntryScreen> {
                   ),
               ],
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: submitOTP,
-              child: Text('Submit'),
+              child: const Text('Submit'),
             ),
           ],
         ),
@@ -501,6 +532,8 @@ class _OTPEntryScreenState extends State<OTPEntryScreen> {
 
 
 class MobileLoginScreen extends StatefulWidget {
+  const MobileLoginScreen({super.key});
+
   @override
   _MobileLoginScreenState createState() => _MobileLoginScreenState();
 }
@@ -532,9 +565,15 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> {
       final response = await http.post(url, headers: headers, body: requestBody);
 
       // Log the request and response
-      print('Request: $requestBody');
-      print('Response status code: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      if (kDebugMode) {
+        print('Request: $requestBody');
+      }
+      if (kDebugMode) {
+        print('Response status code: ${response.statusCode}');
+      }
+      if (kDebugMode) {
+        print('Response body: ${response.body}');
+      }
 
       // Check if the request was successful (status code 200)
       if (response.statusCode == 200) {
@@ -542,7 +581,9 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> {
         Map<String, dynamic> responseData = jsonDecode(response.body);
 
         // Log the parsed response data
-        print('Parsed response data: $responseData');
+        if (kDebugMode) {
+          print('Parsed response data: $responseData');
+        }
 
         // Check if OTP was sent successfully
         if (responseData.containsKey('sent') && responseData['sent'] == true) {
@@ -555,12 +596,14 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> {
             context: context,
             barrierDismissible: false, // Prevent dismissing the dialog by tapping outside
             builder: (BuildContext context) {
-              return OTPEntryScreen();
+              return const OTPEntryScreen();
             },
           );
 
           // Print the response when OTP is sent successfully
-          print('Response when OTP sent successfully: $responseData');
+          if (kDebugMode) {
+            print('Response when OTP sent successfully: $responseData');
+          }
 
           return true; // OTP sent successfully
         }
@@ -571,7 +614,11 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> {
         otpResponse = "Failed to send OTP";
       });
       // Print error message if needed
-      print(response.body);
+      if (kDebugMode) {
+        if (kDebugMode) {
+          print(response.body);
+        }
+      }
 
       return false; // OTP sending failed
 
@@ -580,7 +627,13 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> {
       setState(() {
         otpResponse = "Error sending OTP: $error";
       });
-      print('Error sending OTP: $error');
+      if (kDebugMode) {
+        if (kDebugMode) {
+          if (kDebugMode) {
+            print('Error sending OTP: $error');
+          }
+        }
+      }
       return false; // Error occurred
     }
   }
@@ -597,15 +650,15 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> {
           body: Stack(
             children: [
               Container(
-                color: Color(0xFFFFFFFF),
+                color: const Color(0xFFFFFFFF),
                 child: Padding(
                   padding: const EdgeInsets.only(left: 4.0, top: 100.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        padding: EdgeInsets.all(14.0),
-                        color: Color(0xFFFFFFFF),
+                        padding: const EdgeInsets.all(14.0),
+                        color: const Color(0xFFFFFFFF),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -623,7 +676,7 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> {
                         ),
                       ),
                       Padding(
-                        padding: EdgeInsets.only(left: 14.0, right: 8.0, top: 8.0),
+                        padding: const EdgeInsets.only(left: 14.0, right: 8.0, top: 8.0),
                         child: ElevatedButton(
                           onPressed: () {
                             Navigator.pushReplacement(
@@ -632,13 +685,13 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> {
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-                            backgroundColor: Color(0xFF1FA2FF),
+                            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
+                            backgroundColor: const Color(0xFF1FA2FF),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5.0),
                             ),
                           ),
-                          child: Text(
+                          child: const Text(
                             'Login with MCA',
                             style: TextStyle(
                               fontSize: 13.0,
@@ -650,9 +703,9 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> {
                       ),
                       Container(
                         width: double.infinity,
-                        color: Color(0xFFFDFDFD),
+                        color: const Color(0xFFFDFDFD),
                         child: Padding(
-                          padding: EdgeInsets.only(left: 14.0, right: 14.0),
+                          padding: const EdgeInsets.only(left: 14.0, right: 14.0),
                           child: Form(
                             key: _formKey,
                             child: Column(
@@ -660,7 +713,7 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> {
                               children: [
                                 Container(
                                   width: MediaQuery.of(context).size.width * 0.55,
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                     border: Border(
                                       bottom: BorderSide(
                                         color: Color(0xFFf5eded),
@@ -693,13 +746,13 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> {
                                     inputFormatters: <TextInputFormatter>[
                                       FilteringTextInputFormatter.digitsOnly,
                                     ],
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                       labelText: 'Mobile Number',
                                       border: InputBorder.none,
                                     ),
                                   ),
                                 ),
-                                SizedBox(height: 16.0),
+                                const SizedBox(height: 16.0),
                                 Container(
                                   alignment: Alignment.centerLeft,
                                   child: ElevatedButton(
@@ -720,7 +773,7 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> {
                                     ),
                                     child: Ink(
                                       decoration: BoxDecoration(
-                                        gradient: LinearGradient(
+                                        gradient: const LinearGradient(
                                           colors: [
                                             Color(0xFF1FA2FF),
                                             Color(0xFF1FA2FF),
@@ -732,8 +785,8 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> {
                                         borderRadius: BorderRadius.circular(50.0),
                                       ),
                                       child: Container(
-                                        padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                                        child: Text(
+                                        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                                        child: const Text(
                                           'Send OTP',
                                           style: TextStyle(
                                             fontSize: 13.0,
@@ -745,26 +798,26 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> {
                                     ),
                                   ),
                                 ),
-                                SizedBox(height: 16.0),
+                                const SizedBox(height: 16.0),
                                 Text(
                                   otpResponse, // Display OTP response message
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: Colors.black,
                                   ),
                                 ),
-                                SizedBox(height: 16.0),
+                                const SizedBox(height: 16.0),
                                 TextButton(
                                   onPressed: () {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => WebViewExample(
+                                        builder: (context) => const WebViewExample(
                                           url: 'https://www.modicare.com/join-us',
                                         ),
                                       ),
                                     );
                                   },
-                                  child: Text(
+                                  child: const Text(
                                     'Register',
                                     style: TextStyle(
                                       color: Color(0xFF2FA8D3),
@@ -775,10 +828,10 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> {
                                   onPressed: () {
                                     Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
+                                      MaterialPageRoute(builder: (context) => const ForgotPasswordScreen()),
                                     );
                                   },
-                                  child: Text(
+                                  child: const Text(
                                     'Forgot Password',
                                     style: TextStyle(
                                       color: Colors.black,
@@ -798,7 +851,7 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> {
                 bottom: 0,
                 right: 0,
                 child: Container(
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     image: DecorationImage(
                       image: NetworkImage('https://rtfapi.modicare.com/img/m2.png'),
                       fit: BoxFit.cover,
@@ -820,11 +873,11 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> {
 class WebViewExample extends StatelessWidget {
   final String url;
 
-  WebViewExample({required this.url});
+  const WebViewExample({super.key, required this.url});
   @override
   Widget build(BuildContext context) {
     // Set the status bar color
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.black, // Change this color as needed
       statusBarIconBrightness: Brightness.light, // Change the icon color as needed
     ));
@@ -849,7 +902,7 @@ class WebViewExample extends StatelessWidget {
                   return NavigationActionPolicy.ALLOW;
                 } else {
                   // Open external links in the default browser
-                  await launch(uri.toString());
+                  await launchUrl(uri.toString() as Uri);
                   return NavigationActionPolicy.CANCEL;
                 }
               },
@@ -861,8 +914,8 @@ class WebViewExample extends StatelessWidget {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                backgroundColor: Color(0xFF1E9FFD),
-                child: Icon(Icons.arrow_back),
+                backgroundColor: const Color(0xFF1E9FFD),
+                child: const Icon(Icons.arrow_back),
               ),
             ),
           ],
@@ -878,6 +931,8 @@ class WebViewExample extends StatelessWidget {
 
 
 class ForgotPasswordScreen extends StatefulWidget {
+  const ForgotPasswordScreen({super.key});
+
   @override
   _ForgotPasswordScreenState createState() => _ForgotPasswordScreenState();
 }
@@ -894,11 +949,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 500),
     );
 
     _slideAnimation = Tween<Offset>(
-      begin: Offset(1.0, 0.0),
+      begin: const Offset(1.0, 0.0),
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _animationController,
@@ -910,7 +965,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
       end: 1.0,
     ).animate(CurvedAnimation(
       parent: _animationController,
-      curve: Interval(0.2, 1.0, curve: Curves.easeInOut),
+      curve: const Interval(0.2, 1.0, curve: Curves.easeInOut),
     ));
 
     _animationController.forward();
@@ -919,7 +974,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.black,
       statusBarIconBrightness: Brightness.light,
     ));
@@ -941,7 +996,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
                     onTap: () {
                       Navigator.of(context).pop();
                     },
-                    child: Row(
+                    child: const Row(
                       children: [
                         Icon(
                           Icons.arrow_back,
@@ -980,12 +1035,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
                             ),
                           ),
                         ),
-                        SizedBox(height: 20.0),
+                        const SizedBox(height: 20.0),
                         SlideTransition(
                           position: _slideAnimation,
                           child: FadeTransition(
                             opacity: _fadeAnimation,
-                            child: Text(
+                            child: const Text(
                               'Reset Password?',
                               style: TextStyle(
                                 fontSize: 16.0,
@@ -994,7 +1049,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
                             ),
                           ),
                         ),
-                        SizedBox(height: 10.0),
+                        const SizedBox(height: 10.0),
                         SlideTransition(
                           position: _slideAnimation,
                           child: FadeTransition(
@@ -1005,7 +1060,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
                                 children: [
                                   Container(
                                     width: MediaQuery.of(context).size.width * 0.8,
-                                    decoration: BoxDecoration(
+                                    decoration: const BoxDecoration(
                                       border: Border(
                                         bottom: BorderSide(
                                           color: Color(0xFFf5eded),
@@ -1015,7 +1070,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
                                     ),
                                     child: TextFormField(
                                       controller: _mcaController,
-                                      decoration: InputDecoration(
+                                      decoration: const InputDecoration(
                                         hintText: 'MCA No.',
                                         border: InputBorder.none,
                                         contentPadding: EdgeInsets.zero,
@@ -1030,13 +1085,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
                                         }
                                         return null;
                                       },
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: Colors.black,
                                         fontSize: 14.0,
                                       ),
                                     ),
                                   ),
-                                  SizedBox(height: 10.0),
+                                  const SizedBox(height: 10.0),
                                   ElevatedButton(
                                     onPressed: () {
                                       if (_formKey.currentState!.validate()) {
@@ -1045,7 +1100,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
                                       }
                                     },
                                     style: ElevatedButton.styleFrom(
-                                      foregroundColor: Colors.transparent, padding: EdgeInsets.symmetric(
+                                      foregroundColor: Colors.transparent, padding: const EdgeInsets.symmetric(
                                       vertical: 10.0,
                                       horizontal: 25.0,
                                     ), backgroundColor: Colors.transparent,
@@ -1054,7 +1109,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
                                         borderRadius: BorderRadius.circular(50.0),
                                       ),
                                       side: BorderSide.none,
-                                      minimumSize: Size(50.0, 50.0),
+                                      minimumSize: const Size(50.0, 50.0),
                                     ).copyWith(
                                       overlayColor: MaterialStateProperty.all(
                                         Colors.white.withOpacity(0.2),
@@ -1062,7 +1117,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
                                     ),
                                     child: Ink(
                                       decoration: BoxDecoration(
-                                        gradient: LinearGradient(
+                                        gradient: const LinearGradient(
                                           colors: [
                                             Color(0xFF1FA2FF),
                                             Color(0xFF12D8FA),
@@ -1075,11 +1130,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
                                       ),
                                       child: Container(
                                         width: 150.0,
-                                        padding: EdgeInsets.symmetric(
+                                        padding: const EdgeInsets.symmetric(
                                           vertical: 10.0,
                                           horizontal: 25.0,
                                         ),
-                                        child: Text(
+                                        child: const Text(
                                           'Submit',
                                           style: TextStyle(
                                             fontSize: 14.0,

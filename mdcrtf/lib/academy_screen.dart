@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
@@ -5,6 +6,8 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'infoscreen.dart';
 
 class AcademyScreen extends StatelessWidget {
+  const AcademyScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,6 +22,14 @@ class AcademyScreen extends StatelessWidget {
                 Container(
                   width: double.infinity,
                   height: 80,
+                  decoration: const BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: Colors.grey,
+                        width: 1.0,
+                      ),
+                    ),
+                  ),
                   child: Stack(
                     children: [
                       Center(
@@ -44,7 +55,7 @@ class AcademyScreen extends StatelessWidget {
                             );
                           },
                           child: Container(
-                            padding: EdgeInsets.all(8),
+                            padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(8.0),
@@ -59,21 +70,13 @@ class AcademyScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(
-                        color: Colors.grey,
-                        width: 1.0,
-                      ),
-                    ),
-                  ),
                 ),
-                SizedBox(height: 10),
-                Text(
+                const SizedBox(height: 10),
+                const Text(
                   'Azadi Mantras',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 // First row with border
                 Container(
                   decoration: BoxDecoration(
@@ -85,7 +88,7 @@ class AcademyScreen extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      Container(
+                      SizedBox(
                         height: 160,
                         child: ListView(
                           scrollDirection: Axis.horizontal,
@@ -112,13 +115,13 @@ class AcademyScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                SizedBox(height: 10),
-                Text(
+                const SizedBox(height: 10),
+                const Text(
                   'Additional Videos',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.left,
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 // Second row with border
                 Container(
                   decoration: BoxDecoration(
@@ -130,7 +133,7 @@ class AcademyScreen extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      Container(
+                      SizedBox(
                         height: 160,
                         child: ListView(
                           scrollDirection: Axis.horizontal,
@@ -189,7 +192,7 @@ class AcademyScreen extends StatelessWidget {
         height: 200, // Adjust this height as needed
         child: Padding(
           padding: const EdgeInsets.fromLTRB(4.0, 20.0, 0.0, 0.0), // Padding from left, top, right, and bottom
-          child: Container(
+          child: SizedBox(
             width: 150,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -207,15 +210,15 @@ class AcademyScreen extends StatelessWidget {
                       top: 0,
                       left: 0,
                       child: Container(
-                        padding: EdgeInsets.all(4),
-                        decoration: BoxDecoration(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
                           color: Colors.blue,
                           borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(0),
                             bottomRight: Radius.circular(8),
                           ),
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.play_arrow,
                           color: Colors.white,
                           size: 20,
@@ -227,7 +230,7 @@ class AcademyScreen extends StatelessWidget {
                 const SizedBox(height: 5),
                 Text(
                   title,
-                  style: TextStyle(fontSize: 12),
+                  style: const TextStyle(fontSize: 12),
                 ),
               ],
             ),
@@ -242,7 +245,6 @@ class AcademyScreen extends StatelessWidget {
   void _playYoutubeVideo(BuildContext context, String? videoUrl) {
     if (videoUrl != null) {
       // Save the current screen orientation
-      final initialOrientation = MediaQuery.of(context).orientation;
 
       // Lock the screen orientation to portrait
       SystemChrome.setPreferredOrientations([
@@ -256,13 +258,13 @@ class AcademyScreen extends StatelessWidget {
         builder: (BuildContext context) {
           return AlertDialog(
             contentPadding: EdgeInsets.zero,
-            content: Container(
+            content: SizedBox(
               width: double.maxFinite, // Set the width as needed
               height: 400, // Set the height as needed
               child: YoutubePlayer(
                 controller: YoutubePlayerController(
                   initialVideoId: YoutubePlayer.convertUrlToId(videoUrl) ?? '',
-                  flags: YoutubePlayerFlags(
+                  flags: const YoutubePlayerFlags(
                     autoPlay: true,
                     mute: false,
                   ),
@@ -286,7 +288,9 @@ class AcademyScreen extends StatelessWidget {
       });
     } else {
       // Handle the case where videoUrl is null, if needed
-      print('Video URL is null');
+      if (kDebugMode) {
+        print('Video URL is null');
+      }
     }
   }
 

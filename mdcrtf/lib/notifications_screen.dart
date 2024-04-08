@@ -2,19 +2,23 @@ import 'package:flutter/material.dart';
 import 'infoscreen.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       home: NotificationsScreen(),
     );
   }
 }
 
 class NotificationsScreen extends StatefulWidget {
+  const NotificationsScreen({super.key});
+
   @override
   _NotificationsScreenState createState() => _NotificationsScreenState();
 }
@@ -39,7 +43,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         children: [
           Container(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(20.0),
                 bottomRight: Radius.circular(20.0),
               ),
@@ -47,7 +51,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.43),
-                  offset: Offset(0, 1),
+                  offset: const Offset(0, 1),
                   blurRadius: 2,
                 ),
               ],
@@ -59,7 +63,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         'Notifications',
                         style: TextStyle(
                           fontSize: 24.0,
@@ -67,7 +71,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         ),
                       ),
                       IconButton(
-                        icon: Icon(Icons.info),
+                        icon: const Icon(Icons.info),
                         onPressed: () {
                           Navigator.push(
                             context,
@@ -77,13 +81,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 8.0),
+                  const SizedBox(height: 8.0),
                   Row(
                     children: [
                       Expanded(
                         child: Container(
                           width: 150.0, // Adjust the width as needed
-                          padding: EdgeInsets.symmetric(horizontal: 16.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(50.0),
                             border: Border.all(color: Colors.black),
@@ -105,10 +109,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 child: Text(value),
                               );
                             }).toList(),
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.black,
                             ),
-                            icon: Icon(
+                            icon: const Icon(
                               Icons.arrow_drop_down,
                               color: Colors.black,
                             ),
@@ -125,8 +129,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               ),
             ),
           ),
-          SizedBox(height: 16.0),
-          NotificationCard(
+          const SizedBox(height: 16.0),
+          const NotificationCard(
             id: 1,
             imageSrc: 'https://rtfapi.modicare.com/img/RoadMapSelected@2x.png',
             title: 'Product Training',
@@ -134,119 +138,119 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             timeAgo: '3 days ago',
           ),
 
-          NotificationCard(
+          const NotificationCard(
             id: 2,
             imageSrc: 'https://rtfapi.modicare.com/img/RoadMapSelected@2x.png',
             title: 'Product Training',
             description: 'Active 80: Cardboard Demo',
             timeAgo: '3 days ago',
           ),
-          NotificationCard(
+          const NotificationCard(
             id: 3,
             imageSrc: 'https://rtfapi.modicare.com/img/RoadMapSelected@2x.png',
             title: 'Product Training',
             description: 'Active 80: Cardboard Demo',
             timeAgo: '4 days ago',
           ),
-          NotificationCard(
+          const NotificationCard(
             id: 4,
             imageSrc: 'https://rtfapi.modicare.com/img/RoadMapSelected@2x.png',
             title: 'Product Training',
             description: 'Active 80: Cardboard Demo',
             timeAgo: '6 months ago',
           ),
-          NotificationCard(
+          const NotificationCard(
             id: 5,
             imageSrc: 'https://rtfapi.modicare.com/img/RoadMapSelected@2x.png',
             title: 'Product Training',
             description: 'Active 80: Cardboard Demo',
             timeAgo: '8 days ago',
           ),
-          NotificationCard(
+          const NotificationCard(
             id: 6,
             imageSrc: 'https://rtfapi.modicare.com/img/RoadMapSelected@2x.png',
             title: 'Product Training',
             description: 'Active 80: Cardboard Demo',
             timeAgo: '15 days ago',
           ),
-          NotificationCard(
+          const NotificationCard(
             id: 7,
             imageSrc: 'https://rtfapi.modicare.com/img/RoadMapSelected@2x.png',
             title: 'Product Training',
             description: 'Active 80: Cardboard Demo',
             timeAgo: '25 days ago',
           ),
-          NotificationCard(
+          const NotificationCard(
             id: 8,
             imageSrc: 'https://rtfapi.modicare.com/img/RoadMapSelected@2x.png',
             title: 'Product Training',
             description: 'Active 80: Cardboard Demo',
             timeAgo: '1 months ago',
           ),
-          NotificationCard(
+          const NotificationCard(
             id: 9,
             imageSrc: 'https://rtfapi.modicare.com/img/RoadMapSelected@2x.png',
             title: 'Product Training',
             description: 'Active 80: Cardboard Demo',
             timeAgo: '1 months ago',
           ),
-          NotificationCard(
+          const NotificationCard(
             id: 10,
             imageSrc: 'https://rtfapi.modicare.com/img/RoadMapSelected@2x.png',
             title: 'Product Training',
             description: 'Active 80: Cardboard Demo',
             timeAgo: '3 months ago',
           ),
-          NotificationCard(
+          const NotificationCard(
             id: 11,
             imageSrc: 'https://rtfapi.modicare.com/img/RoadMapSelected@2x.png',
             title: 'Product Training',
             description: 'Active 80: Cardboard Demo',
             timeAgo: '2 months ago',
           ),
-          NotificationCard(
+          const NotificationCard(
             id: 12,
             imageSrc: 'https://rtfapi.modicare.com/img/RoadMapSelected@2x.png',
             title: 'Product Training',
             description: 'Active 80: Cardboard Demo',
             timeAgo: '3 months ago',
           ),
-          NotificationCard(
+          const NotificationCard(
             id: 13,
             imageSrc: 'https://rtfapi.modicare.com/img/RoadMapSelected@2x.png',
             title: 'Product Training',
             description: 'Active 80: Cardboard Demo',
             timeAgo: '3 months ago',
           ),
-          NotificationCard(
+          const NotificationCard(
             id: 14,
             imageSrc: 'https://rtfapi.modicare.com/img/RoadMapSelected@2x.png',
             title: 'Product Training',
             description: 'Active 80: Cardboard Demo',
             timeAgo: '3 months ago',
           ),
-          NotificationCard(
+          const NotificationCard(
             id: 15,
             imageSrc: 'https://rtfapi.modicare.com/img/RoadMapSelected@2x.png',
             title: 'Product Training',
             description: 'Active 80: Cardboard Demo',
             timeAgo: '3 months ago',
           ),
-          NotificationCard(
+          const NotificationCard(
             id: 16,
             imageSrc: 'https://rtfapi.modicare.com/img/RoadMapSelected@2x.png',
             title: 'Product Training',
             description: 'Active 80: Cardboard Demo',
             timeAgo: '3 months ago',
           ),
-          NotificationCard(
+          const NotificationCard(
             id: 17,
             imageSrc: 'https://rtfapi.modicare.com/img/RoadMapSelected@2x.png',
             title: 'Product Training',
             description: 'Active 80: Cardboard Demo',
             timeAgo: '2 months ago',
           ),
-          NotificationCard(
+          const NotificationCard(
             id: 18,
             imageSrc: 'https://rtfapi.modicare.com/img/RoadMapSelected@2x.png',
             title: 'Product Training',
@@ -267,7 +271,7 @@ class NotificationCard extends StatelessWidget {
   final String description;
   final String timeAgo;
 
-  NotificationCard({
+  const NotificationCard({super.key,
     required this.id,
     required this.imageSrc,
     required this.title,
@@ -278,7 +282,7 @@ class NotificationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Color(0xFFFFF7B9),
+      color: const Color(0xFFFFF7B9),
       child: InkWell(
         onTap: () {
           Navigator.push(
@@ -295,7 +299,7 @@ class NotificationCard extends StatelessWidget {
               Container(
                 width: 50,
                 height: 50,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.white,
                 ),
@@ -307,14 +311,14 @@ class NotificationCard extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(width: 8.0),
+              const SizedBox(width: 8.0),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       title,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -326,7 +330,7 @@ class NotificationCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(timeAgo),
-                  SizedBox(height: 8.0),
+                  const SizedBox(height: 8.0),
                   IconButton(
                     icon: Transform.rotate(
                       angle: 272 * (3.141592653589793238462 / 180),
@@ -354,7 +358,7 @@ class NotificationCard extends StatelessWidget {
 class NotificationDetailScreen extends StatelessWidget {
   final int id;
 
-  NotificationDetailScreen({required this.id});
+  const NotificationDetailScreen({super.key, required this.id});
 
   @override
   Widget build(BuildContext context) {
@@ -366,17 +370,17 @@ class NotificationDetailScreen extends StatelessWidget {
         child: Column(
           children: [
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
+                borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(20.0),
                   bottomRight: Radius.circular(20.0),
                 ),
-                color: Color.fromARGB(255, 255, 255, 255),
+                color: const Color.fromARGB(255, 255, 255, 255),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.43),
-                    offset: Offset(0, 1),
+                    offset: const Offset(0, 1),
                     blurRadius: 2,
                   ),
                 ],
@@ -385,12 +389,12 @@ class NotificationDetailScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   IconButton(
-                    icon: Icon(Icons.arrow_back, color: Color.fromARGB(255, 40, 40, 40)),
+                    icon: const Icon(Icons.arrow_back, color: Color.fromARGB(255, 40, 40, 40)),
                     onPressed: () {
                       Navigator.pop(context); // Navigate back when pressed
                     },
                   ),
-                  Text(
+                  const Text(
                     'Notification Detail Screen',
                     style: TextStyle(
                       color: Color.fromARGB(255, 40, 40, 40),

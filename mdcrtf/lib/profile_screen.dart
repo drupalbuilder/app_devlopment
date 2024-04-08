@@ -8,7 +8,6 @@ import 'adddocuments.dart';
 import 'calander.dart';
 import 'contactUS.dart';
 import 'main.dart';
-import 'mainscreen.dart';
 import 'profiledetails.dart';
 import 'infoscreen.dart';
 import 'privacy&policy.dart';
@@ -16,19 +15,21 @@ import 'setting.dart';
 import 'terms&use.dart';
 
 class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFFDFDFDFF),
+      backgroundColor: const Color(0xfffdfdfdff),
       body: SafeArea(
         child: SingleChildScrollView(
-          physics: AlwaysScrollableScrollPhysics(),
+          physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Stack(
                 children: [
-                  Container(
+                  const SizedBox(
                     height: 300,
                     child: ImageSlider(
                       imageUrls: [
@@ -47,7 +48,7 @@ class ProfileScreen extends StatelessWidget {
                     right: 0,
                     child: Center(
                       child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 0),
+                        padding: const EdgeInsets.symmetric(horizontal: 0),
                         alignment: Alignment.topCenter,
                         child: Stack(
                           children: [
@@ -68,8 +69,8 @@ class ProfileScreen extends StatelessWidget {
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(20),
                                   ),
-                                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                  child: Text(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                  child: const Text(
                                     'Manage Dreams',
                                     style: TextStyle(
                                       color: Colors.black,
@@ -93,7 +94,7 @@ class ProfileScreen extends StatelessWidget {
                                         onTap: () {
                                           Navigator.push(
                                             context,
-                                            MaterialPageRoute(builder: (context) => CalendarSettings()),
+                                            MaterialPageRoute(builder: (context) => const CalendarSettings()),
                                           );
                                         },
                                         child: Image.network(
@@ -102,8 +103,8 @@ class ProfileScreen extends StatelessWidget {
                                           height: 24,
                                         ),
                                       ),
-                                      SizedBox(height: 4),
-                                      Text(
+                                      const SizedBox(height: 4),
+                                      const Text(
                                         'Calendar',
                                         style: TextStyle(
                                           color: Colors.grey,
@@ -127,8 +128,8 @@ class ProfileScreen extends StatelessWidget {
                                           height: 24,
                                         ),
                                       ),
-                                      SizedBox(height: 4),
-                                      Text(
+                                      const SizedBox(height: 4),
+                                      const Text(
                                         'logout',
                                         style: TextStyle(
                                           color: Colors.grey,
@@ -143,14 +144,14 @@ class ProfileScreen extends StatelessWidget {
                               ),
                             ),
                             Positioned(
-                              top: 80,
+                              top: 100,
                               left: MediaQuery.of(context).orientation == Orientation.portrait
                                   ? (MediaQuery.of(context).size.width - 90) / 2 // Center horizontally for portrait
                                   : (MediaQuery.of(context).size.width - 90) / 2, // Center horizontally for landscape
                               child: Container(
                                 width: 90, // assuming this is the width for portrait mode
                                 height: 90,
-                                decoration: BoxDecoration(
+                                decoration: const BoxDecoration(
                                   shape: BoxShape.circle,
                                   color: Colors.blue,
                                 ),
@@ -164,26 +165,26 @@ class ProfileScreen extends StatelessWidget {
                 ],
               ),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 child: Column(
                   children: [
-                    Text(
+                    const Text(
                       'CONSULTANT',
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.grey,
                       ),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                       child: Column(
                         children: [
-                          Row(
+                          const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
@@ -215,24 +216,24 @@ class ProfileScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-                          SizedBox(height: 10),
-                          Container(
+                          const SizedBox(height: 10),
+                          SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
                               onPressed: () {
                                 // Add your action here
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFF01aafe),
+                                backgroundColor: const Color(0xFF01aafe),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                               ),
-                              child: Text('Income Goal Setting'),
+                              child: const Text('Income Goal Setting'),
                             ),
                           ),
-                          SizedBox(height: 10),
-                          Container(
+                          const SizedBox(height: 10),
+                          SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
                               onPressed: () {
@@ -242,18 +243,18 @@ class ProfileScreen extends StatelessWidget {
                                 );
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFF01aafe),
+                                backgroundColor: const Color(0xFF01aafe),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                               ),
-                              child: Text('Play & Win'),
+                              child: const Text('Play & Win'),
                             ),
                           ),
-                          SizedBox(height: 50),
+                          const SizedBox(height: 50),
                           ListView(
                             shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
+                            physics: const NeverScrollableScrollPhysics(),
                             children: [
                               GestureDetector(
                                 onTap: () {
@@ -284,9 +285,9 @@ class ProfileScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -294,10 +295,10 @@ class ProfileScreen extends StatelessWidget {
                       onTap: () {
                         // Add your action for Terms of Use here
                       },
-                      child: Text(
+                      child: const Text(
                         'Terms of Use',
                         style: TextStyle(
-                          color: Color(0xFF09f),
+                          color: Color(0x000ff09f),
                         ),
                       ),
                     ),
@@ -305,17 +306,17 @@ class ProfileScreen extends StatelessWidget {
                       onTap: () {
                         // Add your action for Privacy Policy here
                       },
-                      child: Text(
+                      child: const Text(
                         'Privacy Policy',
                         style: TextStyle(
-                          color: Color(0xFF09f),
+                          color: Color(0x000ff09f),
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -323,7 +324,7 @@ class ProfileScreen extends StatelessWidget {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => InfoScreen()));    // Add your FAQ action here
                   }, 'FAQ'),
                   _buildCircularIconButton(Icons.settings, Colors.blue, () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => SettingPage()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingPage()));
                   }, 'Settings'),
                   _buildCircularIconButton(Icons.contact_phone, Colors.blue, () {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => ContactUsApp())); // Add your contact action here
@@ -333,9 +334,9 @@ class ProfileScreen extends StatelessWidget {
                   }, 'Report'),
                 ],
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Container(
-                padding: EdgeInsets.only(top: 14),
+                padding: const EdgeInsets.only(top: 14),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -347,9 +348,9 @@ class ProfileScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Container(
-                padding: EdgeInsets.only(bottom: 50),
+                padding: const EdgeInsets.only(bottom: 50),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -357,17 +358,17 @@ class ProfileScreen extends StatelessWidget {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => TermsAndPolicyScreen()),
+                          MaterialPageRoute(builder: (context) => const TermsAndPolicyScreen()),
                         );
                       },
-                      child: Text(
+                      child: const Text(
                         'Terms of Use',
                         style: TextStyle(
                           color: Color(0xFF1FA2FF),
                         ),
                       ),
                     ),
-                    SizedBox(width: 20), // Adjust the width as needed
+                    const SizedBox(width: 20), // Adjust the width as needed
                     GestureDetector(
                       onTap: () {
                         Navigator.push(
@@ -375,7 +376,7 @@ class ProfileScreen extends StatelessWidget {
                           MaterialPageRoute(builder: (context) => PrivacyAndPolicyScreen()),
                         );
                       },
-                      child: Text(
+                      child: const Text(
                         'Privacy of Use',
                         style: TextStyle(
                           color: Color(0xFF1FA2FF),
@@ -394,8 +395,8 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildListItem(String title, BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(bottom: 10, top: 10, left: 16, right: 16),
-      decoration: BoxDecoration(
+      padding: const EdgeInsets.only(bottom: 10, top: 10, left: 16, right: 16),
+      decoration: const BoxDecoration(
         border: Border(bottom: BorderSide(color: Colors.grey, width: 1)),
       ),
       child: Row(
@@ -403,7 +404,7 @@ class ProfileScreen extends StatelessWidget {
         children: [
           Text(
             title,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
               color: Colors.black,
               fontWeight: FontWeight.normal,
@@ -434,7 +435,7 @@ class ProfileScreen extends StatelessWidget {
             onPressed: onPressed,
           ),
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Text(label),
       ],
     );
@@ -460,7 +461,7 @@ class _ImageSliderState extends State<ImageSlider> {
     super.initState();
     _pageController = PageController(initialPage: 0);
 
-    Timer.periodic(Duration(seconds: 3), (Timer timer) {
+    Timer.periodic(const Duration(seconds: 3), (Timer timer) {
       if (_forward) {
         if (_currentPage < widget.imageUrls.length - 1) {
           _currentPage++;
@@ -476,7 +477,7 @@ class _ImageSliderState extends State<ImageSlider> {
       }
       _pageController.animateToPage(
         _currentPage,
-        duration: Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
     });
@@ -484,7 +485,7 @@ class _ImageSliderState extends State<ImageSlider> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: 200, // Adjust height as needed
       child: PageView.builder(
         controller: _pageController,

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class SettingPage extends StatefulWidget {
+  const SettingPage({super.key});
+
   @override
   _SettingPageState createState() => _SettingPageState();
 }
@@ -14,21 +16,21 @@ class _SettingPageState extends State<SettingPage> {
     return Scaffold(
       body: SafeArea(
         child: Container(
-          margin: EdgeInsets.all(0.0),
+          margin: const EdgeInsets.all(0.0),
           child: Column(
             children: [
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(20.0),
                     bottomRight: Radius.circular(20.0),
                   ),
-                  color: Color.fromARGB(255, 255, 255, 255),
+                  color: const Color.fromARGB(255, 255, 255, 255),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.43),
-                      offset: Offset(0, 1),
+                      offset: const Offset(0, 1),
                       blurRadius: 2,
                     ),
                   ],
@@ -37,13 +39,13 @@ class _SettingPageState extends State<SettingPage> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     IconButton(
-                      icon: Icon(Icons.arrow_back,
+                      icon: const Icon(Icons.arrow_back,
                           color: Color.fromARGB(255, 40, 40, 40)),
                       onPressed: () {
                         Navigator.pop(context); // Navigate back when pressed
                       },
                     ),
-                    Text(
+                    const Text(
                       'App Setting',
                       style: TextStyle(
                         color: Color.fromARGB(255, 40, 40, 40),
@@ -55,16 +57,16 @@ class _SettingPageState extends State<SettingPage> {
                 ),
               ),
               Container(
-                padding: EdgeInsets.all(10.0),
+                padding: const EdgeInsets.all(10.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Notification',
                       style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
                     ),
                     SwitchListTile(
-                      title: Text('Sound'),
+                      title: const Text('Sound'),
                       value: _soundEnabled,
                       onChanged: (bool value) {
                         setState(() {
@@ -73,7 +75,7 @@ class _SettingPageState extends State<SettingPage> {
                       },
                     ),
                     SwitchListTile(
-                      title: Text('Vibration'),
+                      title: const Text('Vibration'),
                       value: _vibrationEnabled,
                       onChanged: (bool value) {
                         setState(() {
@@ -91,13 +93,13 @@ class _SettingPageState extends State<SettingPage> {
                     // ListTile(
                     //   title: Text('Regular'),
                     // ),
-                    SizedBox(height: 20.0),
-                    Text(
+                    const SizedBox(height: 20.0),
+                    const Text(
                       'Security',
                       style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
                     ),
                     ListTile(
-                      title: Text('Reset My Password'),
+                      title: const Text('Reset My Password'),
                       onTap: () {
                         // Handle reset password action
                       },
@@ -114,7 +116,7 @@ class _SettingPageState extends State<SettingPage> {
 }
 
 void main() {
-  runApp(MaterialApp(
+  runApp(const MaterialApp(
     home: SettingPage(),
   ));
 }
