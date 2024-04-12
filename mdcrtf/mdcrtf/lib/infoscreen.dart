@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 void main() {
   runApp(MyApp());
@@ -90,22 +91,41 @@ class _InfoScreenState extends State<InfoScreen> {
                   ),
                 ],
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+              child: Column(
                 children: [
-                  IconButton(
-                    icon: Icon(Icons.arrow_back,
-                        color: Color.fromARGB(255, 40, 40, 40)),
-                    onPressed: () {
-                      Navigator.pop(context); // Navigate back when pressed
-                    },
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context); // Go back to the previous page
+                        },
+                        child: Text(
+                          'ᐸ  Back',
+                          style: TextStyle(
+                            color: Color(0xFF0396FE),
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  Text(
-                    'FAQ',
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 40, 40, 40),
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.bold,
+                  SizedBox(height: 10.0), // Add space here
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),// Padding top and bottom
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Faqs',
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 40, 40, 40),
+                            fontSize: 24.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -134,7 +154,10 @@ class _InfoScreenState extends State<InfoScreen> {
             ),
             Expanded(
               child: isLoading
-                  ? Center(child: CircularProgressIndicator())
+                  ? Center(child: LoadingAnimationWidget.staggeredDotsWave(
+                color: Colors.blue, // Customize color if needed
+                size: 50, // Adjust size as needed
+              ))
                   : errorMessage.isNotEmpty
                   ? Center(child: Text(errorMessage))
                   : ListView.builder(
@@ -174,7 +197,3 @@ class _InfoScreenState extends State<InfoScreen> {
     return htmlText.replaceAll(exp, '');
   }
 }
-
-
-
-

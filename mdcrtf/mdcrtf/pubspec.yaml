@@ -33,6 +33,10 @@ dev_dependencies:
   http: ^0.13.3  # existing dependency
   provider: ^5.0.0
   shared_preferences: ^2.0.8
+  loading_animation_widget: ^1.2.1
+  intl: ^0.17.0
+  image_picker: ^1.0.7
+  permission_handler: ^11.0.1
 
 
 flutter:

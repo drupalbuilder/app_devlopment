@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'infoscreen.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-import 'infoscreen.dart';
 
 
 class DashboardScreen extends StatefulWidget {
@@ -321,8 +318,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
               ),
-
-
             ],
           ),
         ),
@@ -495,14 +490,9 @@ Widget videoItem(BuildContext context, String title, String videoUrl) {
   );
 }
 
-
-
-
 void _playYoutubeVideo(BuildContext context, String? videoUrl) {
   if (videoUrl != null) {
     // Save the current screen orientation
-    final initialOrientation = MediaQuery.of(context).orientation;
-
     // Lock the screen orientation to portrait
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
@@ -548,8 +538,6 @@ void _playYoutubeVideo(BuildContext context, String? videoUrl) {
     print('Video URL is null');
   }
 }
-
-
 
 void main() {
   runApp(MaterialApp(

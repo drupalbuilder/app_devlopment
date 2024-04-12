@@ -25,23 +25,40 @@ class FamilyInfoScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                child: Column(
                   children: [
-                    IconButton(
-                      icon: Icon(Icons.arrow_back,
-                          color: Color.fromARGB(255, 40, 40, 40)),
-                      onPressed: () {
-                        Navigator.pop(context); // Navigate back when pressed
-                      },
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context); // Go back to the previous page
+                          },
+                          child: Text(
+                            'ᐸ  Back',
+                            style: TextStyle(
+                              color: Color(0xFF0396FE),
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    Text(
-                      'Calander',
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 40, 40, 40),
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    SizedBox(height: 20.0), // Add space here
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Calendar',
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 40, 40, 40),
+                            fontSize: 24.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

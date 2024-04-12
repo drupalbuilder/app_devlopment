@@ -13,6 +13,7 @@ import 'infoscreen.dart';
 import 'privacy&policy.dart';
 import 'setting.dart';
 import 'terms&use.dart';
+import 'income_goal_setting.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -35,8 +36,6 @@ class ProfileScreen extends StatelessWidget {
                       imageUrls: [
                         'https://rtfapi.modicare.com/assets/dgallery/2/2-1.jpeg',
                         'https://rtfapi.modicare.com/assets/dgallery/2/2-1.jpeg',
-                        'https://rtfapi.modicare.com/img/SignatureWithLogo@3x.png',
-
                         // Additional image URL
                         // Add more image URLs if needed
                       ],
@@ -54,7 +53,7 @@ class ProfileScreen extends StatelessWidget {
                           children: [
                             Image.network(
                               'https://rtfapi.modicare.com/img/curve@3x.png',
-                              height: 500,
+                              height: 520,
                               fit: BoxFit.contain,
                             ),
                             Positioned(
@@ -221,7 +220,10 @@ class ProfileScreen extends StatelessWidget {
                             width: double.infinity,
                             child: ElevatedButton(
                               onPressed: () {
-                                // Add your action here
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => IncomeGoals()),
+                                );  // Add your action here
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF01aafe),
@@ -384,6 +386,7 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     ),
                   ],
+
                 ),
               ),
             ],
@@ -395,7 +398,7 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildListItem(String title, BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(bottom: 10, top: 10, left: 16, right: 16),
+      padding: const EdgeInsets.only(bottom: 10, top: 10, left: 0, right: 0),
       decoration: const BoxDecoration(
         border: Border(bottom: BorderSide(color: Colors.grey, width: 1)),
       ),

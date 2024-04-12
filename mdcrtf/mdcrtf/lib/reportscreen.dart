@@ -25,27 +25,46 @@ class ReportScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context); // Go back to the previous page
+                          },
+                          child: Text(
+                            'ᐸ  Back',
+                            style: TextStyle(
+                              color: Color(0xFF0396FE),
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+              SizedBox(height: 10.0), // Add space here
+              Padding(
+                padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),// Padding top and bottom
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    IconButton(
-                      icon: Icon(Icons.arrow_back,
-                          color: Color.fromARGB(255, 40, 40, 40)),
-                      onPressed: () {
-                        Navigator.pop(context); // Navigate back when pressed
-                      },
-                    ),
                     Text(
                       'Report an Issue / Feedback',
                       style: TextStyle(
                         color: Color.fromARGB(255, 40, 40, 40),
-                        fontSize: 20.0,
+                        fontSize: 18.0,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
                 ),
               ),
+            ],
+          ),
+        ),
               Padding(
                 padding: EdgeInsets.all(20.0),
                 child: Column(
