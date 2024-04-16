@@ -1162,6 +1162,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
     );
   }
 
+
+
+
   @override
   void dispose() {
     _animationController.dispose();

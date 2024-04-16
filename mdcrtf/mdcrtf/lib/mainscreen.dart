@@ -143,23 +143,36 @@ class _BottomBarScreenState extends State<MainScreen> {
       ),
       floatingActionButtonLocation:
       FloatingActionButtonLocation.miniCenterDocked,
-      floatingActionButton: FloatingActionButton(
-        hoverElevation: 22,
-        backgroundColor: Colors.white,
-        splashColor: Colors.transparent, // Remove splash color
-        tooltip: 'Search',
-        elevation: 4,
-        child: Image.network(
-          _isRoadmapScreenActive
-              ? 'https://rtfapi.modicare.com/img/RoadMapSelected@2x.png'
-              : 'https://rtfapi.modicare.com/img/roadmap.png',
-          width: 24, // Set the desired width
-          height: 24, // Set the desired height
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.white, // Background color
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 5.0,
+              spreadRadius: 1.0,
+            ),
+          ],
         ),
-        onPressed: () => setState(() {
-          _selectedPageIndex = 2;
-          _isRoadmapScreenActive = true; // Update the variable when pressing the floating button
-        }),
+        child: FloatingActionButton(
+          hoverElevation: 22,
+          backgroundColor: Colors.transparent, // Make FAB transparent
+          splashColor: Colors.transparent, // Remove splash color
+          tooltip: 'Search',
+          elevation: 0, // No elevation for inner FAB
+          child: Image.network(
+            _isRoadmapScreenActive
+                ? 'https://rtfapi.modicare.com/img/RoadMapSelected@2x.png'
+                : 'https://rtfapi.modicare.com/img/roadmap.png',
+            width: 24, // Set the desired width
+            height: 24, // Set the desired height
+          ),
+          onPressed: () => setState(() {
+            _selectedPageIndex = 2;
+            _isRoadmapScreenActive = true; // Update the variable when pressing the floating button
+          }),
+        ),
       ),
     );
   }
