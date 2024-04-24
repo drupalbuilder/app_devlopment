@@ -56,8 +56,8 @@ class _RoadmapScreenState extends State<RoadmapScreen> with SingleTickerProvider
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(16.0),
-                    bottomRight: Radius.circular(16.0),
+                    bottomLeft: Radius.circular(8.0),
+                    bottomRight: Radius.circular(8.0),
                   ),
                   boxShadow: [
                     BoxShadow(
@@ -69,7 +69,7 @@ class _RoadmapScreenState extends State<RoadmapScreen> with SingleTickerProvider
                   color: Colors.white,
                 ),
                 child: Padding(
-                  padding: EdgeInsets.zero,
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [

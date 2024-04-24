@@ -62,8 +62,8 @@ class AcademyScreen extends StatelessWidget {
                             ),
                             child: Image.network(
                               'https://rtfapi.modicare.com/assets/images/help.png?act=1',
-                              width: 20,
-                              height: 20,
+                              width: 24,
+                              height: 24,
                             ),
                           ),
                         ),

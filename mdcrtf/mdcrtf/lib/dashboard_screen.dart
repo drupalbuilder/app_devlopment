@@ -1,221 +1,203 @@
 import 'package:flutter/material.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
 import 'infoscreen.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:flutter/services.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
-
-
 
 class DashboardScreen extends StatefulWidget {
+  const DashboardScreen({Key? key}) : super(key: key);
+
   @override
   _DashboardScreenState createState() => _DashboardScreenState();
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  int selectedMonthIndex = -1;
+  int incomeValue = 0;
+  String? _selectedMonth;
 
   @override
   Widget build(BuildContext context) {
-    final List<ChartData> chartData = [
-      ChartData('Target', 10000),
-      ChartData('January', 8000),
-      ChartData('February', 10000),
-      ChartData('March', 7000),
-      ChartData('April', 12000),
-      ChartData('May', 9000),
-    ];
-
-    return MaterialApp(
-      home: Scaffold(
-        backgroundColor: Colors.white,
-        body: SafeArea(
-          child: ListView(
-            children: [
-              Container(
-                height: 750,
-                margin: EdgeInsets.only(bottom: 20.0),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(20.0),
-                    bottomRight: Radius.circular(20.0),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Dashboard'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => InfoScreen(),
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.43),
-                      offset: Offset(0, 1),
-                      blurRadius: 2,
-                    ),
-                  ],
+                );
+              },
+              child: Image.network(
+                'https://rtfapi.modicare.com/assets/images/help.png?act=1',
+                width: 24,
+                height: 24,
+              ),
+            ),
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20.0),
+              bottomRight: Radius.circular(20.0),
+            ),
+            color: Color.fromARGB(255, 255, 255, 255),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.43),
+                offset: Offset(0, 1),
+                blurRadius: 2,
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(height: 10),
+              Container(
+                height: 320,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey, width: 1.0),
+                  borderRadius: BorderRadius.circular(8.0),
                 ),
-                child: Stack(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(20.0),
-                        bottomRight: Radius.circular(20.0),
-                      ),
-                      child: Container(
-                        color: Colors.white,
-                        height: 650,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Dashboard',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 20.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => InfoScreen()),
-                                  );
-                                },
-                                child: Image.network(
-                                  'https://rtfapi.modicare.com/assets/images/help.png?act=1',
-                                  width: 20,
-                                  height: 20,
-                                ),
-                              ),
-                            ],
-                          ),
-                          GestureDetector(
-                            onTapUp: (TapUpDetails details) {
-                              RenderBox renderBox = context
-                                  .findRenderObject() as RenderBox;
-                              var localPosition = renderBox.globalToLocal(
-                                  details.globalPosition);
-                              int tappedIndex = ((localPosition.dx - 16.0) /
-                                  (MediaQuery
-                                      .of(context)
-                                      .size
-                                      .width - 32.0) * 5).round();
-
-                              setState(() {
-                                selectedMonthIndex = tappedIndex;
-                              });
-                            },
-                            child: SizedBox(
-                              height: 300,
-                              width: double.infinity,
-                              child: Container(
-                                padding: EdgeInsets.zero,
-                                child: SfCartesianChart(
-                                  margin: EdgeInsets.zero,
-                                  plotAreaBackgroundColor: Colors.white,
-                                  primaryXAxis: CategoryAxis(),
-                                  primaryYAxis: NumericAxis(
-                                    isVisible: false,
-                                    title: AxisTitle(text: ''),
-                                    majorTickLines: MajorTickLines(size: 0),
-                                    majorGridLines: MajorGridLines(width: 0),
-                                    minorGridLines: MinorGridLines(width: 0),
-                                  ),
-                                  series: <ChartSeries<ChartData, String>>[
-                                    ColumnSeries<ChartData, String>(
-                                      dataSource: chartData,
-                                      xValueMapper: (ChartData data, _) =>
-                                      data.month,
-                                      yValueMapper: (ChartData data, _) =>
-                                      data.target,
-                                      dataLabelSettings: DataLabelSettings(
-                                        isVisible: true,
-                                        labelPosition: ChartDataLabelPosition
-                                            .outside,
-                                      ),
-                                      pointColorMapper: (ChartData data, _) =>
-                                      data.month == 'Target'
-                                          ? Colors.yellow
-                                          : (chartData.indexOf(data) ==
-                                          selectedMonthIndex
-                                          ? Colors.green
-                                          : null),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              LegendItem(
-                                color: Colors.yellow,
-                                label: 'Target',
-                                amount: selectedMonthIndex == -1
-                                    ? '₹ 10,000'
-                                    : '₹ ${chartData[selectedMonthIndex].target
-                                    .toStringAsFixed(2)}',
-                              ),
-                              LegendItem(
-                                color: Color(0xFF85e250),
-                                label: 'Income',
-                                amount: selectedMonthIndex == -1
-                                    ? '₹ 10,000'
-                                    : '₹ ${chartData[selectedMonthIndex].target
-                                    .toStringAsFixed(2)}',
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 10),
-                          Container(
-                            width: 150,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                // Add your button action here
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                              ),
-                              child: Text('Income Simulator'),
-                            ),
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            'Action Plan Vs Performance',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: 20),
-                          SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                _buildCard('Prospects Added', '0/50', context),
-                                _buildCard('Other Title', '1/10', context),
-                                // Add more cards as needed
-                                _buildCard('Other Title', '1/10', context),
-                                _buildCard('Prospects Added', '0/50', context),
-                                _buildCard('Other Title', '1/10', context),
-                                // Add more cards as needed
-                                _buildCard('Other Title', '1/10', context),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+                child: charts.BarChart(
+                  _createSampleData(),
+                  animate: true,
+                  primaryMeasureAxis: const charts.NumericAxisSpec(
+                    renderSpec: charts.NoneRenderSpec(),
+                  ),
+                  behaviors: [
+                    charts.SelectNearest(eventTrigger: charts.SelectionTrigger.tapAndDrag),
+                  ],
+                  selectionModels: [
+                    charts.SelectionModelConfig(
+                      type: charts.SelectionModelType.info,
+                      changedListener: (model) {
+                        if (model.selectedDatum.isNotEmpty && model.selectedDatum.first.datum is OrdinalSales) {
+                          final selectedDatum = model.selectedDatum.first.datum as OrdinalSales;
+                          if (selectedDatum.month != 'Target') {
+                            setState(() {
+                              _selectedMonth = selectedDatum.month;
+                              incomeValue = selectedDatum.sales;
+                            });
+                          }
+                        }
+                      },
                     ),
                   ],
                 ),
               ),
+              SizedBox(height: 24),
+              Row(
+                children: [
+                  Container(
+                    width: 15,
+                    height: 15,
+                    decoration: BoxDecoration(
+                      color: const Color(0xfffdcd11),
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                  ),
+                  SizedBox(width: 5),
+                  const Text(
+                    'Target',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: const Color(0xff535353),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(width: 40),
+                  Container(
+                    width: 15,
+                    height: 15,
+                    decoration: BoxDecoration(
+                      color: const Color(0xff85e250),
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                  ),
+                  SizedBox(width: 5),
+                  const Text(
+                    'Income',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: const Color(0xff535353),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Text(
+                    '₹ ${_getTargetValue()}',
+                    style: const TextStyle(
+                      fontSize: 24,
+                      color: const Color(0xff535353),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(width: 20),
+                  Text(
+                    '₹ $incomeValue',
+                    style: const TextStyle(
+                      fontSize: 24,
+                      color: const Color(0xff535353),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 16),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Add your button onPressed logic here
+                  },
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Color(0xFF333333),
+                    backgroundColor: Color(0xFFFDFDFD),
+                    side: BorderSide(width: 1.0, color: Color(0xFF0099FF)),
+                  ),
+                  child: Text(
+                    'Income Simulator',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 16),
+              Text(
+                'Action Plan Vs Performance',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: const Color(0xff535353),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 10),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    buildCard(),
+                    buildCard(),
+                    buildCard(),
+                    buildCard(),
+                    buildCard(),
+                  ],
+                ),
+              ),
+              SizedBox(height: 10), // Added spacing
               Container(
                 height: 140,
                 color: Colors.white,
@@ -256,67 +238,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                       textAlign: TextAlign.left,
                     ),
+
                   ],
-                ),
-              ),
-              Container(
-                height: 200,
-                color: Color(0xFFF4F4F4),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildCard('Prospects Added', '0/50', context),
-                      _buildCard('Other Title', '1/10', context),
-                      _buildCard('Other Title', '1/10', context),
-                      _buildCard('Prospects Added', '0/50', context),
-                      _buildCard('Other Title', '1/10', context),
-                      _buildCard('Other Title', '1/10', context),
-                    ],
-                  ),
-                ),
-              ),
 
-
-              Padding(
-                padding: EdgeInsets.only(top: 20),
-                // Adjust the top padding as needed
-                child: Container(
-                  height: 200,
-                  color: Colors.white,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      videoItem(
-                        context,
-                        'Modicare Envirochip Training Program 2016',
-                        'https://www.youtube.com/embed/cEiqYPToiZQ?showinfo=0&related=0&enablejsapi=1&autoplay=1&rel=0',
-                      ),
-                      videoItem(
-                        context,
-                        'Modicare Envoirochip - Animated Demo',
-                        'https://www.youtube.com/embed/RoERmkLylU4?showinfo=0&related=0&enablejsapi=1&autoplay=1&rel=0',
-                      ),
-                      videoItem(
-                        context,
-                        'Modicare Envirochip Training Program 2016',
-                        'https://www.youtube.com/embed/cEiqYPToiZQ?showinfo=0&related=0&enablejsapi=1&autoplay=1&rel=0',
-                      ),
-                      videoItem(
-                        context,
-                        'Modicare Envirochip Training Program 2016',
-                        'https://www.youtube.com/embed/cEiqYPToiZQ?showinfo=0&related=0&enablejsapi=1&autoplay=1&rel=0',
-                      ),
-                      videoItem(
-                        context,
-                        'Modicare Envirochip Training Program 2016',
-                        'https://www.youtube.com/embed/cEiqYPToiZQ?showinfo=0&related=0&enablejsapi=1&autoplay=1&rel=0',
-                      ),
-                      // Add more video items as needed
-                    ],
-                  ),
                 ),
+
               ),
             ],
           ),
@@ -325,62 +251,45 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildCard(String title, String subtitle, BuildContext context) {
-    return Container(
-      width: 160, // Fixed width for the card
-      height: 190, // Fixed height for the card
-      margin: EdgeInsets.symmetric(horizontal: 6.0),
-      decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.8),
-            spreadRadius: 1,
-            blurRadius: 1,
-            offset: Offset(0, 3), // changes position of shadow
-          ),
-        ],
-        borderRadius: BorderRadius.circular(10),
-        color: Colors.white,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
+  Widget buildCard() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      child: Container(
+        width: 150,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.8),
+              spreadRadius: 1,
+              blurRadius: 1,
+              offset: Offset(2, 1),
+            ),
+          ],
+        ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Container(
+              margin: EdgeInsets.symmetric(vertical: 10),
+              child: Image.network(
+                'https://rtfapi.modicare.com/img/Money-bag.png',
+                width: 50,
+                height: 50,
+              ),
+            ),
             Text(
-              title,
+              'Next Level\nGPV Required',
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 5),
             Text(
-              subtitle,
+              '60',
               style: TextStyle(
-                color: Colors.grey,
-              ),
-            ),
-            SizedBox(height: 10),
-            SizedBox(
-              width: 120,
-              height: 100,
-              child: Stack(
-                children: [
-                  CircularProgressIndicator(
-                    value: 0, // Set your progress value here
-                    strokeWidth: 8,
-                    backgroundColor: Colors.grey.withOpacity(0.2),
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                  ),
-                  Center(
-                    child: Text(
-                      '0%', // Set your percentage here
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
+                fontWeight: FontWeight.bold,
               ),
             ),
           ],
@@ -388,159 +297,52 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
+
+  List<charts.Series<OrdinalSales, String>> _createSampleData() {
+    final data = [
+      OrdinalSales('Target', 10000),
+      OrdinalSales('Oct', 5000),
+      OrdinalSales('Nov', 1000),
+      OrdinalSales('Dec', 1600),
+      OrdinalSales('Jan', 1800),
+      OrdinalSales('Feb', 2000),
+      OrdinalSales('Mar', 1000),
+    ];
+
+    return [
+      charts.Series<OrdinalSales, String>(
+        id: 'Sales',
+        colorFn: (OrdinalSales sales, _) {
+          if (sales.month == _selectedMonth) {
+            return charts.Color.fromHex(code: '#85e250');
+          } else if (sales.month == 'Target') {
+            return charts.Color.fromHex(code: '#fdcd11');
+          } else {
+            return charts.Color(r: 37, g: 150, b: 190);
+          }
+        },
+        domainFn: (OrdinalSales sales, _) => sales.month,
+        measureFn: (OrdinalSales sales, _) => sales.sales,
+        data: data,
+      ),
+    ];
+  }
+
+  String _getTargetValue() {
+    final targetData = _createSampleData().first.data.firstWhere((element) => element.month == 'Target', orElse: () => OrdinalSales('Target', 0));
+    return '${targetData.sales}';
+  }
 }
 
-  class ChartData {
+class OrdinalSales {
   final String month;
-  final double target;
+  final int sales;
 
-  ChartData(this.month, this.target);
-}
-
-class LegendItem extends StatelessWidget {
-  final Color color;
-  final String label;
-  final String amount;
-
-  LegendItem({required this.color, required this.label, this.amount = ''});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(right: 20.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 20,
-                height: 20,
-                decoration: BoxDecoration(
-                  color: color,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              SizedBox(width: 5),
-              Text(label),
-            ],
-          ),
-          if (amount.isNotEmpty) Text(amount),
-        ],
-      ),
-    );
-  }
-}
-
-
-Widget videoItem(BuildContext context, String title, String videoUrl) {
-  return GestureDetector(
-    onTap: () {
-      _playYoutubeVideo(context, videoUrl);
-    },
-    child: SizedBox(
-      height: 200, // Adjust this height as needed
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(4.0, 20.0, 0.0, 0.0), // Padding from left, top, right, and bottom
-        child: Container(
-          width: 150,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  Image.network(
-                    'https://img.youtube.com/vi/${videoUrl.split('/').last.split('?').first}/0.jpg',
-                    width: 120,
-                    height: 75,
-                    fit: BoxFit.cover,
-                  ),
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    child: Container(
-                      padding: EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(0),
-                          bottomRight: Radius.circular(8),
-                        ),
-                      ),
-                      child: Icon(
-                        Icons.play_arrow,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 5),
-              Text(
-                title,
-                style: TextStyle(fontSize: 12),
-              ),
-            ],
-          ),
-        ),
-      ),
-    ),
-  );
-}
-
-void _playYoutubeVideo(BuildContext context, String? videoUrl) {
-  if (videoUrl != null) {
-    // Save the current screen orientation
-    // Lock the screen orientation to portrait
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
-
-    showDialog(
-      context: context,
-      barrierDismissible: true, // allow dismissing the dialog by clicking outside
-      builder: (BuildContext context) {
-        return AlertDialog(
-          contentPadding: EdgeInsets.zero,
-          content: Container(
-            width: double.maxFinite, // Set the width as needed
-            height: 400, // Set the height as needed
-            child: YoutubePlayer(
-              controller: YoutubePlayerController(
-                initialVideoId: YoutubePlayer.convertUrlToId(videoUrl) ?? '',
-                flags: YoutubePlayerFlags(
-                  autoPlay: true,
-                  mute: false,
-                ),
-              ),
-              showVideoProgressIndicator: true,
-              onReady: () {
-                // Perform any additional setup here
-              },
-            ),
-          ),
-        );
-      },
-    ).then((value) {
-      // Restore the original screen orientation after the dialog is dismissed
-      SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-        DeviceOrientation.portraitDown,
-        DeviceOrientation.landscapeLeft,
-        DeviceOrientation.landscapeRight,
-      ]);
-    });
-  } else {
-    // Handle the case where videoUrl is null, if needed
-    print('Video URL is null');
-  }
+  OrdinalSales(this.month, this.sales);
 }
 
 void main() {
-  runApp(MaterialApp(
+  runApp(const MaterialApp(
     home: DashboardScreen(),
   ));
 }
