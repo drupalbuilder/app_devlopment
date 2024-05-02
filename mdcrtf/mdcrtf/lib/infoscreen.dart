@@ -41,7 +41,8 @@ class _InfoScreenState extends State<InfoScreen> {
     });
 
     try {
-      final response = await http.get(Uri.parse('https://mdash.gprlive.com/api/faq'));
+      final response =
+      await http.get(Uri.parse('https://mdash.gprlive.com/api/faq'));
 
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(response.body);
@@ -58,7 +59,8 @@ class _InfoScreenState extends State<InfoScreen> {
       }
     } catch (e) {
       setState(() {
-        errorMessage = 'Failed to get data. Please check your internet connection and try again.';
+        errorMessage =
+        'Failed to get data. Please check your internet connection and try again.';
         isLoading = false;
       });
     } finally {
@@ -100,13 +102,22 @@ class _InfoScreenState extends State<InfoScreen> {
                         onTap: () {
                           Navigator.pop(context); // Go back to the previous page
                         },
-                        child: Text(
-                          'ᐸ  Back',
-                          style: TextStyle(
-                            color: Color(0xFF0396FE),
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.arrow_back_ios,
+                              color: Color(0xFF0396FE),
+                              size: 20.0,
+                            ), // Adjust the spacing between the icon and text
+                            Text(
+                              'Back', // Removed the '<'
+                              style: TextStyle(
+                                color: Color(0xFF0396FE),
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -120,9 +131,9 @@ class _InfoScreenState extends State<InfoScreen> {
                         Text(
                           'Faqs',
                           style: TextStyle(
-                            color: Color.fromARGB(255, 40, 40, 40),
-                            fontSize: 24.0,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            fontWeight: FontWeight
+                                .w900,
                           ),
                         ),
                       ],
@@ -154,10 +165,12 @@ class _InfoScreenState extends State<InfoScreen> {
             ),
             Expanded(
               child: isLoading
-                  ? Center(child: LoadingAnimationWidget.staggeredDotsWave(
-                color: Colors.blue, // Customize color if needed
-                size: 50, // Adjust size as needed
-              ))
+                  ? Center(
+                child: LoadingAnimationWidget.staggeredDotsWave(
+                  color: Colors.blue, // Customize color if needed
+                  size: 50, // Adjust size as needed
+                ),
+              )
                   : errorMessage.isNotEmpty
                   ? Center(child: Text(errorMessage))
                   : ListView.builder(
@@ -166,14 +179,28 @@ class _InfoScreenState extends State<InfoScreen> {
                   return Column(
                     children: [
                       ExpansionTile(
-                        title: Text(filteredFaqList[index]
-                        ['question'] ?? ''),
+                        title: Text(
+                          filteredFaqList[index]['question'] ?? '',
+                          style: TextStyle(
+                            fontSize: 16, // Question font size
+                            color: Colors.black, // Question color
+                            fontWeight: FontWeight.bold, // Question font weight
+                          ),
+                        ),
                         children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Text(filteredFaqList[index]
-                            ['answer'] ??
-                                ''),
+                          Container(
+                            color: Color(0xfff4f4f4), // Answer background color
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Text(
+                                filteredFaqList[index]['answer'] ?? '',
+                                style: TextStyle(
+                                  fontSize: 14, // Answer font size
+                                  color: Color(0xff535353), // Answer color
+                                  fontWeight: FontWeight.bold, // Answer font weight
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       ),

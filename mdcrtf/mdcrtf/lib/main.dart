@@ -999,7 +999,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
                     child: const Row(
                       children: [
                         Icon(
-                          Icons.arrow_back,
+                          Icons.arrow_back_ios,
                           color: Color(0xFF0396FE),
                           size: 24,
                         ),

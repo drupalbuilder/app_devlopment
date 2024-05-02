@@ -83,7 +83,7 @@ class _RoadmapScreenState extends State<RoadmapScreen> with SingleTickerProvider
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(0.0, 49, 0.0, 0.0),
+              padding: const EdgeInsets.fromLTRB(0.0, 65, 0.0, 0.0),
               child: TabBarView(
                 controller: _tabController,
                 physics: const NeverScrollableScrollPhysics(),
@@ -241,7 +241,7 @@ class _RoadmapScreenState extends State<RoadmapScreen> with SingleTickerProvider
                 color: _tabController.index == index
                     ? const Color(0xFFF7A50A)
                     : Colors.transparent,
-                width: 1,
+                width: 2,
               ),
             ),
           ),
@@ -253,7 +253,7 @@ class _RoadmapScreenState extends State<RoadmapScreen> with SingleTickerProvider
               color: _tabController.index == index
                   ? selectedColor
                   : normalColor,
-              fontSize: 12.0,
+              fontSize: 15.0,
             ),
           ),
         ),

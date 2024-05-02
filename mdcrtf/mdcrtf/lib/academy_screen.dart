@@ -17,7 +17,7 @@ class AcademyScreen extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start, // Align items to the start (left)
               children: [
                 Container(
                   width: double.infinity,
@@ -71,19 +71,23 @@ class AcademyScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 10),
-                const Text(
-                  'Azadi Mantras',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text(
+                    'Azadi Mantras',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: const Color(0xff535353),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 // First row with border
                 Container(
                   decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.grey,
-                      width: 1.0,
-                    ),
+                    border: Border.all(color: Colors.grey, width: 1.0),
                     borderRadius: BorderRadius.circular(0.0),
                   ),
                   child: Column(
@@ -115,20 +119,23 @@ class AcademyScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 10),
-                const Text(
-                  'Additional Videos',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.left,
+                SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text(
+                    'T1t2 Vedios',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: const Color(0xff535353),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
                 // Second row with border
                 Container(
                   decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.grey,
-                      width: 1.0,
-                    ),
+                    border: Border.all(color: Colors.grey, width: 1.0),
                     borderRadius: BorderRadius.circular(0.0),
                   ),
                   child: Column(
@@ -168,13 +175,111 @@ class AcademyScreen extends StatelessWidget {
                               'Modicare Envoirochip - Animated Demo',
                               'https://www.youtube.com/embed/RoERmkLylU4?showinfo=0&related=0&enablejsapi=1&autoplay=1&rel=0',
                             ),
-                            // Add more videos as needed
+
                           ],
                         ),
                       ),
                     ],
                   ),
                 ),
+
+                SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text(
+                    'Test Vedios',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: const Color(0xff535353),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // Second row with border
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey, width: 1.0),
+                    borderRadius: BorderRadius.circular(0.0),
+                  ),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 160,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: [
+
+                            videoItem(
+                              context,
+                              'Modicare Envoirochip - Animated Demo',
+                              'https://www.youtube.com/embed/RoERmkLylU4?showinfo=0&related=0&enablejsapi=1&autoplay=1&rel=0',
+                            ),
+                            videoItem(
+                              context,
+                              'Modicare Envirochip Training Program 2016',
+                              'https://www.youtube.com/embed/cEiqYPToiZQ?showinfo=0&related=0&enablejsapi=1&autoplay=1&rel=0',
+                            ),
+                            videoItem(
+                              context,
+                              'Modicare Envoirochip - Animated Demo',
+                              'https://www.youtube.com/embed/RoERmkLylU4?showinfo=0&related=0&enablejsapi=1&autoplay=1&rel=0',
+                            ),
+                            videoItem(
+                              context,
+                              'Modicare Envoirochip - Animated Demo',
+                              'https://www.youtube.com/embed/RoERmkLylU4?showinfo=0&related=0&enablejsapi=1&autoplay=1&rel=0',
+                            ),
+
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text(
+                    'Test321',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: const Color(0xff535353),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // Second row with border
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey, width: 1.0),
+                    borderRadius: BorderRadius.circular(0.0),
+                  ),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 160,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: [
+                            videoItem(
+                              context,
+                              'Modicare Envirochip Training Program 2016',
+                              'https://www.youtube.com/embed/cEiqYPToiZQ?showinfo=0&related=0&enablejsapi=1&autoplay=1&rel=0',
+                            ),
+                            videoItem(
+                              context,
+                              'Modicare Envoirochip - Animated Demo',
+                              'https://www.youtube.com/embed/RoERmkLylU4?showinfo=0&related=0&enablejsapi=1&autoplay=1&rel=0',
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
               ],
             ),
           ),
@@ -183,17 +288,22 @@ class AcademyScreen extends StatelessWidget {
     );
   }
 
+
+
+
+
+
+
   Widget videoItem(BuildContext context, String title, String videoUrl) {
     return GestureDetector(
       onTap: () {
         _playYoutubeVideo(context, videoUrl);
       },
       child: SizedBox(
-        height: 200, // Adjust this height as needed
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(4.0, 20.0, 0.0, 0.0), // Padding from left, top, right, and bottom
+          padding: const EdgeInsets.fromLTRB(10.0, 14.0, 0, 0), // Padding from left, top, right, and bottom
           child: SizedBox(
-            width: 150,
+            width: 160,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -202,8 +312,8 @@ class AcademyScreen extends StatelessWidget {
                   children: [
                     Image.network(
                       'https://img.youtube.com/vi/${videoUrl.split('/').last.split('?').first}/0.jpg',
-                      width: 120,
-                      height: 75,
+                      width: 140,
+                      height: 100,
                       fit: BoxFit.cover,
                     ),
                     Positioned(
@@ -212,7 +322,7 @@ class AcademyScreen extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.all(4),
                         decoration: const BoxDecoration(
-                          color: Colors.blue,
+                          color: Colors.red,
                           borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(0),
                             bottomRight: Radius.circular(8),
@@ -227,10 +337,18 @@ class AcademyScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 5),
-                Text(
-                  title,
-                  style: const TextStyle(fontSize: 12),
+                SizedBox(height: 8.0),
+                SizedBox(
+                  width: 160, // Adjust width as needed
+                  child: Text(
+                    title.length > 25 ? '${title.substring(0, 22)}...' : title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -239,6 +357,7 @@ class AcademyScreen extends StatelessWidget {
       ),
     );
   }
+
 
 
 

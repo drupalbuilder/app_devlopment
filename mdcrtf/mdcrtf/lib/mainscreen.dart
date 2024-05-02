@@ -149,24 +149,23 @@ class _BottomBarScreenState extends State<MainScreen> {
           color: Colors.white, // Background color
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.2),
+              color: Colors.black.withOpacity(0.3),
               blurRadius: 5.0,
               spreadRadius: 1.0,
             ),
           ],
         ),
         child: FloatingActionButton(
-          hoverElevation: 22,
+          hoverElevation: 0,
           backgroundColor: Colors.transparent, // Make FAB transparent
           splashColor: Colors.transparent, // Remove splash color
-          tooltip: 'Search',
           elevation: 0, // No elevation for inner FAB
           child: Image.network(
             _isRoadmapScreenActive
                 ? 'https://rtfapi.modicare.com/img/RoadMapSelected@2x.png'
                 : 'https://rtfapi.modicare.com/img/roadmap.png',
-            width: 24, // Set the desired width
-            height: 24, // Set the desired height
+            width: 26, // Set the desired width
+            height: 26, // Set the desired height
           ),
           onPressed: () => setState(() {
             _selectedPageIndex = 2;

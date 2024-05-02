@@ -34,54 +34,110 @@ class ReportScreen extends StatelessWidget {
                           onTap: () {
                             Navigator.pop(context); // Go back to the previous page
                           },
-                          child: Text(
-                            'ᐸ  Back',
-                            style: TextStyle(
-                              color: Color(0xFF0396FE),
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.arrow_back_ios,
+                                color: Color(0xFF0396FE),
+                                size: 20.0,
+                              ), // Adjust the spacing between the icon and text
+                              Text(
+                                'Back', // Removed the '<'
+                                style: TextStyle(
+                                  color: Color(0xFF0396FE),
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
-              SizedBox(height: 10.0), // Add space here
-              Padding(
-                padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),// Padding top and bottom
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Report an Issue / Feedback',
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 40, 40, 40),
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
+
+                    SizedBox(height: 10.0), // Add space here
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),// Padding top and bottom
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Report an Issue / Feedback',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight
+                                  .w900,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-            ],
-          ),
-        ),
+
               Padding(
                 padding: EdgeInsets.all(20.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    TextFormField(
-                      maxLines: 8,
-                      decoration: InputDecoration(
-                        hintText: 'Share your feedback or issues.',
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.grey, // Choose your desired border color
+                          width: 1.0, // Adjust the border width as needed
+                        ),
+                        borderRadius: BorderRadius.circular(10.0), // Adjust the border radius as needed
+                      ),
+                      child: TextFormField(
+                        maxLines: 8,
+                        decoration: InputDecoration(
+                          hintText: 'Share your feedback or issues.',
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                          border: InputBorder.none, // Remove the default border of the TextFormField
+                        ),
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          color: Colors.black,
+                        ),
                       ),
                     ),
                     SizedBox(height: 20.0),
-                    ElevatedButton(
-                      onPressed: () {
-                        // Implement the logic to send feedback
+                    GestureDetector(
+                      onTap: () {
+                        // Add functionality for the Continue button here
                       },
-                      child: Text('Send'),
+                      child: Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Color(0xFF1FA2FF), Color(0xFF1FA2FF), Color(0xFF12D8FA)],
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                          ),
+                          borderRadius: BorderRadius.circular(50.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 1,
+                              blurRadius: 7,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 12.0),
+                          child: Text(
+                            'Send',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),

@@ -1,7 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart'; // Import Cupertino library
+
+class ToggleButton extends StatelessWidget {
+  final bool value;
+  final ValueChanged<bool>? onChanged;
+  final Color activeColor;
+  final Color inactiveColor;
+
+  const ToggleButton({
+    Key? key,
+    required this.value,
+    required this.onChanged,
+    required this.activeColor,
+    required this.inactiveColor,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoSwitch(
+      value: value,
+      onChanged: onChanged,
+      activeColor: activeColor,
+      trackColor: inactiveColor,
+    );
+  }
+}
 
 class SettingPage extends StatefulWidget {
-  const SettingPage({super.key});
+  const SettingPage({Key? key}) : super(key: key);
 
   @override
   _SettingPageState createState() => _SettingPageState();
@@ -10,6 +36,9 @@ class SettingPage extends StatefulWidget {
 class _SettingPageState extends State<SettingPage> {
   bool _soundEnabled = true;
   bool _vibrationEnabled = true;
+
+  Color activeColor = Colors.blue; // Change this to your desired color
+  Color inactiveColor = Colors.grey;
 
   @override
   Widget build(BuildContext context) {
@@ -20,37 +49,65 @@ class _SettingPageState extends State<SettingPage> {
           child: Column(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.only(
+                  borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(20.0),
                     bottomRight: Radius.circular(20.0),
                   ),
-                  color: const Color.fromARGB(255, 255, 255, 255),
+                  color: Color.fromARGB(255, 255, 255, 255),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.43),
-                      offset: const Offset(0, 1),
+                      offset: Offset(0, 1),
                       blurRadius: 2,
                     ),
                   ],
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                child: Column(
                   children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back,
-                          color: Color.fromARGB(255, 40, 40, 40)),
-                      onPressed: () {
-                        Navigator.pop(context); // Navigate back when pressed
-                      },
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context); // Go back to the previous page
+                          },
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.arrow_back_ios,
+                                color: Color(0xFF0396FE),
+                                size: 20.0,
+                              ), // Adjust the spacing between the icon and text
+                              Text(
+                                'Back', // Removed the '<'
+                                style: TextStyle(
+                                  color: Color(0xFF0396FE),
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    const Text(
-                      'App Setting',
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 40, 40, 40),
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.bold,
+                    SizedBox(height: 10.0), // Add space here
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),// Padding top and bottom
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            'App Setting',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight
+                                  .w900,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -65,23 +122,31 @@ class _SettingPageState extends State<SettingPage> {
                       'Notification',
                       style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
                     ),
-                    SwitchListTile(
+                    ListTile(
                       title: const Text('Sound'),
-                      value: _soundEnabled,
-                      onChanged: (bool value) {
-                        setState(() {
-                          _soundEnabled = value;
-                        });
-                      },
+                      trailing: ToggleButton(
+                        value: _soundEnabled,
+                        onChanged: (bool value) {
+                          setState(() {
+                            _soundEnabled = value;
+                          });
+                        },
+                        activeColor: activeColor,
+                        inactiveColor: inactiveColor,
+                      ),
                     ),
-                    SwitchListTile(
+                    ListTile(
                       title: const Text('Vibration'),
-                      value: _vibrationEnabled,
-                      onChanged: (bool value) {
-                        setState(() {
-                          _vibrationEnabled = value;
-                        });
-                      },
+                      trailing: ToggleButton(
+                        value: _vibrationEnabled,
+                        onChanged: (bool value) {
+                          setState(() {
+                            _vibrationEnabled = value;
+                          });
+                        },
+                        activeColor: activeColor,
+                        inactiveColor: inactiveColor,
+                      ),
                     ),
                     // Text Size section (which is currently hidden)
                     // Uncomment if you want to use this section

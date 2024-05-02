@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class PlayWinScreen extends StatelessWidget {
+class BusinessReport extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,27 +27,21 @@ class PlayWinScreen extends StatelessWidget {
                     ],
                   ),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       IconButton(
-                        icon: Icon(
-                          Icons.arrow_back_ios,
-                          color: Colors.blue,
-                        ),
+                        icon: Icon(Icons.arrow_back,
+                            color: Color.fromARGB(255, 40, 40, 40)),
                         onPressed: () {
                           Navigator.pop(context); // Navigate back when pressed
                         },
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context); // Go back to the previous page
-                        },
-                        child: Text(
-                          'Back',
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.bold,
-                          ),
+                      Text(
+                        'Business Report',
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 40, 40, 40),
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
@@ -60,16 +54,6 @@ class PlayWinScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                SizedBox(height: 20.0),
-                Center(
-                  child: Text(
-                    'Play & Win coming soon! Keep checking.',
-                    style: TextStyle(
-                      fontSize: 16.0,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20.0),
               ],
             ),
           ),
@@ -81,6 +65,6 @@ class PlayWinScreen extends StatelessWidget {
 
 void main() {
   runApp(MaterialApp(
-    home: PlayWinScreen(),
+    home: BusinessReport(),
   ));
 }
