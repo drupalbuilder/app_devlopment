@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:t2t1/firsttime/welcomescreen.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -1142,7 +1143,67 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
                                           ),
                                           textAlign: TextAlign.center,
                                         ),
+
                                       ),
+
+                                    ),
+                                  ),
+                                  const SizedBox(height: 40.0),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => Welcomescreen()),
+                                        ); // Add your action here
+
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      foregroundColor: Colors.transparent, padding: const EdgeInsets.symmetric(
+                                      vertical: 10.0,
+                                      horizontal: 25.0,
+                                    ), backgroundColor: Colors.transparent,
+                                      elevation: 0,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(50.0),
+                                      ),
+                                      side: BorderSide.none,
+                                      minimumSize: const Size(50.0, 50.0),
+                                    ).copyWith(
+                                      overlayColor: MaterialStateProperty.all(
+                                        Colors.white.withOpacity(0.2),
+                                      ),
+                                    ),
+                                    child: Ink(
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: [
+                                            Color(0xFF1FA2FF),
+                                            Color(0xFF12D8FA),
+                                            Color(0xFF1FA2FF),
+                                          ],
+                                          begin: Alignment.centerLeft,
+                                          end: Alignment.centerRight,
+                                        ),
+                                        borderRadius: BorderRadius.circular(50.0),
+                                      ),
+                                      child: Container(
+                                        width: 200.0,
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 10.0,
+                                          horizontal: 25.0,
+                                        ),
+                                        child: const Text(
+                                          'WELCOME TO MDC',
+                                          style: TextStyle(
+                                            fontSize: 14.0,
+                                            color: Colors.white,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+
+                                      ),
+
                                     ),
                                   ),
                                 ],
@@ -1153,6 +1214,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
                       ],
                     ),
                   ),
+
                 ),
               ],
             ),
