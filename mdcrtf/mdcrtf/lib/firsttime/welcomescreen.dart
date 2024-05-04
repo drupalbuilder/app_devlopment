@@ -46,133 +46,129 @@ class _WelcomescreenState extends State<Welcomescreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        return false; // Prevent going back
-      },
-      child: Scaffold(
-        body: Stack(
-          children: [
-            // Loading Animation
-            if (!isDataLoaded)
-              Center(
-                child: LoadingAnimationWidget.waveDots(
-                  color: Colors.blue,
-                  size: 100,
-                ),
+    return Scaffold(
+      body: Stack(
+        children: [
+          // Loading Animation
+          if (!isDataLoaded)
+            Center(
+              child: LoadingAnimationWidget.waveDots(
+                color: Colors.blue,
+                size: 100,
               ),
-            // Actual Content
-            if (isDataLoaded)
-              SafeArea(
-                child: SingleChildScrollView(
-                  child: Container(
-                    padding: EdgeInsets.all(0.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        imageUrl.isNotEmpty
-                            ? Padding(
-                          padding: EdgeInsets.only(left: 0.0),
-                          child: Image.network(
-                            imageUrl,
-                            fit: BoxFit.cover,
+            ),
+          // Actual Content
+          if (isDataLoaded)
+            SafeArea(
+              child: SingleChildScrollView(
+                child: Container(
+                  padding: EdgeInsets.all(0.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      imageUrl.isNotEmpty
+                          ? Padding(
+                        padding: EdgeInsets.only(left: 0.0),
+                        child: Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                          : SizedBox.shrink(),
+                      SizedBox(height: 20.0),
+                      Padding(
+                        padding: EdgeInsets.only(left: 20.0),
+                        child: Text(
+                          title,
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.w900,
                           ),
-                        )
-                            : SizedBox.shrink(),
-                        SizedBox(height: 20.0),
-                        Padding(
-                          padding: EdgeInsets.only(left: 20.0),
-                          child: Text(
-                            title,
-                            style: TextStyle(
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.w900,
-                            ),
-                            textAlign: TextAlign.left,
+                          textAlign: TextAlign.left,
+                        ),
+                      ),
+                      SizedBox(height: 10.0),
+                      Padding(
+                        padding: EdgeInsets.only(left: 20.0),
+                        child: Text(
+                          description,
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: const Color(0xff535353),
+                            fontWeight: FontWeight.w900,
                           ),
                         ),
-                        SizedBox(height: 10.0),
-                        Padding(
-                          padding: EdgeInsets.only(left: 20.0),
-                          child: Text(
-                            description,
-                            textAlign: TextAlign.left,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: const Color(0xff535353),
-                              fontWeight: FontWeight.w900,
-                            ),
+                      ),
+                      SizedBox(height: 20.0),
+                      Padding(
+                        padding: EdgeInsets.only(left: 20.0),
+                        child: Image.network(
+                          'https://rtfapi.modicare.com/img/Signature@2x.png',
+                          width: 220,
+                        ),
+                      ),
+                      SizedBox(height: 10.0),
+                      Padding(
+                        padding: EdgeInsets.only(left: 20.0),
+                        child: Text(
+                          'Mr. Samir K. Modi\nFounder & Managing Director',
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: const Color(0xff535353),
+                            fontWeight: FontWeight.w900,
                           ),
                         ),
-                        SizedBox(height: 20.0),
-                        Padding(
-                          padding: EdgeInsets.only(left: 20.0),
-                          child: Image.network(
-                            'https://rtfapi.modicare.com/img/Signature@2x.png',
-                            width: 220,
-                          ),
-                        ),
-                        SizedBox(height: 10.0),
-                        Padding(
-                          padding: EdgeInsets.only(left: 20.0),
-                          child: Text(
-                            'Mr. Samir K. Modi\nFounder & Managing Director',
-                            textAlign: TextAlign.left,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: const Color(0xff535353),
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 30.0),
-                        Padding(
-                          padding: EdgeInsets.only(left: 20.0, right: 20.0),
-                          child: Center(
-                            child: SizedBox(
-                              width: 130.0,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      Color(0xff1FA2FF),
-                                      Color(0xff1FA2FF),
-                                      Color(0xff12D8FA),
-                                    ],
-                                    begin: Alignment.centerLeft,
-                                    end: Alignment.centerRight,
-                                  ),
-                                  borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      SizedBox(height: 30.0),
+                      Padding(
+                        padding: EdgeInsets.only(left: 20.0, right: 20.0),
+                        child: Center(
+                          child: SizedBox(
+                            width: 130.0,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Color(0xff1FA2FF),
+                                    Color(0xff1FA2FF),
+                                    Color(0xff12D8FA),
+                                  ],
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
                                 ),
-                                child: TextButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => welcomscreen1st()),
-                                    ); //
-                                  },
-                                  child: Text(
-                                    'Continue',
-                                    style: TextStyle(
-                                      fontSize: 16.0,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
+                                borderRadius: BorderRadius.circular(20.0),
+                              ),
+                              child: TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => CustomStepperPage(),
                                     ),
+                                  );
+                                },
+                                child: Text(
+                                  'Continue',
+                                  style: TextStyle(
+                                    fontSize: 16.0,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                        SizedBox(height: 20.0),
-                      ],
-                    ),
+                      ),
+                      SizedBox(height: 20.0),
+                    ],
                   ),
                 ),
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }

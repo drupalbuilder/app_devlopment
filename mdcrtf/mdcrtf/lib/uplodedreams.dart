@@ -135,8 +135,8 @@ class _UploadDreamsState extends State<UploadDreams> {
                           ],
                         ),
                         Positioned(
-                          bottom: 6,
-                          left: MediaQuery.of(context).size.width < 600 ? 40 : 66,
+                          bottom: 56,
+                          left: MediaQuery.of(context).size.width < 600 ? 74 : 10,
                           child: Container(
                             width: 35,
                             height: 35,
