@@ -131,12 +131,12 @@ class _WelcomescreenState extends State<Welcomescreen> {
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   colors: [
-                                    Color(0xff1FA2FF),
-                                    Color(0xff1FA2FF),
                                     Color(0xff12D8FA),
+                                    Color(0xff1FA2FF),
+                                    Color(0xff1FA2FF),
                                   ],
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
+                                  begin: Alignment.centerRight,
+                                  end: Alignment.centerLeft,
                                 ),
                                 borderRadius: BorderRadius.circular(20.0),
                               ),
