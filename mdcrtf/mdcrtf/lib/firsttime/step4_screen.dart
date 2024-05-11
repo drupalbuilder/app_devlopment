@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:t2t1/firsttime/stepper.dart';
+import 'package:t2t1/mainscreen.dart';
 
-class Welcomescreen extends StatefulWidget {
+class setazadijourny extends StatefulWidget {
   @override
-  _WelcomescreenState createState() => _WelcomescreenState();
+  _setazadijournyState createState() => _setazadijournyState();
 }
 
-class _WelcomescreenState extends State<Welcomescreen> {
+class _setazadijournyState extends State<setazadijourny> {
   String title = '';
   String description = '';
   String imageUrl = '';
@@ -23,7 +23,7 @@ class _WelcomescreenState extends State<Welcomescreen> {
 
   Future<void> fetchData() async {
     try {
-      final response = await http.get(Uri.parse('https://mdash.gprlive.com/api/resources/53'));
+      final response = await http.get(Uri.parse('https://mdash.gprlive.com/api/resources/32'));
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
         setState(() {
@@ -95,7 +95,8 @@ class _WelcomescreenState extends State<Welcomescreen> {
                           textAlign: TextAlign.left,
                           style: TextStyle(
                             fontSize: 16,
-                            color: const Color(0xff535353),
+
+                            color: const Color(0xff323232),
                             fontWeight: FontWeight.w900,
                           ),
                         ),
@@ -116,7 +117,7 @@ class _WelcomescreenState extends State<Welcomescreen> {
                           textAlign: TextAlign.left,
                           style: TextStyle(
                             fontSize: 16,
-                            color: const Color(0xff535353),
+                            color: const Color(0xff323232),
                             fontWeight: FontWeight.w900,
                           ),
                         ),
@@ -145,7 +146,7 @@ class _WelcomescreenState extends State<Welcomescreen> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => CustomStepperPage(),
+                                      builder: (context) => MainScreen(),
                                     ),
                                   );
                                 },
@@ -176,6 +177,6 @@ class _WelcomescreenState extends State<Welcomescreen> {
 
 void main() {
   runApp(MaterialApp(
-    home: Welcomescreen(),
+    home: setazadijourny(),
   ));
 }

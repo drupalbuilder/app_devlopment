@@ -44,7 +44,6 @@ class MainScreen extends StatefulWidget {
 class _BottomBarScreenState extends State<MainScreen> {
   late List<Map<String, Widget>> _pages;
   int _selectedPageIndex = 0;
-  bool _isRoadmapScreenActive = false;
 
   @override
   void initState() {
@@ -65,13 +64,16 @@ class _BottomBarScreenState extends State<MainScreen> {
         'page': const ProfileScreen(),
       },
     ];
+
+    // Set the initial selected page index to the index of RoadmapScreen
+    _selectedPageIndex = 2;
+
     super.initState();
   }
 
   void _selectPage(int index) {
     setState(() {
       _selectedPageIndex = index;
-      _isRoadmapScreenActive = (index == 2);
     });
   }
 
@@ -155,24 +157,24 @@ class _BottomBarScreenState extends State<MainScreen> {
             ),
           ],
         ),
-        child: FloatingActionButton(
-          hoverElevation: 0,
-          backgroundColor: Colors.transparent, // Make FAB transparent
-          splashColor: Colors.transparent, // Remove splash color
-          elevation: 0, // No elevation for inner FAB
-          child: Image.network(
-            _isRoadmapScreenActive
-                ? 'https://rtfapi.modicare.com/img/RoadMapSelected@2x.png'
-                : 'https://rtfapi.modicare.com/img/roadmap.png',
-            width: 26, // Set the desired width
-            height: 26, // Set the desired height
-          ),
-          onPressed: () => setState(() {
-            _selectedPageIndex = 2;
-            _isRoadmapScreenActive = true; // Update the variable when pressing the floating button
-          }),
+       child: FloatingActionButton(
+        hoverElevation: 0,
+        backgroundColor: Colors.transparent, // Make FAB transparent
+        splashColor: Colors.transparent, // Remove splash color
+        elevation: 0, // No elevation for inner FAB
+        child: Image.network(
+          _selectedPageIndex == 2
+              ? 'https://rtfapi.modicare.com/img/RoadMapSelected@2x.png'
+              : 'https://rtfapi.modicare.com/img/roadmap.png',
+          width: 26, // Set the desired width
+          height: 26, // Set the desired height
         ),
+        onPressed: () => setState(() {
+          _selectedPageIndex = 2;
+        }),
       ),
+
+    ),
     );
   }
 }

@@ -194,8 +194,7 @@ class ProfileScreen extends StatelessWidget {
                           'Mohammad Mustafa',
                           style: TextStyle(
                             fontSize: 24,
-                            fontWeight: FontWeight
-                                .w900, // Increased font weight for a bolder effect
+                            fontWeight: FontWeight.w900, // Increased font weight for a bolder effect
                           ),
                         ),
 

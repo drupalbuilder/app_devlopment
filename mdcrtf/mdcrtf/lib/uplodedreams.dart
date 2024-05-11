@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'selectdreams.dart';
+import 'package:flutter/services.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+
 
 void main() {
   runApp(MaterialApp(
@@ -13,30 +18,53 @@ class UploadDreams extends StatefulWidget {
 }
 
 class _UploadDreamsState extends State<UploadDreams> {
-  final List<String> cardTitles = [
-    'Dream Travel',
-    'Dream Car',
-    'Dream Home',
-    'Child\'s Education', // Escape the single quote with a backslash
-    'Dream Bike',
-    'Others',
-  ];
+  List<String> cardTitles = [];
+  List<String> cardImages = [];
+  List<bool> isCheckedList = [];
+  bool isDataLoaded = false;
 
-  final List<String> cardImages = [
-    'https://mdash.gprlive.com/uploads/images/dreams/1695292854_SHutterstock-300x200-pix_0013_shutterstock_339018524.png',
-    'https://mdash.gprlive.com/uploads/images/dreams/1695292865_SHutterstock-300x200-pix_0003_shutterstock_2265832113.png',
-    'https://mdash.gprlive.com/uploads/images/dreams/1695292886_SHutterstock-300x200-pix_0006_shutterstock_1513007366.png',
-    'https://mdash.gprlive.com/uploads/images/dreams/1695292896_SHutterstock-300x200-pix_0009_shutterstock_789412672.png',
-    'https://mdash.gprlive.com/uploads/images/dreams/1695292875_SHutterstock-300x200-pix_0021_shutterstock_513593005.png',
-    'https://mdash.gprlive.com/uploads/images/dreams/1695292854_SHutterstock-300x200-pix_0013_shutterstock_339018524.png',
-  ];
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
 
-  List<bool> isCheckedList = List.generate(6, (index) => false);
+  Future<void> fetchData() async {
+    List<String> apiEndpoints = [
+      'https://mdash.gprlive.com/api/dreams/2',
+      'https://mdash.gprlive.com/api/dreams/3',
+      'https://mdash.gprlive.com/api/dreams/66',
+      'https://mdash.gprlive.com/api/dreams/60',
+      'https://mdash.gprlive.com/api/dreams/126',
+    ];
+
+    for (String endpoint in apiEndpoints) {
+      try {
+        var response = await http.get(Uri.parse(endpoint));
+        if (response.statusCode == 200) {
+          Map<String, dynamic> data = json.decode(response.body);
+          setState(() {
+            cardTitles.add(data['name']);
+            cardImages.add("https://mdash.gprlive.com/${data['image']}");
+            isCheckedList.add(false);
+          });
+        } else {
+          print('Failed to load data from $endpoint');
+        }
+      } catch (e) {
+        print('Error: $e');
+      }
+    }
+    setState(() {
+      isDataLoaded = true; // Data is loaded, hide the loading animation
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
+      body: isDataLoaded
+          ? SafeArea(
         child: SingleChildScrollView(
           child: Container(
             margin: EdgeInsets.symmetric(horizontal: 20.0),
@@ -47,7 +75,7 @@ class _UploadDreamsState extends State<UploadDreams> {
                   padding: EdgeInsets.only(bottom: 16.0),
                   child: GestureDetector(
                     onTap: () {
-                      Navigator.pop(context); // Go back to the previous page
+                      Navigator.pop(context);
                     },
                     child: Text(
                       'ᐸ  Back',
@@ -89,44 +117,41 @@ class _UploadDreamsState extends State<UploadDreams> {
                             Padding(
                               padding: EdgeInsets.only(left: 8.0),
                               child: Text(
-                                cardTitles[index], // Use the title from the list
+                                cardTitles[index],
                                 style: TextStyle(
                                   fontSize: 16.0,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
-                            SizedBox(height: 8.0), // Padding between title and card
-                            Card(
-                              margin: EdgeInsets.zero,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6.0),
-                                side: BorderSide(color: Color(0xFFe1e1e1), width: 1.0),
-                              ),
-                              elevation: 5.0,
-                              child: GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => SelectDreams(
-                                        dreamId: index, // Pass the ID to the SelectDreams screen
-                                        dreamTitle: cardTitles[index], // Pass the title to the SelectDreams screen
+                            SizedBox(height: 8.0),
+                            SizedBox(
+                              width: 200, // Fixed width
+                              height: 140, // Fixed height
+                              child: Card(
+                                margin: EdgeInsets.zero,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(6.0),
+                                  side: BorderSide(color: Color(0xFFe1e1e1), width: 1.0),
+                                ),
+                                elevation: 5.0,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => SelectDreams(
+                                          dreamId: index,
+                                          dreamTitle: cardTitles[index],
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(6.0),
-                                    // Apply border radius to the container
-                                    border: Border.all(color: Color(0xFFe1e1e1), width: 1.0),
-                                  ),
+                                    );
+                                  },
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(6.0),
                                     child: Image.network(
-                                      cardImages[index], // Use the image URL from the list
-                                      fit: BoxFit.cover, // Ensure the image covers the entire space
+                                      cardImages[index],
+                                      fit: BoxFit.cover,
                                     ),
                                   ),
                                 ),
@@ -156,6 +181,12 @@ class _UploadDreamsState extends State<UploadDreams> {
               ],
             ),
           ),
+        ),
+      )
+          : Center(
+        child: LoadingAnimationWidget.waveDots(
+          color: Colors.blue,
+          size: 100,
         ),
       ),
     );
