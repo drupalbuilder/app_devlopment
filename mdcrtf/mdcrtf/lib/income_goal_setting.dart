@@ -7,7 +7,7 @@ class IncomeGoals extends StatefulWidget {
 }
 
 class _IncomeGoalsState extends State<IncomeGoals> {
-  bool sellProducts = false;
+  bool sellProducts = true;
   bool createTeam = false;
   bool bothAbove = false;
 
@@ -26,68 +26,72 @@ class _IncomeGoalsState extends State<IncomeGoals> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(20.0),
                       bottomRight: Radius.circular(20.0),
                     ),
-                    color: Color.fromARGB(255, 255, 255, 255),
+                    color: Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.43),
-                        offset: Offset(0, 1),
-                        blurRadius: 2,
+                        color: Colors.black.withOpacity(0.30),
+                        offset: Offset(0, 1.5),
+                        blurRadius: 0,
                       ),
                     ],
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context); // Go back to the previous page
-                        },
-                        child: Row(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.pop(context); // Go back to the previous page
-                              },
-                              child: Text(
-                                'ᐸ  Back',
-                                style: TextStyle(
-                                  color: Color(0xFF0396FE),
-                                  fontSize: 18.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                      Row(
                         children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.arrow_back_ios,
+                                  color: Colors.blue,
+                                  size: 20.0,
+                                ),
+                                Text(
+                                  'Back',
+                                  style: TextStyle(
+                                    color: Colors.blue,
+                                    fontSize: 20.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: 0.0),
+                        ],
+                      ),
+                      SizedBox(height: 10.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'My Prospects',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
                           Text(
                             'Mohammad Mustafa',
                             style: TextStyle(
-                              color: Color.fromARGB(255, 40, 40, 40),
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            'Income Goal Setting',
-                            style: TextStyle(
-                              color: Color.fromARGB(255, 40, 40, 40),
-                              fontSize: 14.0,
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],
                       ),
+                      SizedBox(height: 10.0),
                     ],
                   ),
                 ),

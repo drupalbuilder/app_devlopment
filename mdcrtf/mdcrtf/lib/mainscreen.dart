@@ -38,10 +38,10 @@ class MainScreen extends StatefulWidget {
   const MainScreen();
 
   @override
-  _BottomBarScreenState createState() => _BottomBarScreenState();
+  _MainScreenState createState() => _MainScreenState();
 }
 
-class _BottomBarScreenState extends State<MainScreen> {
+class _MainScreenState extends State<MainScreen> {
   late List<Map<String, Widget>> _pages;
   int _selectedPageIndex = 0;
 
@@ -88,13 +88,12 @@ class _BottomBarScreenState extends State<MainScreen> {
         unselectedItemColor: Theme.of(context).textTheme.bodyLarge!.color,
         selectedItemColor: Colors.blue,
         currentIndex: _selectedPageIndex,
+        elevation: 0, // Remove shadow effect
         items: [
           BottomNavigationBarItem(
             icon: HomeIcon(
-              activeImageUrl:
-              'https://rtfapi.modicare.com/img/HomeIconSelected@2x.png',
-              inactiveImageUrl:
-              'https://rtfapi.modicare.com/img/Home.png',
+              activeImageUrl: 'https://rtfapi.modicare.com/img/HomeIconSelected@2x.png',
+              inactiveImageUrl: 'https://rtfapi.modicare.com/img/Home.png',
               isActive: _selectedPageIndex == 0,
               width: 24, // Set the desired width
               height: 24, // Set the desired height
@@ -103,10 +102,8 @@ class _BottomBarScreenState extends State<MainScreen> {
           ),
           BottomNavigationBarItem(
             icon: HomeIcon(
-              activeImageUrl:
-              'https://rtfapi.modicare.com/img/SchoolSelected@2x.png',
-              inactiveImageUrl:
-              'https://rtfapi.modicare.com/img/schoolunselected.png',
+              activeImageUrl: 'https://rtfapi.modicare.com/img/SchoolSelected@2x.png',
+              inactiveImageUrl: 'https://rtfapi.modicare.com/img/schoolunselected.png',
               isActive: _selectedPageIndex == 1,
               width: 24, // Set the desired width
               height: 24, // Set the desired height
@@ -119,10 +116,8 @@ class _BottomBarScreenState extends State<MainScreen> {
           ),
           BottomNavigationBarItem(
             icon: HomeIcon(
-              activeImageUrl:
-              'https://rtfapi.modicare.com/img/NotificationSelected@2x.png',
-              inactiveImageUrl:
-              'https://rtfapi.modicare.com/img/Notification.png',
+              activeImageUrl: 'https://rtfapi.modicare.com/img/NotificationSelected@2x.png',
+              inactiveImageUrl: 'https://rtfapi.modicare.com/img/Notification.png',
               isActive: _selectedPageIndex == 3,
               width: 24, // Set the desired width
               height: 24, // Set the desired height
@@ -131,10 +126,8 @@ class _BottomBarScreenState extends State<MainScreen> {
           ),
           BottomNavigationBarItem(
             icon: HomeIcon(
-              activeImageUrl:
-              'https://rtfapi.modicare.com/img/ProfileSelected@2x.png',
-              inactiveImageUrl:
-              'https://rtfapi.modicare.com/img/profile.png',
+              activeImageUrl: 'https://rtfapi.modicare.com/img/ProfileSelected@2x.png',
+              inactiveImageUrl: 'https://rtfapi.modicare.com/img/profile.png',
               isActive: _selectedPageIndex == 4,
               width: 24, // Set the desired width
               height: 24, // Set the desired height
@@ -143,8 +136,7 @@ class _BottomBarScreenState extends State<MainScreen> {
           ),
         ],
       ),
-      floatingActionButtonLocation:
-      FloatingActionButtonLocation.miniCenterDocked,
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterDocked,
       floatingActionButton: Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
@@ -157,24 +149,23 @@ class _BottomBarScreenState extends State<MainScreen> {
             ),
           ],
         ),
-       child: FloatingActionButton(
-        hoverElevation: 0,
-        backgroundColor: Colors.transparent, // Make FAB transparent
-        splashColor: Colors.transparent, // Remove splash color
-        elevation: 0, // No elevation for inner FAB
-        child: Image.network(
-          _selectedPageIndex == 2
-              ? 'https://rtfapi.modicare.com/img/RoadMapSelected@2x.png'
-              : 'https://rtfapi.modicare.com/img/roadmap.png',
-          width: 26, // Set the desired width
-          height: 26, // Set the desired height
+        child: FloatingActionButton(
+          hoverElevation: 0,
+          backgroundColor: Colors.transparent, // Make FAB transparent
+          splashColor: Colors.transparent, // Remove splash color
+          elevation: 0, // No elevation for inner FAB
+          child: Image.network(
+            _selectedPageIndex == 2
+                ? 'https://rtfapi.modicare.com/img/RoadMapSelected@2x.png'
+                : 'https://rtfapi.modicare.com/img/roadmap.png',
+            width: 26, // Set the desired width
+            height: 26, // Set the desired height
+          ),
+          onPressed: () => setState(() {
+            _selectedPageIndex = 2;
+          }),
         ),
-        onPressed: () => setState(() {
-          _selectedPageIndex = 2;
-        }),
       ),
-
-    ),
     );
   }
 }

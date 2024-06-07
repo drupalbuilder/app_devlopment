@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:t2t1/firsttime/welcomescreen.dart';
 import 'package:flutter/services.dart';
+import 'package:t2t1/firsttime/test.dart';
 
 
 
@@ -217,20 +217,18 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
                                           ),
                                           textAlign: TextAlign.center,
                                         ),
-
                                       ),
-
                                     ),
                                   ),
-                                  const SizedBox(height: 40.0),
+                                  const SizedBox(height: 10.0),
                                   ElevatedButton(
                                     onPressed: () {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) => Welcomescreen()),
-                                      ); // Add your action here
-
+                                            builder: (context) =>
+                                                ReportScreen(name: '', contact: '',)),
+                                      );
                                     },
                                     style: ElevatedButton.styleFrom(
                                       foregroundColor: Colors.transparent, padding: const EdgeInsets.symmetric(
@@ -262,22 +260,20 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
                                         borderRadius: BorderRadius.circular(50.0),
                                       ),
                                       child: Container(
-                                        width: 200.0,
+                                        width: 150.0,
                                         padding: const EdgeInsets.symmetric(
                                           vertical: 10.0,
                                           horizontal: 25.0,
                                         ),
                                         child: const Text(
-                                          'WELCOME TO MDC',
+                                          'data mca ',
                                           style: TextStyle(
                                             fontSize: 14.0,
                                             color: Colors.white,
                                           ),
                                           textAlign: TextAlign.center,
                                         ),
-
                                       ),
-
                                     ),
                                   ),
                                 ],
@@ -288,7 +284,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
                       ],
                     ),
                   ),
-
                 ),
               ],
             ),

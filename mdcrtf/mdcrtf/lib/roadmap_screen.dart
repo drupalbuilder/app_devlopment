@@ -61,9 +61,9 @@ class _RoadmapScreenState extends State<RoadmapScreen> with SingleTickerProvider
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.43),
-                      offset: const Offset(0, 1),
-                      blurRadius: 2,
+                      color: Colors.black.withOpacity(0.30),
+                      offset: Offset(0, 1.5),
+                      blurRadius: 0,
                     ),
                   ],
                   color: Colors.white,
@@ -104,7 +104,7 @@ class _RoadmapScreenState extends State<RoadmapScreen> with SingleTickerProvider
   Widget buildRoadmapContent(String title, int points, String status,
       String imageUrl, {bool isPending = false}) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 0.0),
+      margin: const EdgeInsets.only(bottom: 30.0),
       child: Column(
         children: [
           Row(
@@ -125,6 +125,7 @@ class _RoadmapScreenState extends State<RoadmapScreen> with SingleTickerProvider
                     ),
                   ),
                   const SizedBox(height: 4.0),
+
                   Row(
                     children: [
                       const Icon(Icons.star, color: Colors.yellow),

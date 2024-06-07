@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:t2t1/firsttime/welcomescreen.dart';
 import 'package:t2t1/forgetpass.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'mainscreen.dart';
 import 'dart:convert';
+import 'dart:async'; // Import for Future<void>
 
 
 
@@ -40,37 +42,75 @@ class MyApp extends StatelessWidget {
   }
 }
 
+
+
 class LoginScreen extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
   final _mcaController = TextEditingController();
 
-  LoginScreen({super.key});
+  LoginScreen({Key? key}) : super(key: key);
 
-  void _onLoginButtonPressed(BuildContext context) async {
+  Future<void> _onLoginButtonPressed(BuildContext context) async {
     if (_formKey.currentState?.validate() ?? false) {
       String mcaNumber = _mcaController.text;
-      String apiUrl = 'https://mdash.gprlive.com/api/users/$mcaNumber';
+      String userApiUrl = 'https://mdash.gprlive.com/api/users/$mcaNumber';
+      String reportApiUrl = 'https://report.modicare.com/api/report/np/business/web';
+      String reportBody = jsonEncode({
+        "mcano": mcaNumber,
+        "dated": "${DateTime.now().year}-${DateTime.now().month}-01"
+      });
+      Map<String, String> headers = {"Content-Type": "application/json"};
 
       try {
-        final response = await http.get(Uri.parse(apiUrl));
+        // Fetch user data
+        final userResponse = await http.get(Uri.parse(userApiUrl));
+        if (userResponse.statusCode == 200) {
+          final userData = json.decode(userResponse.body);
 
-        if (response.statusCode == 200) {
-          final jsonData = json.decode(response.body);
-
+          // Store MCA number and user data using SharedPreferences
           SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.setString('userData', json.encode(jsonData));
+          await prefs.setString('mcaNumber', mcaNumber);
+          await prefs.setString('userData', json.encode(userData));
 
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const MainScreen(),
-            ),
-          );
+
+          // Fetch report data
+          final reportResponse = await http.post(Uri.parse(reportApiUrl), headers: headers, body: reportBody);
+          if (reportResponse.statusCode == 200) {
+            final reportData = json.decode(reportResponse.body);
+
+            // Store report data using SharedPreferences
+            await prefs.setString('reportData', json.encode(reportData));
+
+            // Check if target is 0
+            if (userData['target'] == 0) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Welcomescreen(),
+                ),
+              );
+            } else {
+              // Redirect to MainScreen
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MainScreen(),
+                ),
+              );
+            }
+          } else {
+            // Handle report API error
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to fetch report data. Status code: ${reportResponse.statusCode}'),
+              ),
+            );
+          }
         } else {
-          // Handle API error responses
+          // Handle user API error
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Failed to fetch user data. Status code: ${response.statusCode}'),
+              content: Text('Failed to fetch user data. Status code: ${userResponse.statusCode}'),
             ),
           );
         }
@@ -116,39 +156,65 @@ class LoginScreen extends StatelessWidget {
                               'https://rtfapi.modicare.com/img/ModicareIcon@3x.png',
                               height: 22,
                               width: 75,
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Text('Image Failed to Load');
+                              },
                             ),
                             Image.network(
                               'https://rtfapi.modicare.com/img/Road%20toFreedom@3x.png',
                               height: 72,
                               width: 200,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Text('Image Failed to Load');
+                              },
                             ),
                           ],
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(
-                            left: 14.0, right: 8.0, top: 8.0),
+                        padding: const EdgeInsets.only(left: 10.0, right: 8.0, top: 8.0),
                         child: ElevatedButton(
                           onPressed: () {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const MobileLoginScreen()),
+                                builder: (context) => const MobileLoginScreen(),
+                              ),
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 8.0, horizontal: 10.0), backgroundColor: const Color(0xFF1FA2FF),
+                            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
+                            backgroundColor: Colors.transparent,
+                            elevation: 0,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5.0),
+                              borderRadius: BorderRadius.circular(50.0),
                             ),
                           ),
-                          child: const Text(
-                            'Login with Mobile',
-                            style: TextStyle(
-                              fontSize: 13.0,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
+                          child: Ink(
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [
+                                  Color(0xFF1FA2FF),
+                                  Color(0xFF1FA2FF),
+                                  Color(0xFF12D8FA),
+                                ],
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                              ),
+                              borderRadius: BorderRadius.circular(50.0),
+                            ),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                              child: const Text(
+                                'Login with Mobile',
+                                style: TextStyle(
+                                  fontSize: 13.0,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -157,52 +223,58 @@ class LoginScreen extends StatelessWidget {
                         width: double.infinity,
                         color: const Color(0xFFFFFFFF),
                         child: Padding(
-                          padding: const EdgeInsets.all(14.0),
+                          padding: const EdgeInsets.only(left: 0.0, right: 14.0),
                           child: Form(
                             key: _formKey,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Container(
-                                  width: MediaQuery.of(context).size.width * 0.55,
-                                  decoration: const BoxDecoration(
-                                    border: Border(
-                                      bottom: BorderSide(
-                                        color: Color(0xFFf5eded),
-                                        width: 1.0,
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 14.0),
+                                  child: Container(
+                                    width: MediaQuery.of(context).size.width * 0.55,
+                                    decoration: const BoxDecoration(
+                                      border: Border(
+                                        bottom: BorderSide(
+                                          color: Color(0xFFf5eded),
+                                          width: 1.0,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  child: TextFormField(
-                                    controller: _mcaController,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Please enter your MCA number';
-                                      }
-                                      return null;
-                                    },
-                                    keyboardType: TextInputType.number, // Set keyboard type to number
-                                    inputFormatters: <TextInputFormatter>[
-                                      FilteringTextInputFormatter.digitsOnly // Allow only numeric input
-                                    ],
-                                    decoration: const InputDecoration(
-                                      labelText: 'MCA No.',
-                                      border: InputBorder.none,
+                                    child: TextFormField(
+                                      controller: _mcaController,
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Please enter your MCA number';
+                                        }
+                                        return null;
+                                      },
+                                      keyboardType: TextInputType.number,
+                                      inputFormatters: <TextInputFormatter>[
+                                        if (defaultTargetPlatform == TargetPlatform.iOS)
+                                          FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                                        if (defaultTargetPlatform == TargetPlatform.android)
+                                          FilteringTextInputFormatter.digitsOnly
+                                      ],
+                                      decoration: const InputDecoration(
+                                        labelText: 'MCA No.',
+                                        border: InputBorder.none,
+                                      ),
                                     ),
                                   ),
                                 ),
                                 const SizedBox(height: 16.0),
                                 Container(
-                                  width: double.infinity,
                                   alignment: Alignment.centerLeft,
+                                  padding: EdgeInsets.zero,
                                   child: ElevatedButton(
                                     onPressed: () => _onLoginButtonPressed(context),
                                     style: ElevatedButton.styleFrom(
-                                      foregroundColor: Colors.transparent, backgroundColor: Colors.transparent,
+                                      foregroundColor: Colors.transparent,
+                                      backgroundColor: Colors.transparent,
                                       elevation: 0,
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                            50.0),
+                                        borderRadius: BorderRadius.circular(50.0),
                                         side: BorderSide.none,
                                       ),
                                     ),
@@ -217,16 +289,14 @@ class LoginScreen extends StatelessWidget {
                                           begin: Alignment.centerLeft,
                                           end: Alignment.centerRight,
                                         ),
-                                        borderRadius: BorderRadius.circular(
-                                            50.0),
+                                        borderRadius: BorderRadius.circular(50.0),
                                       ),
                                       child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8.0, horizontal: 24.0),
+                                        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 40.0),
                                         child: const Text(
                                           'Login',
                                           style: TextStyle(
-                                            fontSize: 13.0,
+                                            fontWeight: FontWeight.w900,
                                             color: Colors.white,
                                           ),
                                           textAlign: TextAlign.center,
@@ -236,37 +306,41 @@ class LoginScreen extends StatelessWidget {
                                   ),
                                 ),
                                 const SizedBox(height: 16.0),
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const WebViewExample(
-                                              url: 'https://www.modicare.com/join-us',
-                                            ),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 14.0),
+                                  child: TextButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const WebViewExample(
+                                            url: 'https://www.modicare.com/join-us',
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: const Text(
+                                      'Register',
+                                      style: TextStyle(
+                                        color: Color(0xFF1D9FF9),
                                       ),
-                                    );
-                                  },
-                                  child: const Text(
-                                    'Register',
-                                    style: TextStyle(
-                                      color: Color(0xFF2FA8D3),
                                     ),
                                   ),
                                 ),
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (context) =>
-                                          const ForgotPasswordScreen()),
-                                    );
-                                  },
-                                  child: const Text(
-                                    'Forgot Password',
-                                    style: TextStyle(
-                                      color: Colors.black,
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 14.0),
+                                  child: TextButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => const ForgotPasswordScreen()),
+                                      );
+                                    },
+                                    child: const Text(
+                                      'Forgot Password',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -285,8 +359,7 @@ class LoginScreen extends StatelessWidget {
                 child: Container(
                   decoration: const BoxDecoration(
                     image: DecorationImage(
-                      image: NetworkImage(
-                          'https://rtfapi.modicare.com/img/m2.png'),
+                      image: NetworkImage('https://rtfapi.modicare.com/img/m2.png'),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -301,6 +374,7 @@ class LoginScreen extends StatelessWidget {
     );
   }
 }
+
 
 
 
@@ -677,27 +751,48 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(left: 14.0, right: 8.0, top: 8.0),
+                        padding: const EdgeInsets.only(left: 10.0, right: 8.0, top: 8.0),
                         child: ElevatedButton(
                           onPressed: () {
                             Navigator.pushReplacement(
                               context,
-                              MaterialPageRoute(builder: (context) => LoginScreen()),
+                              MaterialPageRoute(
+                                builder: (context) => LoginScreen(),
+                              ),
                             );
                           },
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-                            backgroundColor: const Color(0xFF1FA2FF),
+                            backgroundColor: Colors.transparent, // Set background color to transparent
+                            elevation: 0, // Remove elevation
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5.0),
+                              borderRadius: BorderRadius.circular(50.0), // Match the circular border
+                              // Remove the border
                             ),
                           ),
-                          child: const Text(
-                            'Login with MCA',
-                            style: TextStyle(
-                              fontSize: 13.0,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
+                          child: Ink(
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [
+                                  Color(0xFF1FA2FF),
+                                  Color(0xFF1FA2FF),
+                                  Color(0xFF12D8FA),
+                                ],
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                              ),
+                              borderRadius: BorderRadius.circular(50.0), // Match the circular border
+                            ),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0), // Adjust padding if needed
+                              child: const Text(
+                                'Login with MCA',
+                                style: TextStyle(
+                                  fontSize: 13.0,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -706,49 +801,53 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> {
                         width: double.infinity,
                         color: const Color(0xFFFDFDFD),
                         child: Padding(
-                          padding: const EdgeInsets.only(left: 14.0, right: 14.0),
+                          padding: const EdgeInsets.only(left: 0.0, right: 14.0),
                           child: Form(
                             key: _formKey,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Container(
-                                  width: MediaQuery.of(context).size.width * 0.55,
-                                  decoration: const BoxDecoration(
-                                    border: Border(
-                                      bottom: BorderSide(
-                                        color: Color(0xFFf5eded),
-                                        width: 1.0,
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 14.0), // Add padding to the left
+                                  child: Container(
+                                    width: MediaQuery.of(context).size.width * 0.55,
+                                    decoration: const BoxDecoration(
+                                      border: Border(
+                                        bottom: BorderSide(
+                                          color: Color(0xFFf5eded),
+                                          width: 1.0,
+                                        ),
+                                      ),
+                                    ),
+                                    child: TextFormField(
+                                      controller: _mobileController,
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Please enter your mobile number';
+                                        }
+                                        // Check if the value contains only numeric characters
+                                        if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
+                                          return 'Invalid characters. Please enter a valid mobile number';
+                                        }
+                                        // Check if the length of the number is within a specific range
+                                        if (value.length < 8 || value.length > 15) {
+                                          return 'Invalid mobile number length';
+                                        }
+                                        // Additional checks or custom validation logic can be added here
+                                        return null; // Return null if the input passes all validation checks
+                                      },
+                                      keyboardType: TextInputType.number,
+                                      inputFormatters: <TextInputFormatter>[
+                                        FilteringTextInputFormatter.digitsOnly,
+                                      ],
+                                      decoration: const InputDecoration(
+                                        labelText: 'Mobile Number',
+                                        border: InputBorder.none,
                                       ),
                                     ),
                                   ),
-                                  child: TextFormField(
-                                    controller: _mobileController,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Please enter your mobile number';
-                                      }
-                                      // Check if the value contains only numeric characters
-                                      if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
-                                        return 'Invalid characters. Please enter a valid mobile number';
-                                      }
-                                      // Check if the length of the number is within a specific range
-                                      if (value.length < 8 || value.length > 15) {
-                                        return 'Invalid mobile number length';
-                                      }
-                                      // Additional checks or custom validation logic can be added here
-                                      return null; // Return null if the input passes all validation checks
-                                    },
-                                    keyboardType: TextInputType.number,
-                                    inputFormatters: <TextInputFormatter>[
-                                      FilteringTextInputFormatter.digitsOnly,
-                                    ],
-                                    decoration: const InputDecoration(
-                                      labelText: 'Mobile Number',
-                                      border: InputBorder.none,
-                                    ),
-                                  ),
                                 ),
+
                                 const SizedBox(height: 16.0),
                                 Container(
                                   alignment: Alignment.centerLeft,
@@ -782,11 +881,11 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> {
                                         borderRadius: BorderRadius.circular(50.0),
                                       ),
                                       child: Container(
-                                        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 14.0),
+                                        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 40.0), // Adjust padding if needed
                                         child: const Text(
                                           'Send OTP',
                                           style: TextStyle(
-                                            fontSize: 13.0,
+                                            fontWeight: FontWeight.w900,
                                             color: Colors.white,
                                           ),
                                           textAlign: TextAlign.center,
@@ -803,39 +902,46 @@ class _MobileLoginScreenState extends State<MobileLoginScreen> {
                                     color: Colors.black,
                                   ),
                                 ),
-                                const SizedBox(height: 16.0),
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const WebViewExample(
-                                          url: 'https://www.modicare.com/join-us',
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 14.0), // Add padding from the left
+                                  child: TextButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const WebViewExample(
+                                            url: 'https://www.modicare.com/join-us',
+                                          ),
                                         ),
+                                      );
+                                    },
+                                    child: const Text(
+                                      'Register',
+                                      style: TextStyle(
+                                        color: Color(0xFF1D9FF9),
+
                                       ),
-                                    );
-                                  },
-                                  child: const Text(
-                                    'Register',
-                                    style: TextStyle(
-                                      color: Color(0xFF2FA8D3),
                                     ),
                                   ),
                                 ),
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (context) => const ForgotPasswordScreen()),
-                                    );
-                                  },
-                                  child: const Text(
-                                    'Forgot Password',
-                                    style: TextStyle(
-                                      color: Colors.black,
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 14.0), // Add padding from the left
+                                  child: TextButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => const ForgotPasswordScreen()),
+                                      );
+                                    },
+                                    child: const Text(
+                                      'Forgot Password',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                      ),
                                     ),
                                   ),
                                 ),
+
                               ],
                             ),
                           ),

@@ -53,7 +53,7 @@ class _WelcomescreenState extends State<Welcomescreen> {
           if (!isDataLoaded)
             Center(
               child: LoadingAnimationWidget.waveDots(
-                color: Colors.blue,
+                color: Colors.lightBlueAccent,
                 size: 100,
               ),
             ),

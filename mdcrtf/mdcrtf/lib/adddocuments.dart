@@ -20,28 +20,56 @@ class Documents extends StatelessWidget {
                     color: Color.fromARGB(255, 255, 255, 255),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.43),
-                        offset: Offset(0, 1),
-                        blurRadius: 2,
+                        color: Colors.black.withOpacity(0.30),
+                        offset: Offset(0, 1.5),
+                        blurRadius: 0,
                       ),
                     ],
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
+                  child: Column(
                     children: [
-                      IconButton(
-                        icon: Icon(Icons.arrow_back,
-                            color: Color.fromARGB(255, 40, 40, 40)),
-                        onPressed: () {
-                          Navigator.pop(context); // Navigate back when pressed
-                        },
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context); // Go back to the previous page
+                            },
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.arrow_back_ios,
+                                  color: Color(0xFF0396FE),
+                                  size: 20.0,
+                                ), // Adjust the spacing between the icon and text
+                                Text(
+                                  'Back', // Removed the '<'
+                                  style: TextStyle(
+                                    color: Color(0xFF0396FE),
+                                    fontSize: 20.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                      Text(
-                        ' DOCUMENTS',
-                        style: TextStyle(
-                          color: Color.fromARGB(255, 40, 40, 40),
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.bold,
+                      SizedBox(height: 10.0), // Add space here
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),// Padding top and bottom
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              'DOCUMENTS',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight
+                                    .w900,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -58,9 +86,9 @@ class Documents extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10.0),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Colors.black.withOpacity(0.30),
+                        offset: Offset(0, 1.5),
+                        blurRadius: 0,
                       ),
                     ],
                   ),
@@ -123,9 +151,9 @@ class Documents extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10.0),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Colors.black.withOpacity(0.30),
+                        offset: Offset(0, 1.5),
+                        blurRadius: 0,
                       ),
                     ],
                   ),

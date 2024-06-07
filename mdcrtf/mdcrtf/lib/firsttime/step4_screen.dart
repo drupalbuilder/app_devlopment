@@ -53,7 +53,7 @@ class _setazadijournyState extends State<setazadijourny> {
           if (!isDataLoaded)
             Center(
               child: LoadingAnimationWidget.waveDots(
-                color: Colors.blue,
+                color: Colors.lightBlueAccent,
                 size: 100,
               ),
             ),
@@ -127,7 +127,7 @@ class _setazadijournyState extends State<setazadijourny> {
                         padding: EdgeInsets.only(left: 20.0, right: 20.0),
                         child: Center(
                           child: SizedBox(
-                            width: 130.0,
+                            width: 250.0,
                             child: Container(
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
@@ -139,7 +139,7 @@ class _setazadijournyState extends State<setazadijourny> {
                                   begin: Alignment.centerRight,
                                   end: Alignment.centerLeft,
                                 ),
-                                borderRadius: BorderRadius.circular(20.0),
+                                borderRadius: BorderRadius.circular(50.0),
                               ),
                               child: TextButton(
                                 onPressed: () {
@@ -151,7 +151,7 @@ class _setazadijournyState extends State<setazadijourny> {
                                   );
                                 },
                                 child: Text(
-                                  'Continue',
+                                  'Start your Azaadi Journeys',
                                   style: TextStyle(
                                     fontSize: 16.0,
                                     color: Colors.white,
@@ -163,7 +163,7 @@ class _setazadijournyState extends State<setazadijourny> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 20.0),
+                      SizedBox(height: 100.0),
                     ],
                   ),
                 ),

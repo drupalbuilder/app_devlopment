@@ -179,14 +179,6 @@ class _SetyourdreamesState extends State<Setyourdreames> {
                             end: Alignment.centerRight,
                           ),
                           borderRadius: BorderRadius.circular(50.0),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.5),
-                              spreadRadius: 1,
-                              blurRadius: 7,
-                              offset: Offset(0, 3), // changes position of shadow
-                            ),
-                          ],
                         ),
                         child: Center(
                           child: Text(
@@ -604,6 +596,8 @@ class _UploadDreamsState extends State<UploadDreams> {
 
 
 
+
+
 class SelectDreams extends StatefulWidget {
   final int dreamId;
   final String dreamTitle;
@@ -667,13 +661,43 @@ class _SelectDreamsState extends State<SelectDreams> {
   }
 
   void _submitData() {
+    if (_dateController.text.isEmpty ||
+        _moneyController.text.isEmpty ||
+        selectedImageUrl.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please fill in all fields.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     int currentIndex = prefs.getInt('currentIndex') ?? 0;
     prefs.setString('dreamTitle_$currentIndex', widget.dreamTitle);
     prefs.setString('date_$currentIndex', _dateController.text);
     prefs.setString('money_$currentIndex', _moneyController.text);
     prefs.setString('selectedImageUrl_$currentIndex', selectedImageUrl);
-    prefs.setInt('currentIndex', currentIndex + 1); // Increment index for next entry
+    prefs.setInt('currentIndex', currentIndex + 1);
+
+    _dateController.clear();
+    _moneyController.clear();
+    selectedImageUrl = '';
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Data submitted successfully.'),
+        backgroundColor: Colors.green,
+      ),
+    );
+
+    // Navigate to the info screen
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => CustomStepperPage()), // Replace InfoScreen with your info screen widget
+    );
   }
+
 
   void _dismissKeyboard(BuildContext context) {
     final currentFocus = FocusScope.of(context);
@@ -720,7 +744,7 @@ class _SelectDreamsState extends State<SelectDreams> {
                             children: [
                               GestureDetector(
                                 onTap: () {
-                                  Navigator.pop(context); // Go back to the previous page
+                                  Navigator.pop(context);
                                 },
                                 child: Text(
                                   'ᐸ  Back',
@@ -991,19 +1015,11 @@ class _SelectDreamsState extends State<SelectDreams> {
                     ),
                   ),
                   SizedBox(height: 20.0),
-            GestureDetector(
-              onTap: () {
-                _submitData();
-                Navigator.pop(context); // Navigate back one step
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CustomStepperPage())); // Reload the previous screen
-              },
-              // Other GestureDetector properties...
-
-
-            // Other GestureDetector properties...
-
-
-            child: SizedBox(
+                  GestureDetector(
+                    onTap: () {
+                      _submitData();
+                    },
+                    child: SizedBox(
                       width: 240.0,
                       child: Container(
                         padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 8.0),
@@ -1035,7 +1051,7 @@ class _SelectDreamsState extends State<SelectDreams> {
                         ),
                       ),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -1046,73 +1062,47 @@ class _SelectDreamsState extends State<SelectDreams> {
   }
 }
 
-class PrintThat extends StatelessWidget {
+class CustomDashedBorderPainter extends CustomPainter {
+  final Color borderColor;
+  final double borderWidth;
+  final double borderRadius;
+
+  CustomDashedBorderPainter({required this.borderColor, required this.borderWidth, required this.borderRadius});
+
   @override
-  Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: _retrieveData(),
-      builder: (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else {
-          final List<Map<String, dynamic>> dataList = snapshot.data!;
-          return Scaffold(
-            body: SafeArea(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: dataList.map((data) {
-                    return Container(
-                      margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-                      padding: EdgeInsets.all(10.0),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.blueAccent),
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Dream Title: ${data['dreamTitle']}'),
-                          Text('Date: ${data['date']}'),
-                          Text('Money Required: ${data['money']}'),
-                          if (data['selectedImageUrl'] != null && data['selectedImageUrl'].isNotEmpty)
-                            Image.network(
-                              data['selectedImageUrl'],
-                              width: 100,
-                              height: 100,
-                            ),
-                        ],
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ),
-          );
-        }
-      },
-    );
-  }
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = borderColor
+      ..strokeWidth = borderWidth
+      ..style = PaintingStyle.stroke;
 
-  Future<List<Map<String, dynamic>>> _retrieveData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    int currentIndex = prefs.getInt('currentIndex') ?? 0;
-    List<Map<String, dynamic>> dataList = [];
-    for (int i = 0; i < currentIndex; i++) {
-      dataList.add({
-        'dreamTitle': prefs.getString('dreamTitle_$i') ?? 'Not Available',
-        'date': prefs.getString('date_$i') ?? 'Not Available',
-        'money': prefs.getString('money_$i') ?? 'Not Available',
-        'selectedImageUrl': prefs.getString('selectedImageUrl_$i') ?? '',
-      });
+    final path = Path();
+    path.addRRect(RRect.fromRectAndCorners(
+      Rect.fromLTWH(0.0, 0.0, size.width, size.height),
+      topLeft: Radius.circular(borderRadius),
+      topRight: Radius.circular(borderRadius),
+      bottomLeft: Radius.circular(borderRadius),
+      bottomRight: Radius.circular(borderRadius),
+    ));
+
+    final dashWidth = 5;
+    final dashSpace = 5;
+    double currentX = 0;
+    while (currentX < size.width) {
+      path.moveTo(currentX, 0);
+      path.lineTo(currentX + dashWidth, 0);
+      currentX += dashWidth + dashSpace;
     }
-    return dataList;
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
   }
 }
 
-void main() {
-  runApp(MaterialApp(
-    home: SelectDreams(dreamId: 1, dreamTitle: 'Dream Title Example'),
-  ));
-}
+
+
+

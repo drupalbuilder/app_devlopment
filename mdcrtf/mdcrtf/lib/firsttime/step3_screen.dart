@@ -1,25 +1,133 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart'; // Import Cupertino library
-// ignore: unused_import
-import 'package:t2t1/firsttime/step4_screen.dart'; // Import the 4th step screen
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class step3_I_g extends StatefulWidget {
+
+class Step3IG extends StatefulWidget {
   final VoidCallback? onNextPressed;
 
-  const step3_I_g({Key? key, this.onNextPressed}) : super(key: key);
+  const Step3IG({Key? key, this.onNextPressed}) : super(key: key);
 
   @override
-  _step3_I_gState createState() => _step3_I_gState();
+  _Step3IGState createState() => _Step3IGState();
 }
 
-class _step3_I_gState extends State<step3_I_g> {
-  bool sellProducts = false;
+class _Step3IGState extends State<Step3IG> {
+  bool sellProducts = true;
   bool createTeam = false;
   bool bothAbove = false;
-
-  // Define colors for active and inactive switches
+  TextEditingController _incomeController = TextEditingController();
   Color activeColor = Colors.blue; // Change this to your desired color
   Color inactiveColor = Colors.grey;
+  bool isIncomeFieldFilled = false; // Track if income field is filled
+  bool isAnyCheckboxSelected = true; // Track if any checkbox is selected
+
+  void _validateAndContinue() {
+    if (isIncomeFieldFilled && isAnyCheckboxSelected) {
+      widget.onNextPressed?.call();
+    } else {
+      String message = '';
+      if (!isIncomeFieldFilled) {
+        message += 'Please fill the income field. ';
+      }
+      if (!isAnyCheckboxSelected) {
+        message += 'Please select at least one option.';
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    }
+  }
+
+
+  final TextEditingController _controller = TextEditingController();
+  String _csrfToken = '';
+  String _xsrfToken = '';
+  String _modicareSession = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCsrfToken();
+  }
+
+  Future<void> _fetchCsrfToken() async {
+    final response = await http.get(Uri.parse('https://mdash.gprlive.com/api/csrf-token'));
+    print('CSRF Token Fetch Response:');
+    print('Status Code: ${response.statusCode}');
+    print('Headers: ${response.headers}');
+    print('Body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+      setState(() {
+        _csrfToken = responseBody['csrf_token'];
+      });
+      final cookies = response.headers['set-cookie'];
+      if (cookies != null) {
+        setState(() {
+          _xsrfToken = RegExp(r'XSRF-TOKEN=([^;]+)').firstMatch(cookies)?.group(1) ?? '';
+          _modicareSession = RegExp(r'modicare_session=([^;]+)').firstMatch(cookies)?.group(1) ?? '';
+        });
+      }
+    } else {
+      print('Failed to fetch CSRF token');
+    }
+  }
+
+  Future<void> _sendUpdateRequest(String targetValue) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String mcaNumber = prefs.getString('mcaNumber') ?? ''; // Fetch mcaNumber from SharedPreferences
+
+    dynamic targetRole; // Use dynamic type for flexibility
+    if (sellProducts && !createTeam && !bothAbove) {
+      targetRole = 1;
+    } else if (!sellProducts && createTeam && !bothAbove) {
+      targetRole = 2;
+    } else if (sellProducts && createTeam && bothAbove) {
+      targetRole = [1, 2]; // Now targetRole can be an integer or an array
+    }
+
+    // Only proceed if targetRole is not null
+    if (targetRole != null) {
+      final url = Uri.parse('https://mdash.gprlive.com/api/update-user/$mcaNumber');
+      final headers = {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': _csrfToken,
+        'Cookie': 'XSRF-TOKEN=$_xsrfToken; modicare_session=$_modicareSession',
+      };
+      final body = jsonEncode({'target': targetValue, 'target_role': targetRole});
+
+      // Print request details
+      print('Request URL: $url');
+      print('Request Headers: $headers');
+      print('Request Body: $body');
+
+      try {
+        final response = await http.put(url, headers: headers, body: body);
+
+        // Print response details
+        print('Update Response:');
+        print('Status Code: ${response.statusCode}');
+        print('Headers: ${response.headers}');
+        print('Body: ${response.body}');
+
+        if (response.statusCode == 200) {
+          print('Update successful');
+        } else {
+          print('Failed to update user');
+        }
+      } catch (e) {
+        print('Exception caught: $e');
+      }
+    } else {
+      print('No target role selected'); // Handle the case where no target role is selected
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -103,10 +211,24 @@ class _step3_I_gState extends State<step3_I_g> {
                                   'Sum of ₹',
                                   style: TextStyle(fontSize: 16.0),
                                 ),
-                                Expanded( // Wrap the TextField with Expanded
-                                  child: TextField(
-                                    decoration: InputDecoration(
-                                      hintText: '100000',
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 8.0),
+                                    child: TextField(
+                                      controller: _controller, // Add the controller here
+                                      keyboardType: TextInputType.number,
+                                      inputFormatters: <TextInputFormatter>[
+                                        FilteringTextInputFormatter.digitsOnly
+                                      ],
+                                      onChanged: (value) {
+                                        setState(() {
+                                          isIncomeFieldFilled = value.isNotEmpty;
+                                        });
+                                      },
+                                      decoration: InputDecoration(
+                                        hintText: 'Enter amount',
+                                        border: OutlineInputBorder(),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -145,6 +267,7 @@ class _step3_I_gState extends State<step3_I_g> {
                               } else {
                                 bothAbove = false;
                               }
+                              isAnyCheckboxSelected = sellProducts || createTeam || bothAbove;
                             });
                           },
                           activeColor: activeColor, // Set active color
@@ -163,6 +286,7 @@ class _step3_I_gState extends State<step3_I_g> {
                               } else {
                                 bothAbove = false;
                               }
+                              isAnyCheckboxSelected = sellProducts || createTeam || bothAbove;
                             });
                           },
                           activeColor: activeColor, // Set active color
@@ -183,6 +307,7 @@ class _step3_I_gState extends State<step3_I_g> {
                                 sellProducts = false;
                                 createTeam = false;
                               }
+                              isAnyCheckboxSelected = sellProducts || createTeam || bothAbove;
                             });
                           },
                           activeColor: activeColor, // Set active color
@@ -192,17 +317,7 @@ class _step3_I_gState extends State<step3_I_g> {
                     ],
                   ),
                 ),
-                SizedBox(height: 20.0),
-                Container(
-                  color: Color(0xFFf8f7fc), // Set background color
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0), // Padding from left and right: 16.0
-                    child: Text(
-                      '** In Modicare, your earnings are directly proportional to the effort and skills you invest. Success is determined by your dedication and ability to effectively market and sell products to customers and create a team of Modicare Direct Sellers.',
-                      style: TextStyle(fontSize: 14.0),
-                    ),
-                  ),
-                ),
+
                 Padding(
                   padding: EdgeInsets.only(left: 20.0, right: 20.0),
                   child: Center(
@@ -222,7 +337,10 @@ class _step3_I_gState extends State<step3_I_g> {
                           borderRadius: BorderRadius.circular(20.0),
                         ),
                         child: TextButton(
-                          onPressed: widget.onNextPressed, // Use onNextPressed callback
+                          onPressed: () {
+                            _sendUpdateRequest(_controller.text);
+                            _validateAndContinue(); // Validate before calling onNextPressed
+                          },
                           child: Text(
                             'Continue',
                             style: TextStyle(
@@ -236,6 +354,19 @@ class _step3_I_gState extends State<step3_I_g> {
                     ),
                   ),
                 ),
+                SizedBox(height: 20.0),
+                Container(
+                  color: Color(0xFFf8f7fc), // Set background color
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0), // Padding from left and right: 16.0
+                    child: Text(
+                      '** In Modicare, your earnings are directly proportional to the effort and skills you invest. Success is determined by your dedication and ability to effectively market and sell products to customers and create a team of Modicare Direct Sellers.',
+                      style: TextStyle(fontSize: 14.0),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 30.0),
+                SizedBox(height: 100.0),
               ],
             ),
           ),
@@ -243,10 +374,16 @@ class _step3_I_gState extends State<step3_I_g> {
       ),
     );
   }
+
+  @override
+  void dispose() {
+    _incomeController.dispose(); // Dispose the controller when not needed
+    super.dispose();
+  }
 }
 
 void main() {
   runApp(MaterialApp(
-    home: step3_I_g(),
+    home: Step3IG(),
   ));
 }

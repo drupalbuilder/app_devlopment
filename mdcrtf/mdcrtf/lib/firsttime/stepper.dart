@@ -58,7 +58,7 @@ class _CustomStepperPageState extends State<CustomStepperPage> {
       case 2:
         return INCOMEsimlator();
       case 3:
-        return step3_I_g(
+        return Step3IG(
           onNextPressed: incrementStep,
         );
       case 4:
@@ -167,5 +167,7 @@ class _CustomStepperPageState extends State<CustomStepperPage> {
       ],
     );
   }
+
+  void setTarget(String target) {}
 }
 

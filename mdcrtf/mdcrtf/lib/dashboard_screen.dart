@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:t2t1/MyPospect.dart';
 import 'package:t2t1/Mynetwork.dart';
-import ' LoyaltyReport.dart';
+import 'LoyaltyReport.dart';
 import 'BusinessReport.dart';
 import 'infoscreen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 
 
@@ -19,8 +22,168 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  int incomeValue = 0;
-  String? _selectedMonth;
+  String mcaNumber = '';
+  String targetValue = '';
+  String selectedValueText = ''; // Define selectedValueText here
+  bool isLoading = true;
+  List<dynamic> dashboardData = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchDashboardData();
+    _fetchMcaNumber();
+  }
+
+  Future<void> _fetchDashboardData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? mcaNumber = prefs.getString('mcaNumber');
+
+    if (mcaNumber != null) {
+      String url = 'https://report.modicare.com/api/report/np/business/web';
+      Map<String, String> headers = {"Content-Type": "application/json"};
+      String body = jsonEncode({
+        "mcano": mcaNumber,
+        "dated": "${DateTime
+            .now()
+            .year}-${DateTime
+            .now()
+            .month}-01"
+      });
+
+      try {
+        final response = await http.post(
+            Uri.parse(url), headers: headers, body: body);
+
+        if (response.statusCode == 200) {
+          dynamic jsonData = jsonDecode(response.body);
+          if (jsonData['result'] != null && jsonData['result'] is List) {
+            setState(() {
+              dashboardData = jsonData['result'];
+              isLoading = false;
+            });
+          } else {
+            setState(() {
+              isLoading = false;
+            });
+          }
+        } else {
+          setState(() {
+            isLoading = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to fetch dashboard data.'),
+            ),
+          );
+        }
+      } catch (error) {
+        setState(() {
+          isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('An error occurred: $error'),
+          ),
+        );
+      }
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('No MCA number found.'),
+        ),
+      );
+    }
+  }
+  Future<void> _fetchUserData() async {
+    String userApiUrl = 'https://mdash.gprlive.com/api/users/$mcaNumber';
+
+    print('API URL: $userApiUrl'); // Print API URL for debugging
+
+    try {
+      http.Response response = await http.get(Uri.parse(userApiUrl));
+
+      print('API Response: ${response.body}'); // Print API response for debugging
+
+      if (response.statusCode == 200) {
+        // API call successful
+        Map<String, dynamic> userData = jsonDecode(response.body);
+        print('User Data: $userData'); // Print user data for debugging
+
+        // Extract target value from userData
+        int target = userData['target'] ?? 0; // Assuming 'target' is the key for the target value
+
+        // Save target value in SharedPreferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setInt('targetValue', target);
+
+        setState(() {
+          targetValue = target.toString();
+        });
+      } else {
+        // API call failed
+        throw Exception('Failed to load user data');
+      }
+    } catch (e) {
+      // Error handling
+      print('Error: $e');
+    }
+  }
+
+
+  Future<List<charts.Series<OrdinalSales, String>>> _createChartData() async {
+    List<OrdinalSales> data = [];
+
+    SharedPreferences prefs;
+    try {
+      prefs = await SharedPreferences.getInstance();
+    } catch (e) {
+      print('Error initializing SharedPreferences: $e');
+      return [];
+    }
+
+    int targetValue = prefs.getInt('targetValue') ?? 0;
+
+    // Extract month and gross income from dashboardData and add to data list
+    for (var item in dashboardData) {
+      String month = item['BV Month'];
+      double grossIncome = double.tryParse(item['Gross']?.replaceAll('₹ ', '') ?? '0.00') ?? 0.0;
+      data.add(OrdinalSales(month, grossIncome));
+    }
+
+    // Add the target value as a bar to the chart
+    data.insert(0, OrdinalSales('Target', targetValue.toDouble()));
+
+    return [
+      charts.Series<OrdinalSales, String>(
+        id: 'Sales',
+        colorFn: (OrdinalSales sales, _) {
+          return sales.month == 'Target' ? charts.Color.fromHex(code: '#fbcc11') : charts.Color.fromHex(code: '#25CDD7');
+        },
+        domainFn: (OrdinalSales sales, _) => sales.month,
+        measureFn: (OrdinalSales sales, _) => sales.sales,
+        data: data,
+      ),
+    ];
+  }
+
+
+
+
+  Future<void> _fetchMcaNumber() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      mcaNumber = prefs.getString('mcaNumber')!;
+    });
+
+    _fetchUserData();
+  }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +194,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0, vertical: 8.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -69,31 +233,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     border: Border.all(color: Colors.grey, width: 1.0),
                     borderRadius: BorderRadius.circular(8.0),
                   ),
-                  child: charts.BarChart(
-                    _createSampleData(),
-                    animate: true,
-                    primaryMeasureAxis: const charts.NumericAxisSpec(
-                      renderSpec: charts.NoneRenderSpec(),
-                    ),
-                    behaviors: [
-                      charts.SelectNearest(eventTrigger: charts.SelectionTrigger.tapAndDrag),
-                    ],
-                    selectionModels: [
-                      charts.SelectionModelConfig(
-                        type: charts.SelectionModelType.info,
-                        changedListener: (model) {
-                          if (model.selectedDatum.isNotEmpty && model.selectedDatum.first.datum is OrdinalSales) {
-                            final selectedDatum = model.selectedDatum.first.datum as OrdinalSales;
-                            if (selectedDatum.month != 'Target') {
-                              setState(() {
-                                _selectedMonth = selectedDatum.month;
-                                incomeValue = selectedDatum.sales;
-                              });
-                            }
-                          }
-                        },
-                      ),
-                    ],
+                  child: FutureBuilder<List<charts.Series<dynamic, String>>>(
+                    future: _createChartData(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return charts.BarChart(
+                          snapshot.data!,
+                          animate: true,
+                          primaryMeasureAxis: const charts.NumericAxisSpec(
+                            renderSpec: charts.NoneRenderSpec(),
+                          ),
+                          behaviors: [
+                            charts.SelectNearest(
+                              eventTrigger: charts.SelectionTrigger.tapAndDrag,
+                            ),
+                          ],
+                          selectionModels: [
+                            charts.SelectionModelConfig(
+                              type: charts.SelectionModelType.info,
+                              changedListener: (model) {
+                                // Handle selection event here
+                              },
+                            ),
+                          ],
+                        );
+                      } else if (snapshot.hasError) {
+                        return Center(
+                          child: Text('Error: ${snapshot.error}'),
+                        );
+                      }
+                      // By default, show a loading indicator
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    },
                   ),
                 ),
               ),
@@ -145,22 +318,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Row(
                   children: [
                     Text(
-                      '₹ ${_getTargetValue()}',
+                      '₹$targetValue',
                       style: const TextStyle(
                         fontSize: 24,
                         color: const Color(0xff535353),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(width: 20),
+                    SizedBox(width: 40),
                     Text(
-                      '₹ $incomeValue',
+                      '$selectedValueText',
                       style: const TextStyle(
                         fontSize: 24,
                         color: const Color(0xff535353),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+
                   ],
                 ),
               ),
@@ -264,13 +438,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 8.0), // Adjust the padding value as needed
+                  padding: const EdgeInsets.only(left: 8.0),
+                  // Adjust the padding value as needed
                   child: Container(
                     decoration: BoxDecoration(
-                      color: const Color(0xfff4f4f4), // Set the background color here
+                      color: const Color(0xfff4f4f4),
+                      // Set the background color here
                       borderRadius: BorderRadius.horizontal(
-                        left: Radius.circular(20.0), // Set the radius for the left side
-                        right: Radius.circular(20.0), // Set the radius for the right side
+                        left: Radius.circular(20.0),
+                        // Set the radius for the left side
+                        right: Radius.circular(
+                            20.0), // Set the radius for the right side
                       ),
                     ),
                     child: Row(
@@ -304,7 +482,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         style: ElevatedButton.styleFrom(
                           foregroundColor: Color(0xFF333333),
                           backgroundColor: Color(0xFFFDFDFD),
-                          side: BorderSide(width: 1.0, color: Color(0xFF0099FF)),
+                          side: BorderSide(width: 1.0,
+                              color: Color(0xFF0099FF)),
                         ),
                         child: Text(
                           'Business report',
@@ -322,17 +501,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       alignment: Alignment.centerLeft,
                       child: ElevatedButton(
                         onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => LoyaltyReport(),
-                              ),
-                            );
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LoyaltyReport(),
+                            ),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           foregroundColor: Color(0xFF333333),
                           backgroundColor: Color(0xFFFDFDFD),
-                          side: BorderSide(width: 1.0, color: Color(0xFF0099FF)),
+                          side: BorderSide(width: 1.0,
+                              color: Color(0xFF0099FF)),
                         ),
                         child: Text(
                           'Loyalty report',
@@ -366,16 +546,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: const Color(0xff0099ff),// Blue background color
+                        color: const Color(0xff0099ff), // Blue background color
                       ),
-                      padding: const EdgeInsets.all(4), // Adjust padding as needed
+                      padding: const EdgeInsets.all(4),
+                      // Adjust padding as needed
                       child: Icon(
                         Icons.add,
                         color: Colors.white, // White icon color
                         size: 20, // Adjust icon size as needed
                       ),
                     ),
-                    SizedBox(width: 8), // Adjust the width as needed for spacing
+                    SizedBox(width: 8),
+                    // Adjust the width as needed for spacing
                     Text(
                       'add new',
                       style: TextStyle(
@@ -407,7 +589,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         style: ElevatedButton.styleFrom(
                           foregroundColor: Color(0xFF333333),
                           backgroundColor: Color(0xFFFDFDFD),
-                          side: BorderSide(width: 1.0, color: Color(0xFF0099FF)),
+                          side: BorderSide(width: 1.0,
+                              color: Color(0xFF0099FF)),
                         ),
                         child: Text(
                           'My Network',
@@ -435,7 +618,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         style: ElevatedButton.styleFrom(
                           foregroundColor: Color(0xFF333333),
                           backgroundColor: Color(0xFFFFFFFF),
-                          side: BorderSide(width: 1.0, color: Color(0xFF0099FF)),
+                          side: BorderSide(width: 1.0,
+                              color: Color(0xFF0099FF)),
                         ),
                         child: Text(
                           'My Prospect',
@@ -464,7 +648,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(height: 10),
 
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0), // Adjust the value as needed
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                // Adjust the value as needed
                 child: Container(
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey, width: 1.0),
@@ -501,7 +686,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
 
-              SizedBox(height: 24),
+              SizedBox(height: 100.0),
             ],
           ),
         ),
@@ -556,168 +741,141 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  List<charts.Series<OrdinalSales, String>> _createSampleData() {
-    final data = [
-      OrdinalSales('Target', 10000),
-      OrdinalSales('Oct', 5000),
-      OrdinalSales('Nov', 1000),
-      OrdinalSales('Dec', 1600),
-      OrdinalSales('Jan', 1800),
-      OrdinalSales('Feb', 2000),
-      OrdinalSales('Mar', 1000),
-    ];
 
-    return [
-      charts.Series<OrdinalSales, String>(
-        id: 'Sales',
-        colorFn: (OrdinalSales sales, _) {
-          if (sales.month == _selectedMonth) {
-            return charts.Color.fromHex(code: '#85e250');
-          } else if (sales.month == 'Target') {
-            return charts.Color.fromHex(code: '#fdcd11');
-          } else {
-            return charts.Color(r: 37, g: 150, b: 190);
-          }
-        },
-        domainFn: (OrdinalSales sales, _) => sales.month,
-        measureFn: (OrdinalSales sales, _) => sales.sales,
-        data: data,
-      ),
-    ];
-  }
-
-  String _getTargetValue() {
-    final targetData = _createSampleData().first.data.firstWhere((element) => element.month == 'Target', orElse: () => OrdinalSales('Target', 0));
-    return '${targetData.sales}';
-  }
-}
-
-Widget videoItem(BuildContext context, String title, String videoUrl) {
-  return GestureDetector(
-    onTap: () {
-      _playYoutubeVideo(context, videoUrl);
-    },
-    child: SizedBox(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(10.0, 14.0, 0, 0), // Padding from left, top, right, and bottom
-        child: SizedBox(
-          width: 160,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  Image.network(
-                    'https://img.youtube.com/vi/${videoUrl.split('/').last.split('?').first}/0.jpg',
-                    width: 140,
-                    height: 100,
-                    fit: BoxFit.cover,
-                  ),
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(0),
-                          bottomRight: Radius.circular(8),
+  Widget videoItem(BuildContext context, String title, String videoUrl) {
+    return GestureDetector(
+      onTap: () {
+        _playYoutubeVideo(context, videoUrl);
+      },
+      child: SizedBox(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(10.0, 14.0, 0, 0),
+          // Padding from left, top, right, and bottom
+          child: SizedBox(
+            width: 160,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Image.network(
+                      'https://img.youtube.com/vi/${videoUrl
+                          .split('/')
+                          .last
+                          .split('?')
+                          .first}/0.jpg',
+                      width: 140,
+                      height: 100,
+                      fit: BoxFit.cover,
+                    ),
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(0),
+                            bottomRight: Radius.circular(8),
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.play_arrow,
+                          color: Colors.white,
+                          size: 20,
                         ),
                       ),
-                      child: const Icon(
-                        Icons.play_arrow,
-                        color: Colors.white,
-                        size: 20,
-                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 8.0),
+                SizedBox(
+                  width: 160, // Adjust width as needed
+                  child: Text(
+                    title.length > 25 ? '${title.substring(0, 22)}...' : title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                ],
-              ),
-              SizedBox(height: 8.0),
-              SizedBox(
-                width: 160, // Adjust width as needed
-                child: Text(
-                  title.length > 25 ? '${title.substring(0, 22)}...' : title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 14.0,
-                    fontWeight: FontWeight.bold,
-                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
+  void _playYoutubeVideo(BuildContext context, String? videoUrl) {
+    if (videoUrl != null) {
+      // Save the current screen orientation
 
-
-void _playYoutubeVideo(BuildContext context, String? videoUrl) {
-  if (videoUrl != null) {
-    // Save the current screen orientation
-
-    // Lock the screen orientation to portrait
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
-
-    showDialog(
-      context: context,
-      barrierDismissible: true, // allow dismissing the dialog by clicking outside
-      builder: (BuildContext context) {
-        return AlertDialog(
-          contentPadding: EdgeInsets.zero,
-          content: SizedBox(
-            width: double.maxFinite, // Set the width as needed
-            height: 400, // Set the height as needed
-            child: YoutubePlayer(
-              controller: YoutubePlayerController(
-                initialVideoId: YoutubePlayer.convertUrlToId(videoUrl) ?? '',
-                flags: const YoutubePlayerFlags(
-                  autoPlay: true,
-                  mute: false,
-                ),
-              ),
-              showVideoProgressIndicator: true,
-              onReady: () {
-                // Perform any additional setup here
-              },
-            ),
-          ),
-        );
-      },
-    ).then((value) {
-      // Restore the original screen orientation after the dialog is dismissed
+      // Lock the screen orientation to portrait
       SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,
         DeviceOrientation.portraitDown,
-        DeviceOrientation.landscapeLeft,
-        DeviceOrientation.landscapeRight,
       ]);
-    });
-  } else {
-    // Handle the case where videoUrl is null, if needed
-    if (kDebugMode) {
-      print('Video URL is null');
+
+      showDialog(
+        context: context,
+        barrierDismissible: true,
+        // allow dismissing the dialog by clicking outside
+        builder: (BuildContext context) {
+          return AlertDialog(
+            contentPadding: EdgeInsets.zero,
+            content: SizedBox(
+              width: double.maxFinite, // Set the width as needed
+              height: 400, // Set the height as needed
+              child: YoutubePlayer(
+                controller: YoutubePlayerController(
+                  initialVideoId: YoutubePlayer.convertUrlToId(videoUrl) ?? '',
+                  flags: const YoutubePlayerFlags(
+                    autoPlay: true,
+                    mute: false,
+                  ),
+                ),
+                showVideoProgressIndicator: true,
+                onReady: () {
+                  // Perform any additional setup here
+                },
+              ),
+            ),
+          );
+        },
+      ).then((value) {
+        // Restore the original screen orientation after the dialog is dismissed
+        SystemChrome.setPreferredOrientations([
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight,
+        ]);
+      });
+    } else {
+      // Handle the case where videoUrl is null, if needed
+      if (kDebugMode) {
+        print('Video URL is null');
+      }
     }
   }
+
+  void main() {
+    runApp(const MaterialApp(
+      home: DashboardScreen(),
+    ));
+  }
 }
+
+
 class OrdinalSales {
   final String month;
-  final int sales;
+  final double sales;
 
   OrdinalSales(this.month, this.sales);
 }
 
-void main() {
-  runApp(const MaterialApp(
-    home: DashboardScreen(),
-  ));
-}

@@ -21,9 +21,9 @@ class ContactUsApp extends StatelessWidget {
                     color: Color.fromARGB(255, 255, 255, 255),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.43),
-                        offset: Offset(0, 1),
-                        blurRadius: 2,
+                        color: Colors.black.withOpacity(0.30),
+                        offset: Offset(0, 1.5),
+                        blurRadius: 0,
                       ),
                     ],
                   ),
@@ -56,7 +56,6 @@ class ContactUsApp extends StatelessWidget {
                           ),
                         ],
                       ),
-
                       SizedBox(height: 10.0), // Add space here
                       Padding(
                         padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),// Padding top and bottom

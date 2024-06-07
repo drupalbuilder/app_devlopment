@@ -19,9 +19,9 @@ class ReportScreen extends StatelessWidget {
                   color: Color.fromARGB(255, 255, 255, 255),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.43),
-                      offset: Offset(0, 1),
-                      blurRadius: 2,
+                      color: Colors.black.withOpacity(0.30),
+                      offset: Offset(0, 1.5),
+                      blurRadius: 0,
                     ),
                   ],
                 ),

@@ -482,15 +482,16 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     ),
                   ],
-
                 ),
-              ),
+              ),  SizedBox(height: 100.0),
             ],
           ),
         ),
       ),
     );
   }
+
+
 
   Widget _buildListItem(String title, BuildContext context) {
     return Container(

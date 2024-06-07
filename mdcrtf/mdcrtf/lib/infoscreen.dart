@@ -87,9 +87,9 @@ class _InfoScreenState extends State<InfoScreen> {
                 color: Color.fromARGB(255, 255, 255, 255),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.43),
-                    offset: Offset(0, 1),
-                    blurRadius: 2,
+                    color: Colors.black.withOpacity(0.30),
+                    offset: Offset(0, 1.5),
+                    blurRadius: 0,
                   ),
                 ],
               ),
@@ -148,6 +148,13 @@ class _InfoScreenState extends State<InfoScreen> {
                 decoration: InputDecoration(
                   hintText: 'Search',
                   prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(24.0),
+                    borderSide: BorderSide(color: Colors.blue), // Change border color if needed
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
                 ),
                 onChanged: (String value) {
                   // Handle search query here
@@ -166,9 +173,9 @@ class _InfoScreenState extends State<InfoScreen> {
             Expanded(
               child: isLoading
                   ? Center(
-                child: LoadingAnimationWidget.staggeredDotsWave(
-                  color: Colors.blue, // Customize color if needed
-                  size: 50, // Adjust size as needed
+                child: LoadingAnimationWidget.waveDots(
+                  color: Colors.lightBlueAccent, // Customize color if needed
+                  size: 100, // Adjust size as needed
                 ),
               )
                   : errorMessage.isNotEmpty

@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
+
 
 class CalendarSettings extends StatelessWidget {
   const CalendarSettings({Key? key}) : super(key: key);
@@ -14,51 +19,67 @@ class CalendarSettings extends StatelessWidget {
             child: Column(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                   decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.only(
+                    borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(20.0),
                       bottomRight: Radius.circular(20.0),
                     ),
-                    color: const Color.fromARGB(255, 255, 255, 255),
+                    color: Color.fromARGB(255, 255, 255, 255),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.43),
-                        offset: const Offset(0, 1),
-                        blurRadius: 2,
+                        color: Colors.black.withOpacity(0.30),
+                        offset: Offset(0, 1.5),
+                        blurRadius: 0,
                       ),
                     ],
                   ),
                   child: Column(
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           GestureDetector(
                             onTap: () {
-                              Navigator.pop(context);
+                              Navigator.pop(context); // Go back to the previous page
                             },
-                            child: Text(
-                              'ᐸ  Back',
-                              style: TextStyle(
-                                color: Color(0xFF0396FE),
-                                fontSize: 18.0,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.arrow_back_ios,
+                                  color: Color(0xFF0396FE),
+                                  size: 20.0,
+                                ), // Adjust the spacing between the icon and text
+                                Text(
+                                  'Back', // Removed the '<'
+                                  style: TextStyle(
+                                    color: Color(0xFF0396FE),
+                                    fontSize: 20.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          Text(
-                            'My calendar',
-                            style: TextStyle(
-                              color: Color.fromARGB(255, 40, 40, 40),
-                              fontSize: 24.0,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(width: 60),
                         ],
                       ),
-                      SizedBox(height: 10.0),
+                      SizedBox(height: 10.0), // Add space here
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),// Padding top and bottom
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              'My Calender',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight
+                                    .w900,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -76,7 +97,7 @@ class CalendarSettings extends StatelessWidget {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => AddEventScreen()),
+                          MaterialPageRoute(builder: (context) => AddEventScreen(name: '', contact: '',)),
                         );
                       },
                       child: Text('+ Add Event'),
@@ -156,349 +177,440 @@ class _CalendarWidgetState extends State<CalendarWidget> {
 
 
 class AddEventScreen extends StatefulWidget {
+  final String name;
+  final String contact;
+
+  AddEventScreen({required this.name, required this.contact});
+
   @override
   _AddEventScreenState createState() => _AddEventScreenState();
 }
 
 class _AddEventScreenState extends State<AddEventScreen> {
-  int selectedYear = 2024; // Variable to track the selected year, initialized with a default value of 2024
-  bool addToCalendar = false; // Variable to track whether the checkbox is checked or not
+  TextEditingController _descriptionController = TextEditingController();
+  bool addToCalendar = false;
+  int selectedDay = 1;
+  int selectedMonth = 1;
+  int selectedYear = 2024;
+
+  String _csrfToken = '';
+  String _xsrfToken = '';
+  String _modicareSession = '';
+  String _selectedEventType = '0'; // Define the selected event type variable
+
+  @override
+  void initState() {
+    super.initState();
+    String initialText = '';
+    if (widget.name.isNotEmpty && widget.contact.isNotEmpty) {
+      initialText = 'Name: ${widget.name}\nContact: ${widget.contact}\n\n';
+    }
+    _descriptionController.text = initialText;
+
+    // Fetch CSRF token and other tokens when the screen initializes
+    _fetchCsrfToken();
+  }
+
+  Future<void> _fetchCsrfToken() async {
+    final response = await http.get(
+        Uri.parse('https://mdash.gprlive.com/api/csrf-token'));
+    print('CSRF Token Fetch Response:');
+    print('Status Code: ${response.statusCode}');
+    print('Headers: ${response.headers}');
+    print('Body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+      setState(() {
+        _csrfToken = responseBody['csrf_token'];
+      });
+      final cookies = response.headers['set-cookie'];
+      if (cookies != null) {
+        setState(() {
+          _xsrfToken =
+              RegExp(r'XSRF-TOKEN=([^;]+)').firstMatch(cookies)?.group(1) ?? '';
+          _modicareSession =
+              RegExp(r'modicare_session=([^;]+)').firstMatch(cookies)?.group(
+                  1) ?? '';
+        });
+      }
+    } else {
+      print('Failed to fetch CSRF token');
+    }
+  }
+
+  Future<void> _sendEventData(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String mcaNumber = prefs.getString('mcaNumber') ?? '';
+
+    // Check if tokens are empty and handle the scenario
+    if (_csrfToken.isEmpty || _xsrfToken.isEmpty || _modicareSession.isEmpty) {
+      print('Tokens are empty. Unable to make the request.');
+      return;
+    }
+
+    // Get current time in "HH:mm:ss" format
+    String currentTime = DateFormat('HH:mm:ss').format(DateTime.now());
+
+    // Prepare headers
+    Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'X-CSRF-TOKEN': _csrfToken,
+      'Cookie': 'XSRF-TOKEN=$_xsrfToken; modicare_session=$_modicareSession',
+    };
+
+// Prepare request body
+    Map<String, dynamic> requestBody = {
+      'Calendar': [
+        {
+          'mca': mcaNumber,
+          'dtime': '${selectedYear.toString().padLeft(4, '0')}-'
+              '${selectedMonth.toString().padLeft(2, '0')}-'
+              '${selectedDay.toString().padLeft(2, '0')} $currentTime',
+          'type': _selectedEventType, // Use the selected event type
+          'description': _descriptionController.text.trim(),
+        }
+      ]
+    };
+
+
+    // Print the data being sent
+    print('Request Headers:');
+    print(headers);
+    print('Request Body:');
+    print(requestBody);
+
+    // Send PUT request to save the event
+    final response = await http.put(
+      Uri.parse('https://mdash.gprlive.com/api/Calendar/save'),
+      headers: headers,
+      body: jsonEncode(requestBody),
+    );
+
+    // Handle the response
+    if (response.statusCode == 200) {
+      // Show a SnackBar message on success
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Event saved successfully.'),
+          backgroundColor: Colors.black, // Set the background color to black
+          duration: Duration(seconds: 2), // Optional: Set duration for the message
+        ),
+      );
+
+      // Handle success, navigate to a success screen or perform any other action
+    } else {
+      print('Failed to save event. Status code: ${response.statusCode}');
+      // Handle failure, show an error message
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        // Unfocus the keyboard when tapping on the blank area
-        FocusScope.of(context).unfocus();
-      },
-      child: Scaffold(
-        body: SafeArea(
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(20.0),
-                bottomRight: Radius.circular(20.0),
-              ),
-              color: Color.fromARGB(255, 255, 255, 255),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.43),
-                  offset: Offset(0, 1),
-                  blurRadius: 2,
+    return Scaffold(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(20.0),
+                    bottomRight: Radius.circular(20.0),
+                  ),
+                  color: Color.fromARGB(255, 255, 255, 255),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.30),
+                      offset: Offset(0, 1.5),
+                      blurRadius: 0,
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context); // Go back to the previous page
-                    },
-                    child: Container(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'ᐸ  Back',
-                        style: TextStyle(
-                          color: Color(0xFF0396FE),
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20.0), // Added some space between the back button and other content
-                  SizedBox(height: 40.0),
-                  Text(
-                    'Add Event',
-                    style: TextStyle(
-                      fontSize: 24.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 20.0),
-                  Text(
-                    'Select Date',
-                    style: TextStyle(
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 10.0),
-                  // Year selection row
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            selectedYear = 2024;
-                          });
-                        },
-                        child: Container(
-                          padding: EdgeInsets.all(10.0),
-                          decoration: BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(
-                                color: selectedYear == 2024 ? Color(0xFF0396FE) : Colors.transparent,
-                                width: 2.0,
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context); // Go back to the previous page
+                          },
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.arrow_back_ios,
+                                color: Color(0xFF0396FE),
+                                size: 20.0,
                               ),
-                            ),
-                          ),
-                          child: Text('2024'),
-                        ),
-                      ),
-                      SizedBox(width: 20.0),
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            selectedYear = 2025;
-                          });
-                        },
-                        child: Container(
-                          padding: EdgeInsets.all(10.0),
-                          decoration: BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(
-                                color: selectedYear == 2025 ? Color(0xFF0396FE) : Colors.transparent,
-                                width: 2.0,
-                              ),
-                            ),
-                          ),
-                          child: Text('2025'),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 10.0),
-                  // Month, day, and time selection rows
-                  Row(
-                    children: [
-                      Flexible(
-                        flex: 4,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 12.0),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30.0),
-                            border: Border.all(color: Color(0xFF17a2b8)),
-                          ),
-                          child: SizedBox(
-                            width: double.infinity, // Constraint the width to fill the available space
-                            child: DropdownButtonFormField<int>(
-                              value: 1,
-                              onChanged: (value) {},
-                              items: List.generate(
-                                12,
-                                    (index) => DropdownMenuItem<int>(
-                                  value: index + 1,
-                                  child: Text(_getMonthName(index + 1)),
+                              Text(
+                                'Back',
+                                style: TextStyle(
+                                  color: Color(0xFF0396FE),
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                              ),
-                            ),
+                            ],
                           ),
                         ),
-                      ),
-                      SizedBox(width: 10.0),
-                      Flexible(
-                        flex: 2,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 12.0),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30.0),
-                            border: Border.all(color: Color(0xFF17a2b8)),
+                      ],
+                    ),
+                    SizedBox(height: 10.0),
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Add Event',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w900,
+                            ),
                           ),
-                          child: DropdownButtonFormField<int>(
-                            value: 1,
-                            onChanged: (value) {},
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              SizedBox(height: 10.0),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Text(
+                  'Select Date',
+                  style: TextStyle(
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              SizedBox(height: 10.0),
+              // Dropdowns, text fields, checkboxes, buttons, etc. continue here
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Container(
+                  width: double.infinity,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween, // Adjust alignment as needed
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.25, // Adjust width as needed
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(24.0),
+                          border: Border.all(color: Colors.blue),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<int>(
+                            value: selectedDay,
+                            onChanged: (value) {
+                              setState(() {
+                                selectedDay = value!;
+                              });
+                            },
+                            style: TextStyle(color: Colors.blue),
                             items: List.generate(
                               31,
                                   (index) => DropdownMenuItem<int>(
                                 value: index + 1,
-                                child: Text('${index + 1}'),
+                                child: Padding(
+                                  padding: EdgeInsets.only(left: 8.0, right: 8.0), // Adjust padding as needed
+                                  child: Text('${index + 1}'),
+                                ),
                               ),
-                            ),
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
                             ),
                           ),
                         ),
                       ),
                       SizedBox(width: 10.0),
-                      Flexible(
-                        flex: 3,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 12.0),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30.0),
-                            border: Border.all(color: Color(0xFF17a2b8)),
-                          ),
-                          child: DropdownButtonFormField<int>(
-                            value: 8,
-                            onChanged: (value) {},
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.25, // Adjust width as needed
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(24.0),
+                          border: Border.all(color: Colors.blue),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<int>(
+                            value: selectedMonth,
+                            onChanged: (value) {
+                              setState(() {
+                                selectedMonth = value!;
+                              });
+                            },
+                            style: TextStyle(color: Colors.blue),
                             items: List.generate(
-                              24,
+                              12,
                                   (index) => DropdownMenuItem<int>(
                                 value: index + 1,
-                                child: Text('${index + 1}:00'),
+                                child: Padding(
+                                  padding: EdgeInsets.only(left: 8.0, right: 8.0), // Adjust padding as needed
+                                  child: Text('${index + 1}'),
+                                ),
                               ),
                             ),
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10.0),
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.25, // Adjust width as needed
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(24.0),
+                          border: Border.all(color: Colors.blue),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<int>(
+                            value: selectedYear,
+                            onChanged: (value) {
+                              setState(() {
+                                selectedYear = value!;
+                              });
+                            },
+                            style: TextStyle(color: Colors.blue),
+                            items: List.generate(
+                              10,
+                                  (index) => DropdownMenuItem<int>(
+                                value: 2024 + index,
+                                child: Padding(
+                                  padding: EdgeInsets.only(left: 8.0, right: 8.0), // Adjust padding as needed
+                                  child: Text('${2024 + index}'),
+                                ),
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ],
                   ),
-
-                  SizedBox(height: 20.0),
-                  // Event type dropdown
-                  DropdownButtonFormField<String>(
-                    value: '0',
-                    onChanged: (value) {},
-                    items: [
-                      DropdownMenuItem<String>(
-                        value: '0',
-                        child: Text('Select event'),
-                      ),
-                      DropdownMenuItem<String>(
-                        value: '1',
-                        child: Text('Product Training'),
-                      ),
-                      DropdownMenuItem<String>(
-                        value: '2',
-                        child: Text('Business Training'),
-                      ),
-                      DropdownMenuItem<String>(
-                        value: '3',
-                        child: Text('Home Meeting'),
-                      ),
-                      DropdownMenuItem<String>(
-                        value: '4',
-                        child: Text('Plan Presentation'),
-                      ),
-                      DropdownMenuItem<String>(
-                        value: '5',
-                        child: Text('Jashn-e-Azadi'),
-                      ),
-                      DropdownMenuItem<String>(
-                        value: '6',
-                        child: Text('Parivartan'),
-                      ),
-                      DropdownMenuItem<String>(
-                        value: '7',
-                        child: Text('Raftaar'),
-                      ),
-                      DropdownMenuItem<String>(
-                        value: '8',
-                        child: Text('Udaan'),
-                      ),
-                    ],
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide(
-                          color: Color(0xFF17a2b8),
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20.0),
-                  // Description text field
-                  TextFormField(
-                    decoration: InputDecoration(
-                      hintText: 'Description',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide(
-                          color: Color(0xFF17a2b8),
-                        ),
-                      ),
-                    ),
-                    maxLines: 6,
-                  ),
-                  SizedBox(height: 20.0),
-                  // Checkbox for adding to calendar
-                  Row(
-                    children: [
-                      Checkbox(
-                        value: addToCalendar,
-                        onChanged: (value) {
-                          setState(() {
-                            addToCalendar = value!;
-                          });
-                        },
-                      ),
-                      Text('Add to My Calendar'),
-                    ],
-                  ),
-                  SizedBox(height: 20.0),
-                  // Buttons for "Done" and "Cancel"
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {},
-                        child: Text('Done'),
-                      ),
-                      SizedBox(width: 20.0),
-                      OutlinedButton(
-                        onPressed: () {},
-                        child: Text('Cancel'),
-                      ),
-                    ],
-                  ),
-                ],
+                ),
               ),
+
+              SizedBox(height: 20.0),
+              // Event type dropdown
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: DropdownButtonFormField<String>(
+                  value: _selectedEventType,
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedEventType = value!; // Set the selected event type
+                    });
+                  },
+                  items: [
+                    DropdownMenuItem<String>(
+                      value: '0',
+                      child: Text('Select event'),
+                    ),
+                    DropdownMenuItem<String>(
+                      value: '1',
+                      child: Text('Product Training'),
+                    ),
+                    DropdownMenuItem<String>(
+                      value: '2',
+                      child: Text('Business Training'),
+                    ),
+                    DropdownMenuItem<String>(
+                      value: '3',
+                      child: Text('Home Meeting'),
+                    ),
+                    DropdownMenuItem<String>(
+                      value: '4',
+                      child: Text('Plan Presentation'),
+                    ),
+                    DropdownMenuItem<String>(
+                      value: '5',
+                      child: Text('Jashn-e-Azadi'),
+                    ),
+                    DropdownMenuItem<String>(
+                      value: '6',
+                      child: Text('Parivartan'),
+                    ),
+                    DropdownMenuItem<String>(
+                      value: '7',
+                      child: Text('Raftaar'),
+                    ),
+                    DropdownMenuItem<String>(
+                      value: '8',
+                      child: Text('Udaan'),
+                    ),
+                  ],
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                      borderSide: BorderSide(
+                        color: Color(0xFF17a2b8),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20.0),
+              // Description text field
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.0), // Adjust the horizontal padding as needed
+                child: TextFormField(
+                  controller: _descriptionController,
+                  decoration: InputDecoration(
+                    hintText: 'Description',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                      borderSide: BorderSide(
+                        color: Color(0xFF17a2b8),
+                      ),
+                    ),
+                  ),
+                  maxLines: 6,
+                ),
+              ),
+            SizedBox(height: 20.0),
+            // Checkbox for adding to calendar
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.0), // Adjust the horizontal padding as needed
+                child: Row(
+                  children: [
+                    Checkbox(
+                      value: addToCalendar,
+                      onChanged: (value) {
+                        setState(() {
+                          addToCalendar = value!;
+                        });
+                      },
+                    ),
+                    Text('Add to My Calendar'),
+                  ],
+                ),
+              ),
+
+            SizedBox(height: 20.0),
+            // Buttons for "Done" and "Cancel"
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    _sendEventData(context); // Pass the context to the method
+                  },
+                  child: Text('Save Event'),
+                )
+,
+                SizedBox(width: 20.0),
+                OutlinedButton(
+                  onPressed: () {
+                    // Add your functionality here for canceling the event
+                  },
+                  child: Text('Cancel'),
+                ),
+              ],
             ),
+            ],
           ),
         ),
       ),
     );
   }
-
-  String _getMonthName(int month) {
-    switch (month) {
-      case 1:
-        return 'January';
-      case 2:
-        return 'February';
-      case 3:
-        return 'March';
-      case 4:
-        return 'April';
-      case 5:
-        return 'May';
-      case 6:
-        return 'June';
-      case 7:
-        return 'July';
-      case 8:
-        return 'August';
-      case 9:
-        return 'September';
-      case 10:
-        return 'October';
-      case 11:
-        return 'November';
-      case 12:
-        return 'December';
-      default:
-        return '';
-    }
-  }
-}
-
-
-
-void main() {
-  runApp(const MaterialApp(
-    home: CalendarSettings(),
-  ));
 }
