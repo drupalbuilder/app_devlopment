@@ -12,8 +12,6 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
-
-
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
 
@@ -44,16 +42,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       Map<String, String> headers = {"Content-Type": "application/json"};
       String body = jsonEncode({
         "mcano": mcaNumber,
-        "dated": "${DateTime
-            .now()
-            .year}-${DateTime
-            .now()
-            .month}-01"
+        "dated": "${DateTime.now().year}-${DateTime.now().month}-01"
       });
 
       try {
-        final response = await http.post(
-            Uri.parse(url), headers: headers, body: body);
+        final response = await http.post(Uri.parse(url), headers: headers, body: body);
 
         if (response.statusCode == 200) {
           dynamic jsonData = jsonDecode(response.body);
@@ -98,6 +91,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
     }
   }
+
   Future<void> _fetchUserData() async {
     String userApiUrl = 'https://mdash.gprlive.com/api/users/$mcaNumber';
 
@@ -133,7 +127,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-
   Future<List<charts.Series<OrdinalSales, String>>> _createChartData() async {
     List<OrdinalSales> data = [];
 
@@ -157,6 +150,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     // Add the target value as a bar to the chart
     data.insert(0, OrdinalSales('Target', targetValue.toDouble()));
 
+    // Set the default selected value to the first or latest data month
+    if (data.length > 1) {
+      selectedValueText = data[1].sales.toString(); // Assuming the latest month is the first in the list
+    }
+
     return [
       charts.Series<OrdinalSales, String>(
         id: 'Sales',
@@ -170,9 +168,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ];
   }
 
-
-
-
   Future<void> _fetchMcaNumber() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -181,7 +176,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     _fetchUserData();
   }
-
 
 
 
@@ -251,8 +245,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           selectionModels: [
                             charts.SelectionModelConfig(
                               type: charts.SelectionModelType.info,
-                              changedListener: (model) {
-                                // Handle selection event here
+                              changedListener: (charts.SelectionModel<String> model) {
+                                if (model.hasDatumSelection) {
+                                  final selectedDatum = model.selectedDatum.first;
+                                  final selectedValue = selectedDatum.datum.sales.toString();
+                                  final selectedMonth = selectedDatum.datum.month;
+                                  if (selectedMonth != 'Target') {
+                                    setState(() {
+                                      selectedValueText = selectedValue;
+                                    });
+                                  }
+                                }
                               },
                             ),
                           ],
@@ -270,6 +273,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
               ),
+
               SizedBox(height: 24),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -327,14 +331,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     SizedBox(width: 40),
                     Text(
-                      '$selectedValueText',
+                      '₹$selectedValueText',
                       style: const TextStyle(
                         fontSize: 24,
                         color: const Color(0xff535353),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-
                   ],
                 ),
               ),
@@ -348,9 +351,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       // Add your button onPressed logic here
                     },
                     style: ElevatedButton.styleFrom(
-                      foregroundColor: Color(0xFF333333),
-                      backgroundColor: Color(0xFFFDFDFD),
-                      side: BorderSide(width: 1.0, color: Color(0xFF0099FF)),
+                      foregroundColor: Colors.black, backgroundColor: Colors.white, // Text color
+                      side: BorderSide(color: Colors.blue), // Border color
+                      elevation: 0, // Remove shadow
                     ),
                     child: Text(
                       'Income Simulator',
@@ -480,10 +483,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          foregroundColor: Color(0xFF333333),
-                          backgroundColor: Color(0xFFFDFDFD),
-                          side: BorderSide(width: 1.0,
-                              color: Color(0xFF0099FF)),
+                          foregroundColor: Colors.black, backgroundColor: Colors.white, // Text color
+                          side: BorderSide(color: Colors.blue), // Border color
+                          elevation: 0, // Remove shadow
                         ),
                         child: Text(
                           'Business report',
@@ -509,13 +511,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          foregroundColor: Color(0xFF333333),
-                          backgroundColor: Color(0xFFFDFDFD),
-                          side: BorderSide(width: 1.0,
-                              color: Color(0xFF0099FF)),
+                          foregroundColor: Colors.black, backgroundColor: Colors.white, // Text color
+                          side: BorderSide(color: Colors.blue), // Border color
+                          elevation: 0, // Remove shadow
                         ),
                         child: Text(
-                          'Loyalty report',
+                          'Loyalty Report',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -587,10 +588,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          foregroundColor: Color(0xFF333333),
-                          backgroundColor: Color(0xFFFDFDFD),
-                          side: BorderSide(width: 1.0,
-                              color: Color(0xFF0099FF)),
+                          foregroundColor: Colors.black, backgroundColor: Colors.white, // Text color
+                          side: BorderSide(color: Colors.blue), // Border color
+                          elevation: 0, // Remove shadow
                         ),
                         child: Text(
                           'My Network',
@@ -616,10 +616,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          foregroundColor: Color(0xFF333333),
-                          backgroundColor: Color(0xFFFFFFFF),
-                          side: BorderSide(width: 1.0,
-                              color: Color(0xFF0099FF)),
+                          foregroundColor: Colors.black, backgroundColor: Colors.white, // Text color
+                          side: BorderSide(color: Colors.blue), // Border color
+                          elevation: 0, // Remove shadow
                         ),
                         child: Text(
                           'My Prospect',
@@ -692,7 +691,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
     );
+
   }
+
 
   Widget buildCard() {
     return Padding(
@@ -811,6 +812,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+
   void _playYoutubeVideo(BuildContext context, String? videoUrl) {
     if (videoUrl != null) {
       // Save the current screen orientation
@@ -872,10 +874,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
 }
 
 
+
+
 class OrdinalSales {
   final String month;
   final double sales;
 
   OrdinalSales(this.month, this.sales);
 }
-

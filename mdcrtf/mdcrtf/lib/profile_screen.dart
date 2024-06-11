@@ -97,23 +97,26 @@ class ProfileScreen extends StatelessWidget {
                                         onTap: () {
                                           Navigator.push(
                                             context,
-                                            MaterialPageRoute(builder: (
-                                                context) => const CalendarSettings()),
+                                            MaterialPageRoute(builder: (context) => CalendarSettings()),
                                           );
                                         },
-                                        child: Image.network(
-                                          'https://rtfapi.modicare.com/img/calendar@3x.png',
-                                          width: 24,
-                                          height: 24,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      const Text(
-                                        'Calendar',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.grey,
-                                          fontWeight: FontWeight.bold,
+                                        child: Column(
+                                          children: [
+                                            Image.network(
+                                              'https://rtfapi.modicare.com/img/calendar@3x.png',
+                                              width: 24,
+                                              height: 24,
+                                            ),
+                                            SizedBox(height: 4),
+                                            Text(
+                                              'Calendar',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.grey,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ],
@@ -124,30 +127,30 @@ class ProfileScreen extends StatelessWidget {
                                         onTap: () {
                                           Navigator.push(
                                             context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    LoginScreen()),
+                                            MaterialPageRoute(builder: (context) => LoginScreen()),
                                           );
                                         },
-                                        child: Image.network(
-                                          'https://rtfapi.modicare.com/img/logout@3x.png',
-                                          width: 24,
-                                          height: 24,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      const Text(
-                                        'logout',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.grey,
-                                          fontWeight: FontWeight.bold,
+                                        child: Column(
+                                          children: [
+                                            Image.network(
+                                              'https://rtfapi.modicare.com/img/logout@3x.png',
+                                              width: 24,
+                                              height: 24,
+                                            ),
+                                            SizedBox(height: 4),
+                                            Text(
+                                              'logout',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.grey,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ],
                                   ),
-
-
                                 ],
                               ),
                             ),

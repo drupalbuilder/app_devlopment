@@ -146,11 +146,10 @@ class ContactItem extends StatelessWidget {
               SizedBox(height: 10),
               ElevatedButton(
                 onPressed: onPressed,
-
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: Color(0xFF333333),
-                  backgroundColor: Color(0xFFFDFDFD),
-                  side: BorderSide(width: 1.0, color: Color(0xFF0099FF)),
+                  foregroundColor: Colors.black, backgroundColor: Colors.white, // Text color
+                  side: BorderSide(color: Colors.blue), // Border color
+                  elevation: 0, // Remove shadow
                 ),
                 child: Text(buttonText),
               ),

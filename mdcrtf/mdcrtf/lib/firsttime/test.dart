@@ -1,61 +1,104 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ReportScreen extends StatefulWidget {
-  final String name;
-  final String contact;
-
-  ReportScreen({required this.name, required this.contact});
-
   @override
   _ReportScreenState createState() => _ReportScreenState();
 }
 
 class _ReportScreenState extends State<ReportScreen> {
-  TextEditingController _descriptionController = TextEditingController();
+  String _mcaNumber = ''; // To display on the screen
+  String _apiResponse = ''; // To store and print the API response
 
   @override
   void initState() {
     super.initState();
-    String initialText = '';
-    if (widget.name.isNotEmpty && widget.contact.isNotEmpty) {
-      initialText = 'Name: ${widget.name}\nContact: ${widget.contact}\n\n';
-    }
-    _descriptionController.text = initialText;
+    _fetchData();
   }
+
+  Future<void> _fetchData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String mcaNumber = prefs.getString('mcaNumber') ?? '';
+
+    print('MCA Number from SharedPreferences: $mcaNumber'); // Debugging print
+
+    if (mcaNumber.isEmpty) {
+      setState(() {
+        _mcaNumber = 'No MCA Number stored'; // Update state to show message
+      });
+      return; // Exit function if no MCA number is stored
+    }
+
+    // Your API endpoint URL
+    String apiUrl = "https://report.modicare.com/api/report/loyalty/qualifier";
+
+    // Construct the request body
+    Map<String, String> body = {
+      "mcano": mcaNumber,
+      "downline": mcaNumber
+    };
+
+    // Define headers for the API request
+    Map<String, String> headers = {
+      "Content-Type": "application/json",
+    };
+
+    try {
+      // Make the API call
+      var response = await http.post(Uri.parse(apiUrl), headers: headers, body: jsonEncode(body));
+
+      if (response.statusCode == 200) {
+        // If the API call is successful, update the state with the API response and the MCA number
+        setState(() {
+          _apiResponse = response.body;
+          _mcaNumber = mcaNumber;
+        });
+        print('API Response: ${response.body}'); // Print API response
+      } else {
+        // Handle API error response
+        print('Error response from API: ${response.statusCode} - ${response.body}');
+        setState(() {
+          _apiResponse = 'Error response from API: ${response.statusCode}';
+        });
+      }
+    } catch (e) {
+      // Handle API call exception
+      print('Error making API call: $e');
+      setState(() {
+        _apiResponse = 'Error making API call: $e';
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Report'),
+        title: Text('Fetch Data Example'),
       ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
+      body: Center(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextFormField(
-              controller: _descriptionController,
-              decoration: InputDecoration(
-                hintText: 'Description',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                  borderSide: BorderSide(
-                    color: Color(0xFF17a2b8),
-                  ),
-                ),
-              ),
-              maxLines: 6,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              'MCA Number:',
+              style: TextStyle(fontSize: 20),
             ),
-            SizedBox(height: 20.0),
-            ElevatedButton(
-              onPressed: () {
-                // Add your save action here
-                String description = _descriptionController.text;
-                // Process the description as needed
-                print(description); // Just for testing, replace this with your saving logic
-              },
-              child: Text('Save'),
+            Text(
+              _mcaNumber,
+              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 20),
+            Text(
+              'API Response:',
+              style: TextStyle(fontSize: 20),
+            ),
+            Text(
+              _apiResponse,
+              style: TextStyle(fontSize: 16),
             ),
           ],
         ),
@@ -66,6 +109,6 @@ class _ReportScreenState extends State<ReportScreen> {
 
 void main() {
   runApp(MaterialApp(
-    home: ReportScreen(name: 'John Doe', contact: '+1234567890'),
+    home: ReportScreen(),
   ));
 }

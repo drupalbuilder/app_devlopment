@@ -227,7 +227,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                ReportScreen(name: '', contact: '',)),
+                                                ReportScreen()),
                                       );
                                     },
                                     style: ElevatedButton.styleFrom(

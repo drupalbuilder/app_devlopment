@@ -6,8 +6,55 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 
 
-class CalendarSettings extends StatelessWidget {
+class CalendarSettings extends StatefulWidget {
   const CalendarSettings({Key? key}) : super(key: key);
+
+  @override
+  _CalendarSettingsState createState() => _CalendarSettingsState();
+}
+
+class _CalendarSettingsState extends State<CalendarSettings> {
+  List<dynamic> _events = [];
+  List<dynamic> _filteredEvents = [];
+  bool _isLoading = true;
+  DateTime? _selectedDay;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchEvents();
+  }
+
+  Future<void> _fetchEvents() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String mcaNumber = prefs.getString('mcaNumber') ?? '';
+
+    final response = await http.get(
+      Uri.parse('https://mdash.gprlive.com/api/Calendar/$mcaNumber'),
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _events = json.decode(response.body);
+        _isLoading = false;
+        _filterEventsByDate(_selectedDay ?? DateTime.now());
+      });
+    } else {
+      // Handle the error appropriately here
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _filterEventsByDate(DateTime date) {
+    setState(() {
+      _filteredEvents = _events.where((event) {
+        DateTime eventDate = DateTime.parse(event['dtime']);
+        return isSameDay(eventDate, date);
+      }).toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +72,7 @@ class CalendarSettings extends StatelessWidget {
                       bottomLeft: Radius.circular(20.0),
                       bottomRight: Radius.circular(20.0),
                     ),
-                    color: Color.fromARGB(255, 255, 255, 255),
+                    color: Colors.white,
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.30),
@@ -41,7 +88,7 @@ class CalendarSettings extends StatelessWidget {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              Navigator.pop(context); // Go back to the previous page
+                              Navigator.pop(context);
                             },
                             child: Row(
                               children: [
@@ -49,9 +96,9 @@ class CalendarSettings extends StatelessWidget {
                                   Icons.arrow_back_ios,
                                   color: Color(0xFF0396FE),
                                   size: 20.0,
-                                ), // Adjust the spacing between the icon and text
+                                ),
                                 Text(
-                                  'Back', // Removed the '<'
+                                  'Back',
                                   style: TextStyle(
                                     color: Color(0xFF0396FE),
                                     fontSize: 20.0,
@@ -63,18 +110,17 @@ class CalendarSettings extends StatelessWidget {
                           ),
                         ],
                       ),
-                      SizedBox(height: 10.0), // Add space here
+                      SizedBox(height: 10.0),
                       Padding(
-                        padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),// Padding top and bottom
+                        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Text(
-                              'My Calender',
+                              'My Calendar',
                               style: TextStyle(
                                 fontSize: 20,
-                                fontWeight: FontWeight
-                                    .w900,
+                                fontWeight: FontWeight.w900,
                               ),
                             ),
                           ],
@@ -101,9 +147,33 @@ class CalendarSettings extends StatelessWidget {
                         );
                       },
                       child: Text('+ Add Event'),
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Color(0xFF0396FE), backgroundColor: Colors.white,
+                      ),
                     ),
                     SizedBox(width: 16.0),
                   ],
+                ),
+
+                const SizedBox(height: 20.0),
+
+                _isLoading
+                    ? CircularProgressIndicator()
+                    : _filteredEvents.isEmpty
+                    ? Text('No events found for the selected date')
+                    : ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: _filteredEvents.length,
+                  itemBuilder: (context, index) {
+                    final event = _filteredEvents[index];
+                    final dtime = event['dtime'] ?? 'No Date';
+                    final description = event['description'] ?? 'No Description';
+                    return ListTile(
+                      title: Text(dtime),
+                      subtitle: Text(description),
+                    );
+                  },
                 ),
               ],
             ),
@@ -137,19 +207,14 @@ class _CalendarWidgetState extends State<CalendarWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0),
+      margin: const EdgeInsets.symmetric(horizontal: 10.0),
       decoration: BoxDecoration(
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(20.0),
-          bottomRight: Radius.circular(20.0),
-          topLeft: Radius.circular(20.0),
-          topRight: Radius.circular(20.0),
-        ),
+        borderRadius: const BorderRadius.all(Radius.circular(16.0)),
         color: const Color.fromARGB(255, 255, 255, 255),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.43),
-            offset: const Offset(0, 1),
+            offset: const Offset(0, 2),
             blurRadius: 2,
           ),
         ],
@@ -166,13 +231,19 @@ class _CalendarWidgetState extends State<CalendarWidget> {
           setState(() {
             _selectedDay = selectedDay;
             _focusedDay = focusedDay;
+            // Call the method to filter events based on the selected date
+            _filterEventsByDate(selectedDay);
           });
         },
       ),
     );
   }
-}
 
+  void _filterEventsByDate(DateTime date) {
+    final parentState = context.findAncestorStateOfType<_CalendarSettingsState>();
+    parentState?._filterEventsByDate(date);
+  }
+}
 
 
 
@@ -192,11 +263,20 @@ class _AddEventScreenState extends State<AddEventScreen> {
   int selectedDay = 1;
   int selectedMonth = 1;
   int selectedYear = 2024;
-
   String _csrfToken = '';
   String _xsrfToken = '';
   String _modicareSession = '';
   String _selectedEventType = '0'; // Define the selected event type variable
+  String _selectedTime = ''; // Initialize without a default value
+
+  List<String> generateTimeList() {
+    List<String> timeList = [];
+    for (int i = 0; i < 24; i++) {
+      String hour = i < 10 ? '0$i' : '$i';
+      timeList.add('$hour:00:00');
+    }
+    return timeList;
+  }
 
   @override
   void initState() {
@@ -209,6 +289,9 @@ class _AddEventScreenState extends State<AddEventScreen> {
 
     // Fetch CSRF token and other tokens when the screen initializes
     _fetchCsrfToken();
+
+    // Set a default time value
+    _selectedTime = generateTimeList().first;
   }
 
   Future<void> _fetchCsrfToken() async {
@@ -266,7 +349,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
           'mca': mcaNumber,
           'dtime': '${selectedYear.toString().padLeft(4, '0')}-'
               '${selectedMonth.toString().padLeft(2, '0')}-'
-              '${selectedDay.toString().padLeft(2, '0')} $currentTime',
+              '${selectedDay.toString().padLeft(2, '0')} $_selectedTime',
           'type': _selectedEventType, // Use the selected event type
           'description': _descriptionController.text.trim(),
         }
@@ -304,6 +387,8 @@ class _AddEventScreenState extends State<AddEventScreen> {
       // Handle failure, show an error message
     }
   }
+
+
 
 
   @override
@@ -399,28 +484,78 @@ class _AddEventScreenState extends State<AddEventScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween, // Adjust alignment as needed
                     children: [
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.25, // Adjust width as needed
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(24.0),
-                          border: Border.all(color: Colors.blue),
+                      Expanded(
+                        child: Center(
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.25, // Adjust width as needed
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(24.0),
+                              border: Border.all(color: Colors.black),
+                            ),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<int>(
+                                value: selectedDay,
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedDay = value!;
+                                  });
+                                },
+                                style: TextStyle(color: Colors.black),
+                                items: List.generate(
+                                  31,
+                                      (index) => DropdownMenuItem<int>(
+                                    value: index + 1,
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 8.0), // Adjust padding as needed
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text('${index + 1}'),
+                                          SizedBox(width: 10), // Add padding between value and border
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<int>(
-                            value: selectedDay,
-                            onChanged: (value) {
-                              setState(() {
-                                selectedDay = value!;
-                              });
-                            },
-                            style: TextStyle(color: Colors.blue),
-                            items: List.generate(
-                              31,
-                                  (index) => DropdownMenuItem<int>(
-                                value: index + 1,
-                                child: Padding(
-                                  padding: EdgeInsets.only(left: 8.0, right: 8.0), // Adjust padding as needed
-                                  child: Text('${index + 1}'),
+
+                      ),
+                      SizedBox(width: 10.0),
+                      Expanded(
+                        child: Center(
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.25, // Adjust width as needed
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(24.0),
+                              border: Border.all(color: Colors.black),
+                            ),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<int>(
+                                value: selectedMonth,
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedMonth = value!;
+                                  });
+                                },
+                                style: TextStyle(color: Colors.black),
+                                items: List.generate(
+                                  12,
+                                      (index) => DropdownMenuItem<int>(
+                                    value: index + 1,
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 8.0), // Adjust padding as needed
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text('${index + 1}'),
+                                          SizedBox(width: 10), // Add padding between value and border
+                                        ],
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -428,57 +563,38 @@ class _AddEventScreenState extends State<AddEventScreen> {
                         ),
                       ),
                       SizedBox(width: 10.0),
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.25, // Adjust width as needed
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(24.0),
-                          border: Border.all(color: Colors.blue),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<int>(
-                            value: selectedMonth,
-                            onChanged: (value) {
-                              setState(() {
-                                selectedMonth = value!;
-                              });
-                            },
-                            style: TextStyle(color: Colors.blue),
-                            items: List.generate(
-                              12,
-                                  (index) => DropdownMenuItem<int>(
-                                value: index + 1,
-                                child: Padding(
-                                  padding: EdgeInsets.only(left: 8.0, right: 8.0), // Adjust padding as needed
-                                  child: Text('${index + 1}'),
-                                ),
-                              ),
+                      Expanded(
+                        child: Center(
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.25, // Adjust width as needed
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(24.0),
+                              border: Border.all(color: Colors.black),
                             ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 10.0),
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.25, // Adjust width as needed
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(24.0),
-                          border: Border.all(color: Colors.blue),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<int>(
-                            value: selectedYear,
-                            onChanged: (value) {
-                              setState(() {
-                                selectedYear = value!;
-                              });
-                            },
-                            style: TextStyle(color: Colors.blue),
-                            items: List.generate(
-                              10,
-                                  (index) => DropdownMenuItem<int>(
-                                value: 2024 + index,
-                                child: Padding(
-                                  padding: EdgeInsets.only(left: 8.0, right: 8.0), // Adjust padding as needed
-                                  child: Text('${2024 + index}'),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<int>(
+                                value: selectedYear,
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedYear = value!;
+                                  });
+                                },
+                                style: TextStyle(color: Colors.black),
+                                items: List.generate(
+                                  10,
+                                      (index) => DropdownMenuItem<int>(
+                                    value: 2024 + index,
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 8.0), // Adjust padding as needed
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text('${2024 + index}'),
+                                          SizedBox(width: 10), // Add padding between value and border
+                                        ],
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -486,6 +602,49 @@ class _AddEventScreenState extends State<AddEventScreen> {
                         ),
                       ),
                     ],
+                  ),
+                ),
+              ),
+
+              SizedBox(height: 20.0),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Text(
+                  'Select Time',
+                  style: TextStyle(
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              SizedBox(height: 10.0),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24.0),
+                    border: Border.all(color: Colors.black),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _selectedTime,
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedTime = value!;
+                        });
+                      },
+                      style: TextStyle(color: Colors.black),
+                      items: generateTimeList().map((time) {
+                        return DropdownMenuItem<String>(
+                          value: time, // Ensure each value is unique
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 8.0, right: 8.0),
+                            child: Text(time),
+                          ),
+                        );
+                      }).toList(),
+                    ),
                   ),
                 ),
               ),
@@ -588,25 +747,30 @@ class _AddEventScreenState extends State<AddEventScreen> {
 
             SizedBox(height: 20.0),
             // Buttons for "Done" and "Cancel"
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    _sendEventData(context); // Pass the context to the method
-                  },
-                  child: Text('Save Event'),
-                )
-,
-                SizedBox(width: 20.0),
-                OutlinedButton(
-                  onPressed: () {
-                    // Add your functionality here for canceling the event
-                  },
-                  child: Text('Cancel'),
-                ),
-              ],
-            ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      _sendEventData(context); // Pass the context to the method
+                    },
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Color(0xFF0396FE), backgroundColor: Colors.white,                    ),
+                    child: Text('Save Event'),
+                  ),
+                  SizedBox(width: 20.0),
+                  OutlinedButton(
+                    onPressed: () {
+                      // Add your functionality here for canceling the event
+                    },
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.black, side: BorderSide(color: Colors.blue), // Border color
+                    ),
+                    child: Text('Cancel'),
+                  ),
+                ],
+              )
+
             ],
           ),
         ),

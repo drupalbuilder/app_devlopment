@@ -4,11 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
-
 import 'package:url_launcher/url_launcher.dart';
-
 import 'calander.dart';
+
+
+
 enum DisplayMode { All, Consumers, NetworkBuilder }
 
 class MyProspect extends StatefulWidget {
@@ -1061,14 +1061,25 @@ class _SelectContactsScreenState extends State<SelectContactsScreen> {
   }
 
   Future<Iterable<Contact>> _fetchContacts() async {
-    Iterable<Contact> allContacts =
-    await ContactsService.getContacts(query: '');
+    Iterable<Contact> allContacts = await ContactsService.getContacts(query: '');
 
-    // Filter contacts to only include those with a mobile number
-    Iterable<Contact> contactsWithMobile = allContacts.where((contact) =>
-    contact.phones
-        ?.any((phone) => phone.label!.toLowerCase().contains('mobile')) ??
-        false);
+    // Filter contacts to only include those with a mobile number having more than 10 digits
+    Iterable<Contact> contactsWithMobile = allContacts.where((contact) {
+      // Check if any phone number in the contact's phone list has more than 10 digits
+      bool hasNumberGreaterThan10Digits = false;
+      if (contact.phones != null) {
+        for (var phone in contact.phones!) {
+          if (phone.value != null) {
+            String numericPhone = phone.value!.replaceAll(RegExp(r'\D'), '');
+            if (numericPhone.length > 10) {
+              hasNumberGreaterThan10Digits = true;
+              break;
+            }
+          }
+        }
+      }
+      return hasNumberGreaterThan10Digits;
+    });
 
     int startIndex = (_pageNumber - 1) * _pageSize;
     int endIndex = startIndex + _pageSize;
@@ -1155,6 +1166,18 @@ class _SelectContactsScreenState extends State<SelectContactsScreen> {
           ? contact.phones!.first.value?.replaceAll(' ', '') ?? ''
           : '';
 
+      // Remove all non-digit characters
+      String digitsOnly = cleanedContact.replaceAll(RegExp(r'\D+'), '');
+
+      // Check if the number is longer than 10 digits
+      if (digitsOnly.length > 10) {
+        // Trim the number to the last 10 digits
+        cleanedContact = digitsOnly.substring(digitsOnly.length - 10);
+      } else if (digitsOnly.length < 10) {
+        // Skip this contact if the number is less than 10 digits
+        continue;
+      }
+
       String cleanedName = '';
       if (contact.displayName != null) {
         for (int i = 0; i < contact.displayName!.length; i++) {
@@ -1179,6 +1202,7 @@ class _SelectContactsScreenState extends State<SelectContactsScreen> {
         });
       }
     }
+
 
     if (prospects.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -1214,11 +1238,19 @@ class _SelectContactsScreenState extends State<SelectContactsScreen> {
       print('Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('$existingCount already exist. $selectedCount  saved successfully!'),
-          backgroundColor: Colors.black,
-        ));
-      } else {
+        if (existingCount > 0) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('$existingCount already exist. $selectedCount saved successfully!'),
+            backgroundColor: Colors.black,
+          ));
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('$selectedCount saved successfully!'),
+            backgroundColor: Colors.black,
+          ));
+        }
+      }
+ else {
         print('Failed to save contacts. Status code: ${response.statusCode}');
         print('Response body: ${response.body}');
       }

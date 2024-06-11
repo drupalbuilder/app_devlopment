@@ -142,6 +142,8 @@ class _InfoScreenState extends State<InfoScreen> {
                 ],
               ),
             ),
+            SizedBox(height: 20.0), // Add space here
+
             Container(
               padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: TextField(
@@ -170,6 +172,8 @@ class _InfoScreenState extends State<InfoScreen> {
                 },
               ),
             ),
+            SizedBox(height: 20.0), // Add space here
+
             Expanded(
               child: isLoading
                   ? Center(
