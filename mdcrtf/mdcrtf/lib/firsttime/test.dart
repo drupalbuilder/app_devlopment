@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class ReportScreen extends StatefulWidget {
   @override
@@ -9,106 +8,108 @@ class ReportScreen extends StatefulWidget {
 }
 
 class _ReportScreenState extends State<ReportScreen> {
-  String _mcaNumber = ''; // To display on the screen
-  String _apiResponse = ''; // To store and print the API response
+  late String token;
+  dynamic downlineData;
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _fetchData();
+    fetchTokenAndData();
   }
 
-  Future<void> _fetchData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String mcaNumber = prefs.getString('mcaNumber') ?? '';
-
-    print('MCA Number from SharedPreferences: $mcaNumber'); // Debugging print
-
-    if (mcaNumber.isEmpty) {
-      setState(() {
-        _mcaNumber = 'No MCA Number stored'; // Update state to show message
-      });
-      return; // Exit function if no MCA number is stored
-    }
-
-    // Your API endpoint URL
-    String apiUrl = "https://report.modicare.com/api/report/loyalty/qualifier";
-
-    // Construct the request body
-    Map<String, String> body = {
-      "mcano": mcaNumber,
-      "downline": mcaNumber
-    };
-
-    // Define headers for the API request
-    Map<String, String> headers = {
-      "Content-Type": "application/json",
-    };
+  Future<void> fetchTokenAndData() async {
+    final mca = '11000000'; // Your MCA number
+    final apiKey = 'RFE5GE-9YWNGQ-UYT9T6-KNR1F2';
+    final tokenUrl = 'https://api.modicare.com/api/sr/token/app/$mca';
+    final downlineUrl = 'https://api.modicare.com/api/app/consultant/downline/list';
 
     try {
-      // Make the API call
-      var response = await http.post(Uri.parse(apiUrl), headers: headers, body: jsonEncode(body));
+      // Fetch token
+      final tokenResponse = await http.post(
+        Uri.parse(tokenUrl),
+        headers: {'x-api-key': apiKey},
+      );
 
-      if (response.statusCode == 200) {
-        // If the API call is successful, update the state with the API response and the MCA number
-        setState(() {
-          _apiResponse = response.body;
-          _mcaNumber = mcaNumber;
-        });
-        print('API Response: ${response.body}'); // Print API response
+      print('Token Response Status Code: ${tokenResponse.statusCode}');
+      print('Token Response Body: ${tokenResponse.body}');
+
+      if (tokenResponse.statusCode == 200) {
+        final tokenData = jsonDecode(tokenResponse.body);
+        if (tokenData.containsKey('token')) {
+          token = tokenData['token'];
+          print('Fetched Token: $token'); // Print the fetched token
+
+          // Fetch downline data
+          final downlineResponse = await http.post(
+            Uri.parse(downlineUrl),
+            headers: {
+              'Content-Type': 'application/json',
+              'x-auth-token': token,
+            },
+            body: jsonEncode({
+              'downline': '11000000',
+              'page_no': '1',
+              'page_size': '50',
+              'type': '1',
+            }),
+          );
+
+          print('Downline Response Status Code: ${downlineResponse.statusCode}');
+          print('Downline Response Body: ${downlineResponse.body}');
+
+          if (downlineResponse.statusCode == 200 && downlineResponse.body.isNotEmpty) {
+            final downlineDataJson = jsonDecode(downlineResponse.body);
+            if (downlineDataJson.containsKey('consultants')) {
+              setState(() {
+                downlineData = downlineDataJson['consultants'];
+                isLoading = false;
+              });
+              return;
+            } else {
+              print('Error: Invalid JSON format in downline data');
+            }
+          } else {
+            print('Error: Failed to fetch downline data, status code ${downlineResponse.statusCode}');
+          }
+        } else {
+          print('Error: Token not found in API response');
+        }
       } else {
-        // Handle API error response
-        print('Error response from API: ${response.statusCode} - ${response.body}');
-        setState(() {
-          _apiResponse = 'Error response from API: ${response.statusCode}';
-        });
+        print('Error: Failed to fetch token, status code ${tokenResponse.statusCode}');
       }
     } catch (e) {
-      // Handle API call exception
-      print('Error making API call: $e');
-      setState(() {
-        _apiResponse = 'Error making API call: $e';
-      });
+      print('Error during API request or JSON parsing: $e');
     }
-  }
 
+    // Handle error or data not found
+    setState(() {
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Fetch Data Example'),
+        title: Text('Report Screen'),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'MCA Number:',
-              style: TextStyle(fontSize: 20),
-            ),
-            Text(
-              _mcaNumber,
-              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 20),
-            Text(
-              'API Response:',
-              style: TextStyle(fontSize: 20),
-            ),
-            Text(
-              _apiResponse,
-              style: TextStyle(fontSize: 16),
-            ),
-          ],
-        ),
+        child: isLoading
+            ? CircularProgressIndicator()
+            : downlineData != null
+            ? ListView.builder(
+          itemCount: downlineData.length,
+          itemBuilder: (context, index) {
+            final item = downlineData[index];
+            return ListTile(
+              title: Text(item['name'] ?? ''),
+              subtitle: Text(item['email'] ?? ''),
+            );
+          },
+        )
+            : Text('Error fetching data.'),
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: ReportScreen(),
-  ));
 }

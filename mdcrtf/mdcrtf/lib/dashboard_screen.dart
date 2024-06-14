@@ -22,9 +22,10 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   String mcaNumber = '';
   String targetValue = '';
-  String selectedValueText = ''; // Define selectedValueText here
+  String selectedValueText = '';
   bool isLoading = true;
   List<dynamic> dashboardData = [];
+  int? selectedIndex; // Add a variable to store the selected index
 
   @override
   void initState() {
@@ -66,7 +67,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Failed to fetch dashboard data.'),
+              content: const Text('Failed to fetch dashboard data.'),
             ),
           );
         }
@@ -95,22 +96,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> _fetchUserData() async {
     String userApiUrl = 'https://mdash.gprlive.com/api/users/$mcaNumber';
 
-    print('API URL: $userApiUrl'); // Print API URL for debugging
-
     try {
       http.Response response = await http.get(Uri.parse(userApiUrl));
 
-      print('API Response: ${response.body}'); // Print API response for debugging
-
       if (response.statusCode == 200) {
-        // API call successful
         Map<String, dynamic> userData = jsonDecode(response.body);
-        print('User Data: $userData'); // Print user data for debugging
+        int target = userData['target'] ?? 0;
 
-        // Extract target value from userData
-        int target = userData['target'] ?? 0; // Assuming 'target' is the key for the target value
-
-        // Save target value in SharedPreferences
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setInt('targetValue', target);
 
@@ -118,12 +110,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           targetValue = target.toString();
         });
       } else {
-        // API call failed
         throw Exception('Failed to load user data');
       }
     } catch (e) {
-      // Error handling
-      print('Error: $e');
+      if (kDebugMode) {
+        print('Error: $e');
+      }
     }
   }
 
@@ -140,26 +132,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     int targetValue = prefs.getInt('targetValue') ?? 0;
 
-    // Extract month and gross income from dashboardData and add to data list
     for (var item in dashboardData) {
       String month = item['BV Month'];
       double grossIncome = double.tryParse(item['Gross']?.replaceAll('₹ ', '') ?? '0.00') ?? 0.0;
       data.add(OrdinalSales(month, grossIncome));
     }
 
-    // Add the target value as a bar to the chart
     data.insert(0, OrdinalSales('Target', targetValue.toDouble()));
 
-    // Set the default selected value to the first or latest data month
     if (data.length > 1) {
-      selectedValueText = data[1].sales.toString(); // Assuming the latest month is the first in the list
+      selectedValueText = data[1].sales.toString();
     }
 
     return [
       charts.Series<OrdinalSales, String>(
         id: 'Sales',
-        colorFn: (OrdinalSales sales, _) {
-          return sales.month == 'Target' ? charts.Color.fromHex(code: '#fbcc11') : charts.Color.fromHex(code: '#25CDD7');
+        colorFn: (OrdinalSales sales, int? index) {
+          if (sales.month == 'Target') {
+            return charts.Color.fromHex(code: '#fbcc11');
+          } else if (index == selectedIndex) {
+            return charts.ColorUtil.fromDartColor(Colors.green); // Change to red if selected
+          } else {
+            return charts.Color.fromHex(code: '#25CDD7');
+          }
         },
         domainFn: (OrdinalSales sales, _) => sales.month,
         measureFn: (OrdinalSales sales, _) => sales.sales,
@@ -177,8 +172,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _fetchUserData();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -188,8 +181,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -222,7 +214,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Container(
                   height: 320,
-                  padding: EdgeInsets.all(0.0), // Add padding to the chart
+                  padding: EdgeInsets.all(0.0),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey, width: 1.0),
                     borderRadius: BorderRadius.circular(8.0),
@@ -253,6 +245,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   if (selectedMonth != 'Target') {
                                     setState(() {
                                       selectedValueText = selectedValue;
+                                      selectedIndex = selectedDatum.index; // Update selected index
                                     });
                                   }
                                 }
@@ -265,7 +258,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           child: Text('Error: ${snapshot.error}'),
                         );
                       }
-                      // By default, show a loading indicator
                       return Center(
                         child: CircularProgressIndicator(),
                       );
@@ -273,7 +265,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
               ),
-
               SizedBox(height: 24),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -301,7 +292,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       width: 15,
                       height: 15,
                       decoration: BoxDecoration(
-                        color: const Color(0xff85e250),
+                        color: Colors.green,
                         borderRadius: BorderRadius.circular(3),
                       ),
                     ),
@@ -697,9 +688,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget buildCard() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 14),
       child: Container(
-        width: 150,
+        width: 180,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
@@ -736,6 +727,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
+            SizedBox(height: 20.0),
+
           ],
         ),
       ),
