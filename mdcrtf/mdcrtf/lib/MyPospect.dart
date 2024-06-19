@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
 import 'calander.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 
 
@@ -802,18 +803,52 @@ class _AddProspectState extends State<AddProspect> {
                         ),
                         GestureDetector(
                           onTap: () async {
-                            final result = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => SelectContactsScreen(
-                                  selectedContacts: selectedContacts,
+                            // Check if contacts permission is granted
+                            PermissionStatus permissionStatus = await Permission.contacts.status;
+
+                            if (permissionStatus.isGranted) {
+                              // Permission is already granted, proceed with navigation
+                              final result = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SelectContactsScreen(
+                                    selectedContacts: selectedContacts,
+                                  ),
                                 ),
-                              ),
-                            );
-                            if (result != null) {
-                              setState(() {
-                                selectedContacts = result;
-                              });
+                              );
+                              if (result != null) {
+                                setState(() {
+                                  selectedContacts = result;
+                                });
+                              }
+                            } else {
+                              // Permission is not granted, request permission
+                              PermissionStatus permissionResult = await Permission.contacts.request();
+
+                              if (permissionResult.isGranted) {
+                                // Permission granted, proceed with navigation
+                                final result = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => SelectContactsScreen(
+                                      selectedContacts: selectedContacts,
+                                    ),
+                                  ),
+                                );
+                                if (result != null) {
+                                  setState(() {
+                                    selectedContacts = result;
+                                  });
+                                }
+                              } else {
+                                // Permission denied, show a message or take appropriate action
+                                // For example, display a SnackBar to inform the user
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Contacts permission is required to proceed.'),
+                                  ),
+                                );
+                              }
                             }
                           },
                           child: Row(
@@ -834,7 +869,6 @@ class _AddProspectState extends State<AddProspect> {
                             ],
                           ),
                         ),
-
                       ],
                     ),
                     SizedBox(height: 10.0),

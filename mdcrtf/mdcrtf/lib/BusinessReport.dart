@@ -734,7 +734,7 @@ class _BusinessReportState extends State<BusinessReport> {
 // Update _onSelectionChanged method to handle selection changes
   void _onSelectionChanged(charts.SelectionModel model) {
     if (model.hasDatumSelection) {
-      final selectedDatum = model.selectedDatum![0];
+      final selectedDatum = model.selectedDatum[0];
       setState(() {
         selectedMonth = selectedDatum.datum.month;
         // Update the selectedIndex based on the selected data

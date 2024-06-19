@@ -12,6 +12,8 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
+import 'listRstar.dart';
+
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
 
@@ -533,35 +535,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
               SizedBox(height: 16),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: const Color(0xff0099ff), // Blue background color
+                child: GestureDetector(
+                  onTap: () {
+                    // Navigate to TestScreen here
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => RisingStarsPage()),
+                    );
+                  },
+                  child: Row(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: const Color(0xff0099ff), // Blue background color
+                        ),
+                        padding: const EdgeInsets.all(4),
+                        child: Icon(
+                          Icons.add,
+                          color: Colors.white, // White icon color
+                          size: 20, // Adjust icon size as needed
+                        ),
                       ),
-                      padding: const EdgeInsets.all(4),
-                      // Adjust padding as needed
-                      child: Icon(
-                        Icons.add,
-                        color: Colors.white, // White icon color
-                        size: 20, // Adjust icon size as needed
+                      SizedBox(width: 8),
+                      Text(
+                        'add new',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: const Color(0xff0099ff),
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 8),
-                    // Adjust the width as needed for spacing
-                    Text(
-                      'add new',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: const Color(0xff0099ff),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-
               SizedBox(height: 16),
               Row(
                 children: [
@@ -763,23 +771,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       height: 100,
                       fit: BoxFit.cover,
                     ),
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(0),
-                            bottomRight: Radius.circular(8),
-                          ),
-                        ),
-                        child: const Icon(
-                          Icons.play_arrow,
-                          color: Colors.white,
-                          size: 20,
-                        ),
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.play_arrow,
+                        color: Colors.white,
+                        size: 20,
                       ),
                     ),
                   ],
@@ -804,6 +805,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
+
 
 
   void _playYoutubeVideo(BuildContext context, String? videoUrl) {

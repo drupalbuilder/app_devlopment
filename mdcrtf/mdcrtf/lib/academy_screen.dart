@@ -291,9 +291,6 @@ class AcademyScreen extends StatelessWidget {
 
 
 
-
-
-
   Widget videoItem(BuildContext context, String title, String videoUrl) {
     return GestureDetector(
       onTap: () {
@@ -301,7 +298,8 @@ class AcademyScreen extends StatelessWidget {
       },
       child: SizedBox(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(10.0, 14.0, 0, 0), // Padding from left, top, right, and bottom
+          padding: const EdgeInsets.fromLTRB(10.0, 14.0, 0, 0),
+          // Padding from left, top, right, and bottom
           child: SizedBox(
             width: 160,
             child: Column(
@@ -311,28 +309,25 @@ class AcademyScreen extends StatelessWidget {
                   alignment: Alignment.center,
                   children: [
                     Image.network(
-                      'https://img.youtube.com/vi/${videoUrl.split('/').last.split('?').first}/0.jpg',
+                      'https://img.youtube.com/vi/${videoUrl
+                          .split('/')
+                          .last
+                          .split('?')
+                          .first}/0.jpg',
                       width: 140,
                       height: 100,
                       fit: BoxFit.cover,
                     ),
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(0),
-                            bottomRight: Radius.circular(8),
-                          ),
-                        ),
-                        child: const Icon(
-                          Icons.play_arrow,
-                          color: Colors.white,
-                          size: 20,
-                        ),
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.play_arrow,
+                        color: Colors.white,
+                        size: 20,
                       ),
                     ),
                   ],
