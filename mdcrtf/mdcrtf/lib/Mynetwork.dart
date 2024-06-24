@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'listRstar.dart';
+
 
 void main() {
   runApp(MaterialApp(
@@ -21,6 +23,7 @@ class _MyNetworkState extends State<MyNetwork> {
   int pageNo = 1;
   bool isLoading = false;
   bool hasMore = true;
+  List<dynamic> users = [];
 
   final ScrollController _scrollController = ScrollController();
 
@@ -28,7 +31,6 @@ class _MyNetworkState extends State<MyNetwork> {
   void initState() {
     super.initState();
     _getTokenAndFetchData();
-
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
@@ -48,6 +50,7 @@ class _MyNetworkState extends State<MyNetwork> {
     }
 
     await _fetchDownlineData();
+    await fetchData(); // Call fetchData here
   }
 
   Future<String> _fetchAuthToken() async {
@@ -73,33 +76,50 @@ class _MyNetworkState extends State<MyNetwork> {
       isLoading = true;
     });
 
-    final response = await http.post(
-      Uri.parse('https://api.modicare.com/api/app/consultant/downline/list'),
-      headers: {
+    try {
+      final token = await _fetchAuthToken(); // Fetch the token before making the request
+
+      final uri = Uri.parse('https://api.modicare.com/api/app/consultant/downline/list');
+      final headers = {
         'Content-Type': 'application/json',
-        'x-auth-token': token,
-      },
-      body: json.encode({
+        'x-auth-token': token, // Use the fetched token here
+      };
+      final body = {
         'downline': '0',
         'page_no': '$pageNo',
         'page_size': '50',
         'type': '1',
-      }),
-    );
+      };
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+      print('Request URI: $uri');
+      print('Request Headers: $headers');
+      print('Request Body: $body');
+
+      final response = await http.post(
+        uri,
+        headers: headers,
+        body: json.encode(body),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          pageNo++;
+          consultants.addAll(data['result']['consultants']);
+          isLoading = false;
+          hasMore = data['result']['consultants'].length == 50;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+        throw Exception('Failed to fetch downline data');
+      }
+    } catch (e) {
       setState(() {
-        pageNo++;
-        consultants.addAll(data['result']['consultants']);
-        isLoading = false;
-        hasMore = data['result']['consultants'].length == 50;
-      });
-    } else {
-      setState(() {
         isLoading = false;
       });
-      throw Exception('Failed to fetch downline data');
+      print(e.toString());
     }
   }
 
@@ -107,11 +127,66 @@ class _MyNetworkState extends State<MyNetwork> {
     await _fetchDownlineData();
   }
 
+  Future<void> _markConsultant(Map<String, dynamic> consultant) async {
+    final response = await http.post(
+      Uri.parse('https://mdcapp.gprlive.com/risingstars_api.php'),
+      body: {
+        'umca': mcaNumber!,
+        'mca': consultant['mcano'].toString(),
+      },
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        consultant['marked'] = true;
+      });
+      print('Data Requested to Server: ${json.encode({
+        'umca': mcaNumber,
+        'mca': consultant['mcano'],
+      })}');
+    } else {
+      throw Exception('Failed to mark consultant');
+    }
+  }
+
+  Future<void> fetchData() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? mcaNumber = prefs.getString('mcaNumber');
+
+      // Construct URL with API endpoint and action
+      String apiUrl = 'https://mdcapp.gprlive.com/api.php?action=risingstars_list';
+
+      // Create headers with the cookie containing mcaNumber
+      Map<String, String> headers = {
+        'Content-Type': 'application/json',
+        'Cookie': 'mdc_mca=$mcaNumber', // Set the cookie with mcaNumber
+      };
+
+      // Make GET request to API
+      var response = await http.get(Uri.parse(apiUrl), headers: headers);
+
+      // Check response status
+      if (response.statusCode == 200) {
+        // Request successful, parse response data
+        setState(() {
+          users = json.decode(response.body);
+        });
+        print('Response Data: $users');
+      } else {
+        // Request failed, handle error
+      }
+    } catch (e) {
+      // Handle exceptions
+    }
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -136,6 +211,7 @@ class _MyNetworkState extends State<MyNetwork> {
                 ],
               ),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start, // Align children to the left
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -150,9 +226,9 @@ class _MyNetworkState extends State<MyNetwork> {
                               Icons.arrow_back_ios,
                               color: Color(0xFF0396FE),
                               size: 20.0,
-                            ), // Adjust the spacing between the icon and text
+                            ),
                             Text(
-                              'Back', // Removed the '<'
+                              'Back',
                               style: TextStyle(
                                 color: Color(0xFF0396FE),
                                 fontSize: 20.0,
@@ -164,9 +240,8 @@ class _MyNetworkState extends State<MyNetwork> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 0.0), // Add space here
                   Padding(
-                    padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),// Padding top and bottom
+                    padding: EdgeInsets.fromLTRB(16.0, 8.0, 0, 0.0), // Padding top and bottom
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
@@ -174,48 +249,80 @@ class _MyNetworkState extends State<MyNetwork> {
                           'My Network',
                           style: TextStyle(
                             fontSize: 20,
-                            fontWeight: FontWeight
-                                .w900,
+                            fontWeight: FontWeight.w900,
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 20.0), // Add space here
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              decoration: BoxDecoration(
-                color: Color.fromARGB(255, 255, 255, 255),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.30),
-                    offset: Offset(0, 2),
-                    blurRadius: 4,
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  SizedBox(height: 0.0), // Add space here
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),// Padding top and bottom
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Your rising stars ',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight
-                                .w900,
-                          ),
+                  ), // Add space here
+                  if (users.isNotEmpty) // Add this condition to render the SingleChildScrollView only when users are not empty
+                    Align(
+                      alignment: Alignment.topLeft, // Align content to the left
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            ...users.take(3).map((user) {
+                              String initials = '';
+                              List<String> nameParts = user['name'].toString().split(' ');
+                              for (String part in nameParts) {
+                                initials += part[0];
+                              }
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      width: 60,
+                                      height: 60,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.blue,
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          initials.toUpperCase(),
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 5),
+                                    Text(
+                                      '${user['name'].toString().length > 5 ? user['name'].toString().substring(0, 5) + '...' : user['name']}',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                            SizedBox(width: 10), // Adjust spacing between data and "See All" link
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => RisingStarsPage()),
+                                );
+                              },
+                              child: Text(
+                                'See All',
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -223,9 +330,7 @@ class _MyNetworkState extends State<MyNetwork> {
             Expanded(
               child: NotificationListener<ScrollNotification>(
                 onNotification: (ScrollNotification scrollInfo) {
-                  if (!isLoading &&
-                      scrollInfo.metrics.pixels ==
-                          scrollInfo.metrics.maxScrollExtent) {
+                  if (!isLoading && scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
                     _fetchMoreData();
                   }
                   return true;
@@ -239,28 +344,45 @@ class _MyNetworkState extends State<MyNetwork> {
                         child: CircularProgressIndicator(),
                       );
                     }
-
                     final consultant = consultants[index];
-                    return Card(
-                      margin: EdgeInsets.all(10.0),
-                      child: Padding(
-                        padding: EdgeInsets.all(10.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              consultant['name'] ?? '', // Handling null case
-                              style: TextStyle(
-                                fontSize: 18.0,
-                                fontWeight: FontWeight.bold,
+                    return GestureDetector(
+                      onTap: () async {
+                        await _markConsultant(consultant);
+                      },
+                      child: Card(
+                        margin: EdgeInsets.all(10.0),
+                        child: Padding(
+                          padding: EdgeInsets.all(10.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      consultant['name'] ?? '',
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 2,
+                                    ),
+                                  ),
+                                  if (consultant['marked'] == true)
+                                    Icon(
+                                      Icons.star,
+                                      color: Colors.lightBlueAccent,
+                                    ),
+                                ],
                               ),
-                            ),
-                            SizedBox(height: 5.0),
-                            Text('MCA No: ${consultant['mcano'] ?? ''}'), // Handling null case
-                            SizedBox(height: 5.0),
-                            Text('Valid Title: ${consultant['valid_titl'] ?? ''}'), // Handling null case
-                            // Add more data fields here as needed
-                          ],
+                              SizedBox(height: 5.0),
+                              Text('MCA No: ${consultant['mcano'] ?? ''}'),
+                              SizedBox(height: 5.0),
+                              Text('Valid Title: ${consultant['valid_titl'] ?? ''}'),
+                            ],
+                          ),
                         ),
                       ),
                     );
@@ -268,11 +390,11 @@ class _MyNetworkState extends State<MyNetwork> {
                 ),
               ),
             ),
+
           ],
         ),
       ),
     );
   }
 }
-
 

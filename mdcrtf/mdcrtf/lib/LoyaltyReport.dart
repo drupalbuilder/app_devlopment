@@ -17,8 +17,6 @@ class LoyaltyReport extends StatefulWidget {
 }
 
 class _LoyaltyReportState extends State<LoyaltyReport> {
-  String _mcaNumber = '';
-  String _apiResponse = '';
   List<OrdinalSales> _chartData = [];
   int? _selectedBarIndex;
 
@@ -36,7 +34,6 @@ class _LoyaltyReportState extends State<LoyaltyReport> {
 
     if (mcaNumber.isEmpty) {
       setState(() {
-        _mcaNumber = 'No MCA Number stored';
       });
       return;
     }
@@ -63,22 +60,18 @@ class _LoyaltyReportState extends State<LoyaltyReport> {
       if (response.statusCode == 200) {
         // If the API call is successful, update the state with the API response and parse data for the chart
         setState(() {
-          _apiResponse = response.body;
-          _mcaNumber = mcaNumber;
           _chartData = _parseChartData(response.body);
         });
       } else {
         // Handle API error response
         print('Error response from API: ${response.statusCode} - ${response.body}');
         setState(() {
-          _apiResponse = 'Error response from API: ${response.statusCode}';
         });
       }
     } catch (e) {
       // Handle API call exception
       print('Error making API call: $e');
       setState(() {
-        _apiResponse = 'Error making API call: $e';
       });
     }
   }
