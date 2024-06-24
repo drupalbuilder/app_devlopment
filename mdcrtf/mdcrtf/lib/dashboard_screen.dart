@@ -11,7 +11,6 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-
 import 'listRstar.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -28,12 +27,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool isLoading = true;
   List<dynamic> dashboardData = [];
   int? selectedIndex; // Add a variable to store the selected index
+  List<dynamic> users = []; // Initialize users list
+
+
 
   @override
   void initState() {
     super.initState();
     _fetchDashboardData();
     _fetchMcaNumber();
+    fetchData();
   }
 
   Future<void> _fetchDashboardData() async {
@@ -165,6 +168,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ];
   }
 
+  Future<void> fetchData() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? mcaNumber = prefs.getString('mcaNumber');
+
+      // Construct URL with API endpoint and action
+      String apiUrl = 'https://mdcapp.gprlive.com/api.php?action=risingstars_list';
+
+      // Create headers with the cookie containing mcaNumber
+      Map<String, String> headers = {
+        'Content-Type': 'application/json',
+        'Cookie': 'mdc_mca=$mcaNumber', // Set the cookie with mcaNumber
+      };
+
+      // Make GET request to API
+      var response = await http.get(Uri.parse(apiUrl), headers: headers);
+
+      // Check response status
+      if (response.statusCode == 200) {
+        // Request successful, parse response data
+        setState(() {
+          users = json.decode(response.body);
+        });
+        print('Response Data: $users');
+      } else {
+        // Request failed, handle error
+        print('Request failed with status: ${response.statusCode}');
+        print('Response Body: ${response.body}');
+      }
+    } catch (e) {
+      print('Error fetching rising stars: $e');
+    }
+  }
+
   Future<void> _fetchMcaNumber() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -212,6 +249,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ],
                 ),
               ),
+
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Container(
@@ -532,42 +570,134 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
               ),
+
               SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: GestureDetector(
-                  onTap: () {
-                    // Navigate to TestScreen here
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => RisingStarsPage()),
-                    );
-                  },
-                  child: Row(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: const Color(0xff0099ff), // Blue background color
+              if (users.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      // Navigate to TestScreen here
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MyNetwork()),
+                      );
+                    },
+                    child: Row(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: const Color(0xff0099ff), // Blue background color
+                          ),
+                          padding: const EdgeInsets.all(4),
+                          child: Icon(
+                            Icons.add,
+                            color: Colors.white, // White icon color
+                            size: 20, // Adjust icon size as needed
+                          ),
                         ),
-                        padding: const EdgeInsets.all(4),
-                        child: Icon(
-                          Icons.add,
-                          color: Colors.white, // White icon color
-                          size: 20, // Adjust icon size as needed
+                        SizedBox(width: 8),
+                        Text(
+                          'add new',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: const Color(0xff0099ff),
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        'add new',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: const Color(0xff0099ff),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
+                ),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 0.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(20.0),
+                    bottomRight: Radius.circular(20.0),
+                  ),
+                  color: Color.fromARGB(255, 255, 255, 255),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.30),
+                      offset: Offset(0, 1.5),
+                      blurRadius: 0,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start, // Align children to the left
+                  children: [
+                    if (users.isNotEmpty) // Add this condition to render the SingleChildScrollView only when users are not empty
+                      Align(
+                        alignment: Alignment.topLeft, // Align content to the left
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              ...users.take(3).map((user) {
+                                String initials = '';
+                                List<String> nameParts = user['name'].toString().split(' ');
+                                for (String part in nameParts) {
+                                  initials += part[0];
+                                }
+                                return Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        width: 60,
+                                        height: 60,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.blue,
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            initials.toUpperCase(),
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: 5),
+                                      Text(
+                                        '${user['name'].toString().length > 5 ? user['name'].toString().substring(0, 5) + '...' : user['name']}',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                              SizedBox(width: 10), // Adjust spacing between data and "See All" link
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => RisingStarsPage()),
+                                  );
+                                },
+                                child: Text(
+                                  'See All',
+                                  style: TextStyle(
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
               SizedBox(height: 16),
