@@ -149,37 +149,41 @@ class _MyNetworkState extends State<MyNetwork> {
     }
   }
 
+  List<String> fetchedMcaNumbers = [];
+
   Future<void> fetchData() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? mcaNumber = prefs.getString('mcaNumber');
 
-      // Construct URL with API endpoint and action
       String apiUrl = 'https://mdcapp.gprlive.com/api.php?action=risingstars_list';
 
-      // Create headers with the cookie containing mcaNumber
       Map<String, String> headers = {
         'Content-Type': 'application/json',
-        'Cookie': 'mdc_mca=$mcaNumber', // Set the cookie with mcaNumber
+        'Cookie': 'mdc_mca=$mcaNumber',
       };
 
-      // Make GET request to API
       var response = await http.get(Uri.parse(apiUrl), headers: headers);
 
-      // Check response status
       if (response.statusCode == 200) {
-        // Request successful, parse response data
+        List<dynamic> responseData = json.decode(response.body);
+        List<String> mcaNumbers = responseData.map((user) => user['mca'].toString()).toList();
+
         setState(() {
-          users = json.decode(response.body);
+          users = responseData;
+          fetchedMcaNumbers = mcaNumbers;
         });
         print('Response Data: $users');
+        print('MCA Numbers: $mcaNumbers');
       } else {
-        // Request failed, handle error
+        print('Failed to fetch data');
       }
     } catch (e) {
-      // Handle exceptions
+      print('Error: $e');
     }
   }
+
+
 
   @override
   void dispose() {
@@ -327,69 +331,101 @@ class _MyNetworkState extends State<MyNetwork> {
               ),
             ),
             SizedBox(height: 10.0),
-            Expanded(
-              child: NotificationListener<ScrollNotification>(
-                onNotification: (ScrollNotification scrollInfo) {
-                  if (!isLoading && scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
-                    _fetchMoreData();
-                  }
-                  return true;
+      Expanded(
+        child: NotificationListener<ScrollNotification>(
+          onNotification: (ScrollNotification scrollInfo) {
+            if (!isLoading && scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+              _fetchMoreData();
+            }
+            return true;
+          },
+          child: ListView.builder(
+            controller: _scrollController,
+            itemCount: consultants.length + (isLoading || hasMore ? 1 : 0),
+            itemBuilder: (context, index) {
+              if (index == consultants.length) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+              final consultant = consultants[index];
+              bool isMarked = consultant['marked'] == true || fetchedMcaNumbers.contains(consultant['mcano'].toString());
+
+              return GestureDetector(
+                onTap: () async {
+                  await _markConsultant(consultant);
                 },
-                child: ListView.builder(
-                  controller: _scrollController,
-                  itemCount: consultants.length + (isLoading || hasMore ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (index == consultants.length) {
-                      return Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                    final consultant = consultants[index];
-                    return GestureDetector(
-                      onTap: () async {
-                        await _markConsultant(consultant);
-                      },
-                      child: Card(
-                        margin: EdgeInsets.all(10.0),
-                        child: Padding(
-                          padding: EdgeInsets.all(10.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Flexible(
-                                    child: Text(
-                                      consultant['name'] ?? '',
-                                      style: TextStyle(
-                                        fontSize: 18.0,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 2,
-                                    ),
-                                  ),
-                                  if (consultant['marked'] == true)
-                                    Icon(
-                                      Icons.star,
-                                      color: Colors.lightBlueAccent,
-                                    ),
-                                ],
-                              ),
-                              SizedBox(height: 5.0),
-                              Text('MCA No: ${consultant['mcano'] ?? ''}'),
-                              SizedBox(height: 5.0),
-                              Text('Valid Title: ${consultant['valid_titl'] ?? ''}'),
-                            ],
-                          ),
-                        ),
+                child: Container(
+                  margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 1,
+                        blurRadius: 2,
+                        offset: Offset(0, 1), // changes position of shadow
                       ),
-                    );
-                  },
+                    ],
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(10.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          consultant['name'] ?? '',
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                        ),
+                        SizedBox(height: 5.0),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('MCA No: ${consultant['mcano'] ?? ''}'),
+                            GestureDetector(
+                              onTap: () async {
+                                await _markConsultant(consultant);
+                              },
+                              child: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: isMarked ? Color(0xFFFFA500) : Colors.transparent,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Color(0xFFFFA500),
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Icon(
+                                    Icons.star,
+                                    color: isMarked ? Colors.white : Color(0xFFFFfff),
+                                    size: 28,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 5.0),
+                        Text('Valid Title: ${consultant['valid_titl'] ?? ''}'),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
+          ),
+        ),
+      ),
+
 
           ],
         ),
