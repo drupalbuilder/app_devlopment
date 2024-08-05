@@ -10,7 +10,7 @@ class ToggleButton extends StatelessWidget {
   const ToggleButton({
     Key? key,
     required this.value,
-    required this.onChanged,
+    this.onChanged,
     required this.activeColor,
     required this.inactiveColor,
   }) : super(key: key);
@@ -95,7 +95,7 @@ class _SettingPageState extends State<SettingPage> {
                     ),
                     SizedBox(height: 10.0), // Add space here
                     Padding(
-                      padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),// Padding top and bottom
+                      padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0), // Padding top and bottom
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
@@ -103,8 +103,7 @@ class _SettingPageState extends State<SettingPage> {
                             'App Setting',
                             style: TextStyle(
                               fontSize: 20,
-                              fontWeight: FontWeight
-                                  .w900,
+                              fontWeight: FontWeight.w900,
                             ),
                           ),
                         ],
@@ -185,3 +184,5 @@ void main() {
     home: SettingPage(),
   ));
 }
+
+

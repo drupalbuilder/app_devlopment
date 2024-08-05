@@ -536,7 +536,7 @@ class _MyProspectState extends State<MyProspect> {
                                 SizedBox(width: 32.0), // Add padding from the left
                                 IconButton(
                                   icon: Icon(Icons.call),
-                                  color: Colors.green,
+                                  color: Colors.lightBlue,
                                   onPressed: () {
                                     _callContact(prospect['contact']);
                                   },
@@ -550,7 +550,7 @@ class _MyProspectState extends State<MyProspect> {
                                 ),
                                 IconButton(
                                   icon: Icon(Icons.messenger_outline),
-                                  color: Colors.green,
+                                  color: Colors.lightBlue,
                                   onPressed: () {
                                     _sendWhatsAppMessage(prospect['contact']);
                                   },

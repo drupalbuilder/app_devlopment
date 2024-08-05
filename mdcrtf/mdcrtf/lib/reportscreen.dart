@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vibration/vibration.dart'; // Import the vibration package
 
 class ReportScreen extends StatelessWidget {
   @override
@@ -42,7 +43,7 @@ class ReportScreen extends StatelessWidget {
                                 size: 20.0,
                               ), // Adjust the spacing between the icon and text
                               Text(
-                                'Back', // Removed the '<'
+                                'Back',
                                 style: TextStyle(
                                   color: Color(0xFF0396FE),
                                   fontSize: 20.0,
@@ -57,7 +58,7 @@ class ReportScreen extends StatelessWidget {
 
                     SizedBox(height: 10.0), // Add space here
                     Padding(
-                      padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),// Padding top and bottom
+                      padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0), // Padding top and bottom
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
@@ -65,8 +66,7 @@ class ReportScreen extends StatelessWidget {
                             'Report an Issue / Feedback',
                             style: TextStyle(
                               fontSize: 20,
-                              fontWeight: FontWeight
-                                  .w900,
+                              fontWeight: FontWeight.w900,
                             ),
                           ),
                         ],
@@ -105,7 +105,11 @@ class ReportScreen extends StatelessWidget {
                     SizedBox(height: 20.0),
                     GestureDetector(
                       onTap: () {
-                        // Add functionality for the Continue button here
+                        // Add vibration effect on button press
+                        if (Vibration.hasVibrator() != null) {
+                          Vibration.vibrate(duration: 100); // Vibrate for 100 milliseconds
+                        }
+                        // Add functionality for the Send button here
                       },
                       child: Container(
                         width: double.infinity,

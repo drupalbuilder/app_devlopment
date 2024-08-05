@@ -636,11 +636,14 @@ class _BusinessReportState extends State<BusinessReport> {
     String? mcaNumber = prefs.getString('mcaNumber');
 
     if (mcaNumber != null) {
-      String url = 'https://report.modicare.com/api/report/np/business/web';
-      Map<String, String> headers = {"Content-Type": "application/json"};
+      String url = 'https://report.modicare.com/api/report/np/business/web/six';
+      Map<String, String> headers = {
+        "Content-Type": "application/json",
+        "x-api-key": "Y9S3TA-8R3NGQ-TPJ9T7-808631"
+      };
       String body = jsonEncode({
         "mcano": mcaNumber,
-        "dated": "${DateTime.now().year}-${DateTime.now().month}-01"
+        "dated": "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-01"
       });
 
       try {

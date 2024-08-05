@@ -44,11 +44,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     String? mcaNumber = prefs.getString('mcaNumber');
 
     if (mcaNumber != null) {
-      String url = 'https://report.modicare.com/api/report/np/business/web';
-      Map<String, String> headers = {"Content-Type": "application/json"};
+      String url = 'https://report.modicare.com/api/report/np/business/web/six';
+      Map<String, String> headers = {
+        "Content-Type": "application/json",
+        "x-api-key": "Y9S3TA-8R3NGQ-TPJ9T7-808631"
+      };
       String body = jsonEncode({
         "mcano": mcaNumber,
-        "dated": "${DateTime.now().year}-${DateTime.now().month}-01"
+        "dated": "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-01"
       });
 
       try {
@@ -220,14 +223,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       'Dashboard',
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -252,59 +255,66 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Container(
-                  height: 320,
-                  padding: EdgeInsets.all(0.0),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey, width: 1.0),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: FutureBuilder<List<charts.Series<dynamic, String>>>(
-                    future: _createChartData(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return charts.BarChart(
-                          snapshot.data!,
-                          animate: true,
-                          primaryMeasureAxis: const charts.NumericAxisSpec(
-                            renderSpec: charts.NoneRenderSpec(),
+                child: FutureBuilder<List<charts.Series<dynamic, String>>>(
+                  future: _createChartData(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      // Calculate the total width based on the number of data points and a fixed width per bar
+                      double chartWidth = snapshot.data!.first.data.length * 80.0; // Adjust the width per bar as needed
+
+                      return SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Container(
+                          width: chartWidth,
+                          height: 320,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey, width: 1.0),
+                            borderRadius: BorderRadius.circular(8.0),
                           ),
-                          behaviors: [
-                            charts.SelectNearest(
-                              eventTrigger: charts.SelectionTrigger.tapAndDrag,
+                          child: charts.BarChart(
+                            snapshot.data!,
+                            animate: true,
+                            primaryMeasureAxis: const charts.NumericAxisSpec(
+                              renderSpec: charts.NoneRenderSpec(),
                             ),
-                          ],
-                          selectionModels: [
-                            charts.SelectionModelConfig(
-                              type: charts.SelectionModelType.info,
-                              changedListener: (charts.SelectionModel<String> model) {
-                                if (model.hasDatumSelection) {
-                                  final selectedDatum = model.selectedDatum.first;
-                                  final selectedValue = selectedDatum.datum.sales.toString();
-                                  final selectedMonth = selectedDatum.datum.month;
-                                  if (selectedMonth != 'Target') {
-                                    setState(() {
-                                      selectedValueText = selectedValue;
-                                      selectedIndex = selectedDatum.index; // Update selected index
-                                    });
+                            behaviors: [
+                              charts.SelectNearest(
+                                eventTrigger: charts.SelectionTrigger.tapAndDrag,
+                              ),
+                            ],
+                            selectionModels: [
+                              charts.SelectionModelConfig(
+                                type: charts.SelectionModelType.info,
+                                changedListener: (charts.SelectionModel<String> model) {
+                                  if (model.hasDatumSelection) {
+                                    final selectedDatum = model.selectedDatum.first;
+                                    final selectedValue = selectedDatum.datum.sales.toString();
+                                    final selectedMonth = selectedDatum.datum.month;
+                                    if (selectedMonth != 'Target') {
+                                      setState(() {
+                                        selectedValueText = selectedValue;
+                                        selectedIndex = selectedDatum.index; // Update selected index
+                                      });
+                                    }
                                   }
-                                }
-                              },
-                            ),
-                          ],
-                        );
-                      } else if (snapshot.hasError) {
-                        return Center(
-                          child: Text('Error: ${snapshot.error}'),
-                        );
-                      }
-                      return Center(
-                        child: CircularProgressIndicator(),
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
                       );
-                    },
-                  ),
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Text('Error: ${snapshot.error}'),
+                      );
+                    }
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  },
                 ),
               ),
+
               SizedBox(height: 24),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),

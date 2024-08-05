@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'listRstar.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 
 void main() {
@@ -37,6 +38,38 @@ class _MyNetworkState extends State<MyNetwork> {
         _fetchMoreData();
       }
     });
+  }
+  // Method to call a contact
+  void _callContact(String phoneNumber) async {
+    final Uri callUri = Uri(scheme: 'tel', path: phoneNumber);
+    if (await canLaunch(callUri.toString())) {
+      await launch(callUri.toString());
+    } else {
+      // Handle error, for example by showing a snackbar or alert dialog
+      print("Could not launch phone call");
+    }
+  }
+
+  // Method to send an SMS
+  void _sendSms(String phoneNumber) async {
+    final Uri smsUri = Uri(scheme: 'sms', path: phoneNumber);
+    if (await canLaunch(smsUri.toString())) {
+      await launch(smsUri.toString());
+    } else {
+      // Handle error
+      print("Could not send SMS");
+    }
+  }
+
+  // Method to send a WhatsApp message
+  void _sendWhatsAppMessage(String phoneNumber) async {
+    final Uri whatsappUri = Uri.parse("whatsapp://send?phone=$phoneNumber");
+    if (await canLaunch(whatsappUri.toString())) {
+      await (whatsappUri.toString());
+    } else {
+      // Handle error
+      print("Could not send WhatsApp message");
+    }
   }
 
   Future<void> _getTokenAndFetchData() async {
@@ -330,7 +363,7 @@ class _MyNetworkState extends State<MyNetwork> {
                 ],
               ),
             ),
-            SizedBox(height: 10.0),
+            SizedBox(height: 1.0),
       Expanded(
         child: NotificationListener<ScrollNotification>(
           onNotification: (ScrollNotification scrollInfo) {
@@ -351,72 +384,190 @@ class _MyNetworkState extends State<MyNetwork> {
               final consultant = consultants[index];
               bool isMarked = consultant['marked'] == true || fetchedMcaNumbers.contains(consultant['mcano'].toString());
 
-              return GestureDetector(
-                onTap: () async {
-                  await _markConsultant(consultant);
-                },
-                child: Container(
-                  margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
+              String name = consultant['name'] ?? '';
+              String initials = name.isNotEmpty ? name[0].toUpperCase() : '';
+
+              return Container(
+                margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
+                child: Material(
+                  elevation: 4.0,
+                  borderRadius: BorderRadius.circular(10.0),
+                  shadowColor: Colors.grey.withOpacity(0.5),
+                  child: ClipRRect(
                     borderRadius: BorderRadius.circular(10.0),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.5),
-                        spreadRadius: 1,
-                        blurRadius: 2,
-                        offset: Offset(0, 1), // changes position of shadow
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.all(10.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          consultant['name'] ?? '',
-                          style: TextStyle(
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
-                        ),
-                        SizedBox(height: 5.0),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('MCA No: ${consultant['mcano'] ?? ''}'),
-                            GestureDetector(
-                              onTap: () async {
-                                await _markConsultant(consultant);
-                              },
-                              child: Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: isMarked ? Color(0xFFFFA500) : Colors.transparent,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Color(0xFFFFA500),
-                                    width: 1.5,
+                    child: Container(
+                      color: Colors.white,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            // Row for Circular Avatar and Consultant Info
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                // Circular Avatar
+                                Container(
+                                  width: 80,
+                                  height: 80,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.blue,
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      initials,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ),
                                 ),
-                                child: Center(
-                                  child: Icon(
-                                    Icons.star,
-                                    color: isMarked ? Colors.white : Color(0xFFFFfff),
-                                    size: 28,
+                                SizedBox(width: 16.0), // Space between avatar and text
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 14.0), // Padding between text and avatar
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          '${consultant['name'] ?? ''}',
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black, // Use blue color
+                                          ),
+                                        ),
+                                        SizedBox(height: 5),
+                                        Text(
+                                          '${consultant['paid_title'] ?? ''}',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w500, // You can choose a number between 100 and 900
+                                            color: Colors.grey, // Use blue color
+                                          ),
+                                        ),
+                                        Text(
+                                          '${consultant['valid_titl'] ?? ''}',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w500, // You can choose a number between 100 and 900
+                                            color: Colors.grey, // Use blue color
+                                          ),
+                                        ),
+                                        Text(
+                                          'MCA: ${consultant['mcano'] ?? ''}',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w500, // You can choose a number between 100 and 900
+                                            color: Colors.grey, // Use blue color
+                                          ),
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
+                              ],
                             ),
+
+                            SizedBox(height: 2.0), // Space between info and icons
+
+                            // Icon Buttons Row
+                            Row(
+                              children: [
+                                // Loyalty Months Column
+                                Expanded(
+                                  flex: 2, // Adjust the flex value to control the space allocation
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(right: 16.0), // Add padding to the right
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.center, // Center horizontally in column
+                                      children: [
+                                        Text(
+                                          'Loyalty Months',
+                                          style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold),
+                                        ),
+                                        SizedBox(height: 2), // Optional: space between title and value
+                                        Text(
+                                          '${consultant['loyalty_month'] ?? 0}', // Display 0 if the value is null
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.blue, // Blue color for the value
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+
+                                // Icon Buttons with padding
+                                Expanded(
+                                  flex: 5, // Adjust the flex value to control the space allocation
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween, // Distribute space evenly
+                                    children: [
+                                      IconButton(
+                                        icon: Icon(Icons.call),
+                                        color: Colors.lightBlue,
+                                        onPressed: () {
+                                          if (consultant['mobileno'] != null) {
+                                            _callContact(consultant['mobileno']);
+                                          }
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: Icon(Icons.message),
+                                        color: Colors.lightBlue,
+                                        onPressed: () {
+                                          if (consultant['mobileno'] != null) {
+                                            _sendSms(consultant['mobileno']);
+                                          }
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: Icon(Icons.messenger_outline),
+                                        color: Colors.lightBlue,
+                                        onPressed: () {
+                                          if (consultant['mobileno'] != null) {
+                                            _sendWhatsAppMessage(consultant['mobileno']);
+                                          }
+                                        },
+                                      ),
+                                      Spacer(), // Spacer pushes the star icon to the far right
+                                      Spacer(), // Spacer pushes the star icon to the far right
+                                      // Star Button for Marking
+                                      GestureDetector(
+                                        onTap: () async {
+                                          await _markConsultant(consultant);
+                                        },
+                                        child: Container(
+                                          width: 40,
+                                          height: 40,
+                                          decoration: BoxDecoration(
+                                            color: isMarked ? Color(0xFFFFA500) : Colors.grey,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Center(
+                                            child: Icon(
+                                              Icons.star,
+                                              color: isMarked ? Colors.white : Colors.white,
+                                              size: 28,
+                                            ),
+                                          ),
+                                        ),
+
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            )
                           ],
                         ),
-                        SizedBox(height: 5.0),
-                        Text('Valid Title: ${consultant['valid_titl'] ?? ''}'),
-                      ],
+                      ),
                     ),
                   ),
                 ),
@@ -425,7 +576,6 @@ class _MyNetworkState extends State<MyNetwork> {
           ),
         ),
       ),
-
 
           ],
         ),

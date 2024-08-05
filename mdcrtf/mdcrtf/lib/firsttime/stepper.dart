@@ -27,6 +27,7 @@ class CustomStepperPage extends StatefulWidget {
 }
 
 class _CustomStepperPageState extends State<CustomStepperPage> {
+
   int _currentStep = 1;
   int _completedSteps = 0;
 

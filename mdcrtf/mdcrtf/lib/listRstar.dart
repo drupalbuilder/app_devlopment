@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:url_launcher/url_launcher.dart';
 
 class RisingStarsPage extends StatefulWidget {
   @override
@@ -42,7 +43,6 @@ class _RisingStarsPageState extends State<RisingStarsPage> {
         setState(() {
           users = json.decode(response.body);
         });
-        // print('Response Data: $users'); // Logging removed
       } else {
         // Request failed, handle error
         print('Request failed with status: ${response.statusCode}');
@@ -81,7 +81,6 @@ class _RisingStarsPageState extends State<RisingStarsPage> {
             setState(() {
               users.removeWhere((user) => user['mca'].toString() == mca);
             });
-            // print('User deleted successfully'); // Logging removed
           } else {
             print('Delete failed: ${result['message']}');
           }
@@ -98,6 +97,38 @@ class _RisingStarsPageState extends State<RisingStarsPage> {
     }
   }
 
+  // Method to call a contact
+  void _callContact(String phoneNumber) async {
+    final Uri callUri = Uri(scheme: 'tel', path: phoneNumber);
+    if (await canLaunch(callUri.toString())) {
+      await launch(callUri.toString());
+    } else {
+      // Handle error, for example by showing a snackbar or alert dialog
+      print("Could not launch phone call");
+    }
+  }
+
+  // Method to send an SMS
+  void _sendSms(String phoneNumber) async {
+    final Uri smsUri = Uri(scheme: 'sms', path: phoneNumber);
+    if (await canLaunch(smsUri.toString())) {
+      await launch(smsUri.toString());
+    } else {
+      // Handle error
+      print("Could not send SMS");
+    }
+  }
+
+  // Method to send a WhatsApp message
+  void _sendWhatsAppMessage(String phoneNumber) async {
+    final Uri whatsappUri = Uri.parse("whatsapp://send?phone=$phoneNumber");
+    if (await canLaunch(whatsappUri.toString())) {
+      await launch(whatsappUri.toString());
+    } else {
+      // Handle error
+      print("Could not send WhatsApp message");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -142,7 +173,6 @@ class _RisingStarsPageState extends State<RisingStarsPage> {
                                   color: Color(0xFF0396FE),
                                   size: 20.0,
                                 ),
-                                // Adjust the spacing between the icon and text
                                 Text(
                                   'Back', // Removed the '<'
                                   style: TextStyle(
@@ -164,7 +194,7 @@ class _RisingStarsPageState extends State<RisingStarsPage> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Text(
-                              'Rising star list',
+                              'Your rising stars',
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w900,
@@ -176,116 +206,207 @@ class _RisingStarsPageState extends State<RisingStarsPage> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 20.0),
-                users.isEmpty
-                    ? Container() // Show an empty container when users list is empty
-                    : ListView.builder(
+                ListView.builder(
                   shrinkWrap: true,
                   physics: NeverScrollableScrollPhysics(),
                   itemCount: users.length,
                   itemBuilder: (context, index) {
                     var user = users[index];
+
+                    // Extract initials from user's name
+                    String name = user['name'] ?? '';
+                    String initials = name.isNotEmpty ? name[0].toUpperCase() : '';
+
                     return Container(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                      margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0), // Added horizontal padding
-                      decoration: BoxDecoration(
-                        color: Colors.white, // Set background color to white
+                      margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
+                      child: Material(
+                        elevation: 4.0,
                         borderRadius: BorderRadius.circular(10.0),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 1,
-                            blurRadius: 2,
-                            offset: Offset(0, 1), // changes position of shadow
-                          ),
-                        ],
-                      ),
-                      child: Card(
-                        elevation: 0, // Remove Card elevation since we're using a container with shadow
-                        shape: RoundedRectangleBorder(
+                        shadowColor: Colors.grey.withOpacity(0.5),
+                        child: ClipRRect(
                           borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Flexible(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Name: ${user['name'] ?? ''}',
-                                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 2,
+                          child: Container(
+                            color: Colors.white,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  // Row for Circular Avatar and User Info
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      // Circular Avatar
+                                      Container(
+                                        width: 80,
+                                        height: 80,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.blue,
                                         ),
-                                        SizedBox(height: 5),
-                                        Text(
-                                          'MCA: ${user['mca'] ?? ''}',
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 2,
-                                        ),
-                                        Text(
-                                          'Status: ${user['status'] ?? ''}',
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 2,
-                                        ),
-                                        Text(
-                                          'Mobile No: ${user['mobileno'] ?? ''}',
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 2,
-                                        ),
-                                        Text(
-                                          'Email: ${user['email'] ?? ''}',
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 2,
-                                        ),
-                                        Text(
-                                          'DOB: ${user['dob'] ?? ''}',
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 2,
-                                        ),
-                                        Text(
-                                          'Joining Date: ${user['joiningDate'] ?? ''}',
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 2,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () async {
-                                      await deleteUser(user['mca'].toString());
-                                    },
-                                    child: Container(
-                                      width: 40,
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                        color: Color(0xFFFFA500),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Center(
-                                        child: Icon(
-                                          Icons.star,
-                                          color: Colors.white,
-                                          size: 28,
+                                        child: Center(
+                                          child: Text(
+                                            initials,
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                    ),
+                                      SizedBox(width: 16.0), // Space between avatar and text
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(left: 14.0), // Padding between text and avatar
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                '${user['name'] ?? ''}',
+                                                style: TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.black, // Use blue color
+                                                ),
+                                              ),
+
+                                              SizedBox(height: 5),
+                                              Text(
+                                                '${user['paidas'] ?? ''}',
+                                                style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w500, // You can choose a number between 100 and 900
+                                                  color: Colors.grey, // Use blue color
+                                                ),
+                                              ),
+                                              Text(
+                                                '${user['valid_title'] ?? ''}',
+                                                style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w500, // You can choose a number between 100 and 900
+                                                  color: Colors.grey, // Use blue color
+                                                ),
+                                              ),
+                                              Text(
+                                                'MCA: ${user['mca'] ?? ''}',
+                                                style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w500, // You can choose a number between 100 and 900
+                                                  color: Colors.grey, // Use blue color
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
+
+
+                                  SizedBox(height: 16.0), // Space between info and icons
+
+                                  // Icon Buttons Row
+                                  Row(
+                                    children: [
+                                      // Loyalty Months Column
+                                      Expanded(
+                                        flex: 2, // Adjust the flex value to control the space allocation
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(right: 16.0), // Add padding to the right
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.center, // Center horizontally in column
+                                            children: [
+                                              Text(
+                                                'Loyalty Months',
+                                                style: TextStyle(fontSize: 09, fontWeight: FontWeight.bold),
+                                              ),
+                                              SizedBox(height: 2), // Optional: space between title and value
+                                              Text(
+                                                '${user['loyalty_month'] ?? 0}', // Display 0 if the value is null
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.blue, // Blue color for the value
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+
+                                      // Icon Buttons with padding
+                                      Expanded(
+                                        flex: 5, // Adjust the flex value to control the space allocation
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween, // Distribute space evenly
+                                          children: [
+                                            IconButton(
+                                              icon: Icon(Icons.call),
+                                              color: Colors.lightBlue,
+                                              onPressed: () {
+                                                if (user['mobileno'] != null) {
+                                                  _callContact(user['mobileno']);
+                                                }
+                                              },
+                                            ),
+                                            IconButton(
+                                              icon: Icon(Icons.message),
+                                              color: Colors.lightBlue,
+                                              onPressed: () {
+                                                if (user['mobileno'] != null) {
+                                                  _sendSms(user['mobileno']);
+                                                }
+                                              },
+                                            ),
+                                            IconButton(
+                                              icon: Icon(Icons.messenger_outline),
+                                              color: Colors.lightBlue,
+                                              onPressed: () {
+                                                if (user['mobileno'] != null) {
+                                                  _sendWhatsAppMessage(user['mobileno']);
+                                                }
+                                              },
+                                            ),
+                                            Spacer(), // Spacer pushes the star icon to the far right
+                                            GestureDetector(
+                                              onTap: () async {
+                                                if (user['mca'] != null) {
+                                                  await deleteUser(user['mca'].toString());
+                                                }
+                                              },
+                                              child: Container(
+                                                width: 40,
+                                                height: 40,
+                                                decoration: BoxDecoration(
+                                                  color: Color(0xFFFFA500),
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: Center(
+                                                  child: Icon(
+                                                    Icons.star,
+                                                    color: Colors.white,
+                                                    size: 28,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  )
+
                                 ],
                               ),
-                            ],
+                            ),
                           ),
                         ),
                       ),
                     );
                   },
                 ),
+
                 const SizedBox(height: 20.0),
               ],
             ),
